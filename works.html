@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects | 박영희 Design Portfolio</title>
+  <meta name="description" content="디자이너 박영희의 작업물 모음" />
+
+  <meta property="og:title" content="Projects | 박영희 Design Portfolio" />
+  <meta property="og:description" content="디자이너 박영희의 작업물 모음" />
+  <meta property="og:image" content="img/og-image.svg" />
+
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+
+  <!-- 폰트 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <!-- 스타일 -->
+  <link rel="stylesheet" href="css/reset.css?v=20261001e" />
+  <link rel="stylesheet" href="css/style.css?v=20261001e" />
+  <link rel="stylesheet" href="css/responsive.css?v=20261001e" />
+
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="index.html" class="logo" data-keep="index.html">PARK<span>.</span></a>
+
+      <nav class="nav" id="nav">
+        <a href="index.html#profile" class="nav__link" data-keep="index.html#profile">About</a>
+        <a href="works.html" class="nav__link is-current" aria-current="page">Projects</a>
+      </nav>
+
+      <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ===== Projects (Archive) : 연도 → 월별 보기 ===== -->
+    <section class="section archive archive--page" id="archive">
+      <div class="container">
+        <div class="section__head reveal">
+          <div>
+            <h1 class="page-title">Projects</h1>
+            <p class="archive__lead">연도와 월을 골라 작업을 살펴보세요. 항목을 누르면 자세한 내용이 열려요.</p>
+          </div>
+          <!-- 연도 버튼: projects.js의 date 값으로 자동 생성 -->
+          <div class="archive__years" id="archiveYears" role="tablist" aria-label="연도 선택"></div>
+        </div>
+
+        <div class="archive__months reveal" id="archiveMonths" aria-label="월 선택"></div>
+
+        <div class="archive__summary">
+          <p id="archiveSummary" aria-live="polite"></p>
+          <button type="button" class="archive__reset" id="archiveReset" hidden>전체 월 보기 ↺</button>
+        </div>
+
+        <div class="archive__list" id="archiveList"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer footer--light">
+    <div class="container footer__inner">
+      <p>© <span id="year"></span> PARK Younghee. All rights reserved.</p>
+      <a href="#top" class="footer__top">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <!-- ===== Project Modal ===== -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__backdrop" data-close></div>
+    <article class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal__close" data-close aria-label="닫기">✕</button>
+      <img class="modal__img" id="modalImg" src="" alt="" />
+      <div class="modal__body">
+        <p class="modal__meta" id="modalMeta"></p>
+        <h3 class="modal__title" id="modalTitle"></h3>
+        <p class="modal__desc" id="modalDesc"></p>
+        <ul class="modal__tags" id="modalTags"></ul>
+        <a class="btn btn--primary modal__link" id="modalLink" href="#" target="_blank" rel="noopener">자세히 보기 ↗</a>
+      </div>
+    </article>
+  </div>
+
+  <!-- 스크립트 (순서 중요: 데이터 → 작업물 페이지 → 공통) -->
+  <script src="js/roles.js?v=1"></script>
+  <script src="js/projects.js?v=20261001f"></script>
+  <script src="js/works.js?v=20261001f"></script>
+  <script src="js/main.js?v=20261001f"></script>
+</body>
+</html>

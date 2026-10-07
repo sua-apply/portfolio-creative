@@ -2,43 +2,75 @@
 
 박영희(PARK Younghee)의 CREATIVE 포트폴리오입니다. Design · Marketing · PR
 
-- `index.html`: 소개 (INFO · SKILL · CAREER)
-- `projects.html`: 프로젝트 (Selected Work)
-
 ## 직무별로 따로 보이기
 
 이 사이트는 한 번에 한 직무만 보여줍니다 (design, marketing, pr).
 주소 뒤의 `?v=코드`로 어떤 직무를 보여줄지 정하고, 방문자 화면에는 직무를 바꾸는 버튼이 없습니다.
-코드는 `assets/js/data.js`의 `roles`에 있는 `code` 값입니다.
+
+- 직무별 표지 문장, 소개, 흘러가는 띠, Skills & Tools → `js/roles.js`
+- 프로젝트 → `js/projects.js` (각 프로젝트의 `roles`에 적힌 직무에서만 보여요)
+- 학력·경력·교육·수상·자격증 → `js/resume.js` (모든 직무에서 똑같이 보여요)
 
 직무별 링크 복사와 관리자 모드는 따로 연결되지 않은 관리 페이지에서 비밀번호를 넣고 사용합니다.
 
-## 내용 고치기
-
-모든 내용은 `assets/js/data.js` 한 파일에 있습니다. `[ ]`로 표시된 곳을 채우면 됩니다.
-
-- `profile`: 이름, 연락처, 학력, 링크, 프로필 사진 경로
-- `skills`: 직무별 할 수 있는 일과 툴
-- `career`: 경력, 학력, 자격증 · 수상
-- `projects`: 프로젝트와 직무별 상세 내용. `roles`에 적힌 직무에서만 보입니다.
-
-이미지는 `assets/img/` 폴더를 만들어 넣고 경로를 적으면 됩니다.
-
-## 구조
+## 📁 폴더 구조
 
 ```
-index.html
-projects.html
-assets/css/style.css
-assets/js/data.js      ← 내용
-assets/js/common.js    ← 직무 전환, 공통 효과
-assets/js/home.js      ← 소개 페이지
-assets/js/projects.js  ← 프로젝트 페이지
-assets/js/admin-bar.js, manage.js ← 관리자 기능
+portfolio/
+├── index.html          # 메인: 표지 → Profile → Credentials → Skills → 작업물 보러가기 → 연락처
+├── works.html          # 작업물 페이지: 연도 → 월별 Archive
+├── manage.html         # 관리 페이지 (비밀번호, 링크 어디에도 없음)
+├── projects.html       # 예전 주소 → works.html 로 이동
+├── css/
+│   ├── reset.css       # 브라우저 기본 스타일 초기화
+│   ├── style.css       # 메인 스타일 (맨 위 :root 에서 색상/폰트 변경)
+│   └── responsive.css  # 태블릿·모바일 대응
+├── js/
+│   ├── roles.js        # ⭐ 직무별 문구·스킬, 비밀 코드, 관리자 막대
+│   ├── projects.js     # ⭐ 프로젝트 데이터 (roles로 직무 지정)
+│   ├── resume.js       # ⭐ 이력 데이터: 학력·경력·교육·수상·자격증
+│   ├── works.js        # 작업물 페이지 전용: Archive, 상세 모달
+│   └── main.js         # 공통: 메뉴, 스크롤 효과, 메인 미리보기
+├── img/
+│   ├── favicon.svg     # 브라우저 탭 아이콘
+│   ├── og-image.svg    # 링크 공유 미리보기 이미지
+│   ├── profile.svg     # 프로필 사진
+│   ├── icons/          # Skills 아이콘 (같은 파일명으로 교체 가능)
+│   └── projects/       # 작업물 이미지
+├── files/
+│   └── resume.pdf      # 이력서
+└── .nojekyll           # GitHub Pages 설정용 (지우지 마세요)
 ```
 
-빌드 과정 없이 HTML, CSS, JavaScript만으로 동작합니다.
+## ✏️ 내 정보로 바꾸기
 
-## 배포 (GitHub Pages)
+1. **학력·경력·교육·수상·자격증** → `js/resume.js`에 한 줄씩 추가
+   - 순서 상관없이 **최신순 자동 정렬**, 자격증은 **연도별 자동 묶음**, 개수도 자동
+   - 경력·교육 4개, 자격증 3개 연도를 넘으면 자동으로 **더보기**로 접힘 (`js/main.js` 맨 위 `LIMITS`에서 변경)
+   - 재직 중·수강 중이면 `end: ""`
+1. **올린 뒤 화면이 안 바뀌면** → HTML의 `?v=20261001e` 숫자를 바꿔서 다시 업로드
+1. **이름·소개·이메일** → `index.html`에서 `홍길동`, `HONG`, `hello@example.com` 검색해서 수정
+2. **작업물** → `img/projects/`에 이미지 넣고, `js/projects.js`에서 제목·설명·이미지 경로 수정
+   - 프로젝트를 늘리거나 줄이려면 `{ ... },` 블록을 복사/삭제
+   - `date: "2025-08"` → Archive 섹션의 **연도 → 월별** 보기가 이 값으로 자동 생성됩니다
+   - `featured: true` → 메인 '작업물 보러가기' 배너 썸네일에 사용 (최신 3개)
+3. **프로필 사진** → `img/profile.jpg`로 넣고 `index.html`의 `img/profile.svg`를 `img/profile.jpg`로 변경
+4. **이력서** → `files/resume.pdf`를 내 파일로 교체
+5. **색상** → `css/style.css` 맨 위 `--accent` 값 변경
 
-Settings → Pages → Build and deployment에서 Source를 **Deploy from a branch**, Branch를 **main / (root)**로 저장합니다.
+> 💡 이미지는 가로 1200px 정도, 장당 500KB 이하로 줄여서 올리면 사이트가 빨리 열립니다.
+
+## 🚀 GitHub Pages로 배포하기
+
+1. GitHub에서 **New repository** 생성
+   - 이름을 `내아이디.github.io` 로 하면 → `https://내아이디.github.io` 주소가 됩니다
+   - 다른 이름(예: `portfolio`)이면 → `https://내아이디.github.io/portfolio`
+2. **Add file → Upload files** 에서 이 폴더 **안의 내용 전부**를 끌어다 놓고 Commit
+   - `index.html`이 저장소 맨 바깥(루트)에 있어야 합니다
+3. **Settings → Pages** → Source: `Deploy from a branch`, Branch: `main` / `/ (root)` → Save
+4. 1~2분 뒤 상단에 표시되는 주소로 접속하면 완성 🎉
+
+## ⚠️ 주의
+
+- 파일·폴더 이름은 **영문 소문자**로 (GitHub Pages는 대소문자를 구분합니다. `Profile.JPG` ≠ `profile.jpg`)
+- 링크 미리보기(카카오톡 등)를 확실히 띄우려면 `og-image`를 **JPG/PNG**로 바꾸고, `index.html`의 `og:image` 값을 전체 주소(`https://내아이디.github.io/img/og-image.jpg`)로 적어주세요.

@@ -1,36 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex, nofollow">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
   <title>관리</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <style>
-    :root { --bg: #fffdf8; --tile: #ffffff; --line: #ebe5d9; --text: #1d1b18; --muted: #6e685c; --accent: #ff5b2e; }
+    :root { --bg: #f4f1ea; --card: #fff; --line: #d6d0c3; --ink: #161513; --soft: #5c5850; --accent: #ff4f1f; }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font: 15px/1.6 system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif; display: grid; place-items: center; padding: 24px; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--bg); color: var(--ink); font: 15px/1.6 "Pretendard", system-ui, sans-serif; }
     [hidden] { display: none !important; }
     main { width: min(820px, 100%); }
-    h1 { font-size: 22px; margin: 0 0 6px; }
-    p { margin: 0; color: var(--muted); }
-    form, .panel { background: var(--tile); border: 1px solid var(--line); border-radius: 18px; padding: 28px; }
+    h1 { margin: 0 0 4px; font-size: 22px; }
+    p { margin: 0; color: var(--soft); }
+    form, .panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 28px; }
     form { max-width: 380px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
-    label { font-size: 13px; color: var(--muted); }
-    input { min-height: 46px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: #fffdf8; color: var(--text); font: inherit; }
-    input:focus, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    button, .row a { min-height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
-    button:hover, .row a:hover { border-color: var(--accent); }
-    .primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; justify-content: center; }
+    label { font-size: 13px; color: var(--soft); }
+    input { min-height: 46px; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; font: inherit; background: var(--bg); }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    button, .row a { min-height: 40px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+    button:hover, .row a:hover { border-color: var(--ink); }
+    .primary { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 600; }
     .err { color: #c0262d; font-size: 14px; }
     .panel { display: flex; flex-direction: column; gap: 22px; }
     .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
-    ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-    .row { display: grid; grid-template-columns: 130px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
-    .row__name { display: flex; flex-direction: column; }
-    .row__name span { font-size: 12px; color: var(--muted); font-family: ui-monospace, Menlo, monospace; }
-    .row__url { font-size: 13px; color: var(--accent); overflow-wrap: anywhere; }
-    .row__actions { display: flex; gap: 8px; }
-    .mode { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px; border-radius: 12px; background: #fff1ea; flex-wrap: wrap; }
+    ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+    .row { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .row code { font-size: 13px; color: var(--accent); overflow-wrap: anywhere; }
+    .row div:last-child { display: flex; gap: 8px; }
+    .mode { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px; border-radius: 12px; background: var(--bg); }
     .note { font-size: 13px; }
     @media (max-width: 640px) { .row { grid-template-columns: 1fr; gap: 8px; } }
   </style>
@@ -41,7 +40,7 @@
       <h1>관리</h1>
       <p>비밀번호를 입력하세요.</p>
       <label for="pw">비밀번호</label>
-      <input id="pw" type="password" required>
+      <input id="pw" type="password" required />
       <p class="err" id="err" hidden>비밀번호가 맞지 않아요.</p>
       <button class="primary" type="submit">들어가기</button>
     </form>
@@ -56,15 +55,73 @@
       </div>
       <ul id="rows"></ul>
       <div class="mode">
-        <div>
-          <strong>관리자 모드</strong>
-          <p class="note" id="mode-state"></p>
-        </div>
+        <div><strong>관리자 모드</strong><p class="note" id="modeState"></p></div>
         <button type="button" id="mode"></button>
       </div>
-      <p class="note">링크 코드는 assets/js/data.js 의 code 값이에요. 이 페이지 주소는 어디에도 연결되어 있지 않아요.</p>
+      <p class="note">링크 코드는 js/roles.js 의 code 값이에요. 이 페이지 주소는 사이트 어디에도 연결되어 있지 않아요.</p>
     </section>
   </main>
-  <script type="module" src="assets/js/manage.js"></script>
+
+  <script src="js/roles.js?v=1"></script>
+  <script>
+    (function () {
+      "use strict";
+      // 비밀번호의 SHA-256 값. 바꾸려면 새 비밀번호의 SHA-256 값으로 교체하세요.
+      var HASH = "f41052558c8def4a82c4e433b374c6d20fd65af85f9e8a0c01cb663d3f18e40d";
+      var ADMIN = "pf-admin-mode", SESSION = "pf-admin-session";
+      var $ = function (s) { return document.querySelector(s); };
+      var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+      var isAdmin = function () { try { return localStorage.getItem(ADMIN) === "1"; } catch (e) { return false; } };
+
+      function sha256(t) {
+        return crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)).then(function (b) {
+          return Array.from(new Uint8Array(b)).map(function (x) { return x.toString(16).padStart(2, "0"); }).join("");
+        });
+      }
+      function sync() {
+        var on = isAdmin();
+        $("#mode").textContent = on ? "관리자 모드 끄기" : "관리자 모드 켜기";
+        $("#modeState").textContent = on
+          ? "켜짐 · 이 브라우저에서 사이트를 열면 오른쪽 아래에 직무 전환 막대가 보여요."
+          : "꺼짐 · 방문자와 똑같은 화면이에요.";
+      }
+      function show() {
+        $("#gate").hidden = true;
+        $("#panel").hidden = false;
+        var base = new URL("./", location.href);
+        $("#rows").innerHTML = Object.keys(window.ROLES).map(function (k) {
+          var url = new URL("index.html?v=" + window.ROLES[k].code, base).href;
+          return '<li class="row"><strong>' + esc(window.ROLES[k].label) + '</strong><code>' + esc(url) + '</code>' +
+            '<div><button type="button" data-copy="' + esc(url) + '">복사</button><a href="' + esc(url) + '" target="_blank" rel="noopener">열기</a></div></li>';
+        }).join("");
+        sync();
+      }
+      $("#gate").addEventListener("submit", function (e) {
+        e.preventDefault();
+        sha256($("#pw").value).then(function (h) {
+          if (h !== HASH) { $("#err").hidden = false; $("#pw").select(); return; }
+          sessionStorage.setItem(SESSION, "1");
+          show();
+        });
+      });
+      $("#pw").addEventListener("input", function () { $("#err").hidden = true; });
+      $("#rows").addEventListener("click", function (e) {
+        var b = e.target.closest("button[data-copy]");
+        if (!b) return;
+        navigator.clipboard.writeText(b.dataset.copy).then(function () { b.textContent = "복사됨"; }, function () { b.textContent = "복사 실패"; });
+        setTimeout(function () { b.textContent = "복사"; }, 1400);
+      });
+      $("#mode").addEventListener("click", function () {
+        if (isAdmin()) localStorage.removeItem(ADMIN); else localStorage.setItem(ADMIN, "1");
+        sync();
+      });
+      $("#logout").addEventListener("click", function () {
+        sessionStorage.removeItem(SESSION);
+        localStorage.removeItem(ADMIN);
+        location.reload();
+      });
+      if (sessionStorage.getItem(SESSION) === "1") show(); else $("#pw").focus();
+    })();
+  </script>
 </body>
 </html>
