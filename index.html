@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>박영희 · CREATIVE Portfolio</title>
+  <meta name="description" content="박영희(PARK Younghee) CREATIVE 포트폴리오 · Design / Marketing / PR">
+  <meta name="theme-color" content="#1c1a17">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c1a17'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='18' text-anchor='middle' fill='%23c1502e'%3EY%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Rubik:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <a class="skip" href="#info">본문으로 건너뛰기</a>
+
+  <header class="hero dark" id="top">
+    <div class="wrap hero__inner">
+      <div class="topbar">
+        <nav class="topbar__links" aria-label="섹션">
+          <a href="#info">INFO</a>
+          <a href="#skill">SKILL</a>
+          <a href="#career">CAREER</a>
+          <a href="projects.html" data-keep-role="projects.html">PROJECTS</a>
+        </nav>
+        <div class="pills" role="tablist" aria-label="직무 선택" id="role-tabs"></div>
+      </div>
+
+      <div class="hero__main">
+        <p class="eyebrow"><span id="eyebrow"></span> PORTFOLIO</p>
+        <h1 class="hero__name" id="hero-name"><b>PARK</b> <i>Younghee</i></h1>
+        <div class="hero__row">
+          <p class="hero__tagline" id="tagline"></p>
+          <p class="hero__intro" data-bind="intro"></p>
+        </div>
+      </div>
+
+      <div class="hero__foot">
+        <div class="hero__facts">
+          <span class="light" data-bind="nameKo"></span>
+          <span data-bind="birth"></span>
+          <span data-bind="email"></span>
+        </div>
+        <a class="scroll" href="#info">SCROLL ↓</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section wrap split" id="info">
+      <div class="split__side reveal">
+        <p class="label">01 — INFO</p>
+        <div class="photo" id="photo">[프로필 사진]</div>
+      </div>
+      <div class="split__main">
+        <h2 class="display-i reveal">Hello, I'm Younghee.</h2>
+        <p class="lead reveal" data-bind="lead"></p>
+        <dl class="facts reveal" id="facts"></dl>
+      </div>
+    </section>
+
+    <section class="section tint" id="skill">
+      <div class="wrap">
+        <div class="head reveal">
+          <div>
+            <p class="label">02 — SKILL</p>
+            <h2 class="display">What I do</h2>
+          </div>
+          <p class="note">?role=<span data-role-name></span></p>
+        </div>
+        <div class="abilities" id="abilities"></div>
+        <p class="label label--muted">TOOLS</p>
+        <div class="tools" id="tools"></div>
+      </div>
+    </section>
+
+    <section class="section wrap split" id="career">
+      <div class="split__side reveal">
+        <p class="label">03 — CAREER</p>
+        <h2 class="display">Path</h2>
+      </div>
+      <div class="split__main">
+        <div class="timeline reveal">
+          <p class="timeline__head">EXPERIENCE</p>
+          <div id="experience"></div>
+        </div>
+        <div class="two">
+          <div class="timeline reveal">
+            <p class="timeline__head">EDUCATION</p>
+            <div id="education"></div>
+          </div>
+          <div class="timeline reveal">
+            <p class="timeline__head">CERTIFICATE · AWARD</p>
+            <div id="certificates"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <a class="cta dark" href="projects.html" data-keep-role="projects.html">
+      <div class="wrap cta__inner">
+        <p class="label label--light">04 — PROJECTS</p>
+        <div class="cta__row">
+          <span class="cta__title">Selected Work</span>
+          <span class="cta__arrow" aria-hidden="true">→</span>
+        </div>
+        <p class="cta__sub"><span id="project-count"></span>개의 프로젝트 보기</p>
+      </div>
+    </a>
+  </main>
+
+  <footer class="footer dark">
+    <div class="wrap footer__inner">
+      <span>© 2026 PARK Younghee</span>
+      <a href="#top">맨 위로 ↑</a>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/home.js"></script>
+</body>
+</html>
