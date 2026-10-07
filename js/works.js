@@ -1,48 +1,156 @@
 /* =========================================
    works.html 전용 스크립트
-   - Archive(연도→월별) 목록 / 상세 모달
+   - 한눈에 보기(분야 · 많이 쓴 도구) / 분야 필터 / 프로젝트 목록 / 상세 모달
+   - 내용은 전부 js/projects.js 에서 가져와요
    ========================================= */
 (function () {
   "use strict";
 
-  if (typeof PROJECTS === "undefined") return;
-
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fmtDate = (d) => d.replace("-", ".");
+  let filter = "all";
 
-  /* ---------- 날짜 유틸 ---------- */
-  const MONTHS = ["January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"];
-  const pad = (n) => String(n).padStart(2, "0");
-  const fmtDate = (d) => d.replace("-", ".");            // "2025-08" → "2025.08"
-  const byDateDesc = (a, b) => b.date.localeCompare(a.date);
+  /* ---------- 1. 한눈에 보기 ---------- */
+  function renderOverview(list) {
+    $("#ovCount").textContent = list.length;
 
-  /* ---------- 3. 상세 모달 ---------- */
+    const fields = {};
+    list.forEach((p) => { fields[p.categoryLabel] = (fields[p.categoryLabel] || 0) + 1; });
+    $("#ovFields").innerHTML = Object.entries(fields).sort((a, b) => b[1] - a[1])
+      .map(([name, n]) => `<li><span>${esc(name)}</span><em>${n}</em></li>`).join("");
+
+    const tools = {};
+    list.forEach((p) => (p.tools || []).forEach((t) => { tools[t] = (tools[t] || 0) + 1; }));
+    const top = Object.entries(tools).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const max = top.length ? top[0][1] : 1;
+    $("#ovTools").innerHTML = top.map(([name, n]) => `<li>
+        <span class="overview__tool">${esc(name)}</span>
+        <span class="overview__bar"><i style="width:${Math.round((n / max) * 100)}%"></i></span>
+        <span class="overview__n">${n}개 작업</span>
+      </li>`).join("");
+  }
+
+  /* ---------- 2. 분야 필터 ---------- */
+  function renderFilter(list) {
+    const cats = [...new Set(list.map((p) => p.categoryLabel))];
+    const box = $("#filter");
+    if (cats.length < 2) { box.hidden = true; return; }
+    box.innerHTML = [["all", "전체", list.length], ...cats.map((c) => [c, c, list.filter((p) => p.categoryLabel === c).length])]
+      .map(([key, label, n]) => `<button type="button" data-f="${esc(key)}" aria-pressed="${key === filter}">${esc(label)} <sup>${n}</sup></button>`).join("");
+    box.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-f]");
+      if (!b) return;
+      filter = b.dataset.f;
+      $$("button", box).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      $$(".work").forEach((el) => { el.hidden = filter !== "all" && el.dataset.cat !== filter; });
+    });
+  }
+
+  /* ---------- 3. 프로젝트 목록 ---------- */
+  function renderList(list) {
+    $("#worksList").innerHTML = list.map((p, i) => `
+      <article class="work reveal" data-cat="${esc(p.categoryLabel)}" id="${esc(p.id)}">
+        <button type="button" class="work__media" data-open="${esc(p.id)}" aria-label="${esc(p.title)} 자세히 보기">
+          <img src="${esc(p.thumb)}" alt="" loading="lazy" />
+          ${p.result ? `<span class="work__result"><strong>${esc(p.result.value)}</strong>${esc(p.result.label)}</span>` : ""}
+        </button>
+        <div class="work__body">
+          <p class="work__meta"><span class="work__no">${String(i + 1).padStart(2, "0")}</span>${esc(p.categoryLabel)} · ${fmtDate(p.date)}</p>
+          <h2 class="work__title">${esc(p.title)}</h2>
+          <p class="work__summary">${esc(p.summary || p.desc)}</p>
+          <dl class="work__facts">
+            <div><dt>역할</dt><dd>${esc(p.role)}</dd></div>
+            <div><dt>클라이언트</dt><dd>${esc(p.client)}</dd></div>
+          </dl>
+          ${p.did && p.did.length ? `<div class="work__did"><p class="work__label">한 일</p><ul>${p.did.map((d) => `<li>${esc(d)}</li>`).join("")}</ul></div>` : ""}
+          ${p.tools && p.tools.length ? `<ul class="work__tools" aria-label="사용한 도구">${p.tools.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
+          <button type="button" class="work__more" data-open="${esc(p.id)}">자세히 보기 <span aria-hidden="true">→</span></button>
+        </div>
+      </article>`).join("");
+  }
+
+  /* ---------- 4. 날짜별 Archive : 연도 탭 → 월별 묶음 ----------
+     연도가 많아져도 한 번에 한 해만 펼쳐서 길어지지 않아요. */
+  function renderTimeline(list) {
+    const box = $("#timelineList");
+    if (!box) return;
+    const byYear = {};
+    [...list].sort((a, b) => b.date.localeCompare(a.date)).forEach((p) => {
+      (byYear[p.date.slice(0, 4)] = byYear[p.date.slice(0, 4)] || []).push(p);
+    });
+    const years = Object.keys(byYear).sort((a, b) => b - a);
+    if (!years.length) { box.innerHTML = ""; return; }
+    let current = years[0];
+
+    box.innerHTML = `
+      <div class="yarch__tabs" role="tablist" aria-label="연도 선택">${years.map((y) =>
+        `<button type="button" role="tab" data-y="${y}" aria-selected="${y === current}">${y}<sup>${byYear[y].length}</sup></button>`).join("")}
+      </div>
+      <div class="yarch__panel" id="yarchPanel" role="tabpanel"></div>`;
+
+    const panel = $("#yarchPanel");
+    function show(y) {
+      current = y;
+      $$(".yarch__tabs button", box).forEach((b) => b.setAttribute("aria-selected", String(b.dataset.y === y)));
+      const byMonth = {};
+      byYear[y].forEach((p) => { (byMonth[p.date.slice(5, 7)] = byMonth[p.date.slice(5, 7)] || []).push(p); });
+      panel.innerHTML = Object.keys(byMonth).sort((a, b) => b - a).map((m) => `
+        <div class="yarch__month">
+          <p class="yarch__mh"><em>${m}</em><span>월</span><small>${byMonth[m].length}개</small></p>
+          <ol class="yarch__rows">${byMonth[m].map((p) => `
+            <li><a href="#${esc(p.id)}" class="yarch__row">
+              <img src="${esc(p.thumb)}" alt="" loading="lazy" />
+              <span class="yarch__t">${esc(p.title)}</span>
+              <span class="yarch__c">${esc(p.categoryLabel)}</span>
+              <span class="yarch__go" aria-hidden="true">↗</span>
+            </a></li>`).join("")}
+          </ol>
+        </div>`).join("");
+      panel.classList.remove("is-in"); void panel.offsetWidth; panel.classList.add("is-in");
+    }
+    box.addEventListener("click", (e) => {
+      const tab = e.target.closest(".yarch__tabs button");
+      if (tab) { show(tab.dataset.y); return; }
+      const a = e.target.closest("a.yarch__row");
+      if (!a) return;
+      const t = document.getElementById(a.getAttribute("href").slice(1));
+      if (t && t.hidden) { // 필터로 숨겨져 있으면 전체 보기로
+        filter = "all";
+        $$("#filter button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.f === "all")));
+        $$(".work").forEach((el) => { el.hidden = false; });
+      }
+    });
+    box.addEventListener("keydown", (e) => {
+      const tab = e.target.closest(".yarch__tabs button");
+      if (!tab || (e.key !== "ArrowRight" && e.key !== "ArrowLeft")) return;
+      const i = years.indexOf(tab.dataset.y) + (e.key === "ArrowRight" ? 1 : -1);
+      if (years[i]) { show(years[i]); $(`.yarch__tabs button[data-y="${years[i]}"]`, box).focus(); }
+    });
+    show(current);
+  }
+
+  /* ---------- 5. 상세 모달 ---------- */
   const modal = $("#modal");
   let lastFocused = null;
-
   function openModal(id) {
     const p = PROJECTS.find((x) => x.id === id);
     if (!p || !modal) return;
-
     $("#modalImg").src = p.image;
     $("#modalImg").alt = p.title;
     $("#modalMeta").textContent = `${p.categoryLabel} · ${fmtDate(p.date)} · ${p.client}`;
     $("#modalTitle").textContent = p.title;
     $("#modalDesc").textContent = p.desc;
-    $("#modalTags").innerHTML = p.tags.map((t) => `<li>${t}</li>`).join("");
-
+    $("#modalTags").innerHTML = [...(p.tools || []), ...(p.tags || [])].map((t) => `<li>${esc(t)}</li>`).join("");
     const link = $("#modalLink");
-    if (p.link) { link.href = p.link; link.hidden = false; }
-    else { link.hidden = true; }
-
+    if (p.link) { link.href = p.link; link.hidden = false; } else { link.hidden = true; }
     lastFocused = document.activeElement;
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("is-locked");
     $(".modal__close", modal).focus();
   }
-
   function closeModal() {
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden", "true");
@@ -50,122 +158,46 @@
     if (lastFocused) lastFocused.focus();
   }
 
-  function initModal() {
-    if (!modal) return;
-    $$("[data-close]", modal).forEach((el) => el.addEventListener("click", closeModal));
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
+  function init() {
+    const list = window.PROJECTS || [];
+    renderOverview(list);
+    renderFilter(list);
+    renderList(list);
+    renderTimeline(list);
+    // 보기 전환 (works2.html 처럼 #viewToggle 이 있을 때만)
+    const toggle = $("#viewToggle");
+    if (toggle) {
+      const show = (v) => {
+        $$("button", toggle).forEach((b) => b.setAttribute("aria-selected", String(b.dataset.view === v)));
+        $("#worksList").hidden = v !== "cards";
+        $("#filter").hidden = v !== "cards" || $$("#filter button").length === 0;
+        $("#timeline").hidden = v !== "timeline";
+        $("#timeline").classList.add("is-visible");
+      };
+      toggle.addEventListener("click", (e) => { const b = e.target.closest("button[data-view]"); if (b) show(b.dataset.view); });
+      $("#timelineList").addEventListener("click", (e) => { if (e.target.closest("a.yarch__row")) show("cards"); }, true);
+    }
+    // 목록은 나중에 그려지므로 등장 효과를 여기서 직접 연결해요
+    const items = $$(".work.reveal");
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+        if (en.isIntersecting) { en.target.classList.add("is-visible"); io.unobserve(en.target); }
+      }), { threshold: 0.12 });
+      items.forEach((el) => io.observe(el));
+    } else items.forEach((el) => el.classList.add("is-visible"));
+    document.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-open]");
+      if (b) openModal(b.dataset.open);
     });
+    if (modal) {
+      $$("[data-close]", modal).forEach((el) => el.addEventListener("click", closeModal));
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal(); });
+    }
+    // 메인에서 #프로젝트id 로 들어오면 그 작업으로 이동
+    if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) setTimeout(() => t.scrollIntoView({ block: "start" }), 50); }
   }
 
-  /* ---------- 4. Archive : 연도 → 월별 보기 ---------- */
-  function initArchive() {
-    const yearsEl = $("#archiveYears");
-    const monthsEl = $("#archiveMonths");
-    const listEl = $("#archiveList");
-    const summaryEl = $("#archiveSummary");
-    const resetBtn = $("#archiveReset");
-    if (!yearsEl) return;
-
-    const items = PROJECTS
-      .filter((p) => /^\d{4}-\d{2}$/.test(p.date || ""))
-      .map((p) => ({ ...p, y: +p.date.slice(0, 4), m: +p.date.slice(5, 7) }))
-      .sort(byDateDesc);
-    const years = [...new Set(items.map((i) => i.y))];
-    if (!years.length) return;
-
-    const state = { year: years[0], month: null };
-
-    function renderYears() {
-      yearsEl.innerHTML = years.map((y) => {
-        const count = items.filter((i) => i.y === y).length;
-        const active = y === state.year;
-        return `<button type="button" role="tab" class="archive__year${active ? " is-active" : ""}"
-                  data-year="${y}" aria-selected="${active}">${y}<sup>${count}</sup></button>`;
-      }).join("");
-    }
-
-    function renderMonths() {
-      const inYear = items.filter((i) => i.y === state.year);
-      monthsEl.innerHTML = MONTHS.map((name, idx) => {
-        const m = idx + 1;
-        const count = inYear.filter((i) => i.m === m).length;
-        const active = state.month === m;
-        const dots = Array.from({ length: Math.min(count, 4) }, () => "<i></i>").join("");
-        return `<button type="button" class="archive__mbtn${active ? " is-active" : ""}"
-                  data-month="${m}" ${count ? "" : "disabled"} aria-pressed="${active}"
-                  aria-label="${state.year}년 ${m}월, ${count}개 프로젝트">
-                  <strong>${pad(m)}</strong><span>${name.slice(0, 3)}</span>
-                  <span class="archive__dots">${dots}</span>
-                </button>`;
-      }).join("");
-    }
-
-    function renderList() {
-      const list = items.filter((i) => i.y === state.year && (!state.month || i.m === state.month));
-
-      summaryEl.innerHTML = state.month
-        ? `<strong>${state.year}년 ${state.month}월</strong> · ${list.length}개 프로젝트`
-        : `<strong>${state.year}년</strong> 전체 · ${list.length}개 프로젝트`;
-      resetBtn.hidden = !state.month;
-
-      const groups = [];
-      list.forEach((p) => {
-        const last = groups[groups.length - 1];
-        if (last && last.m === p.m) last.items.push(p);
-        else groups.push({ m: p.m, items: [p] });
-      });
-
-      listEl.innerHTML = groups.map((g) => `
-        <div class="archive__group">
-          <h3 class="archive__month"><em>${pad(g.m)}</em>${MONTHS[g.m - 1]}</h3>
-          <ul class="archive__rows">
-            ${g.items.map((p) => `
-              <li>
-                <button type="button" class="archive__row" data-id="${p.id}">
-                  <img src="${p.thumb}" alt="" loading="lazy" />
-                  <span class="archive__info">
-                    <span class="archive__title">${p.title}</span>
-                    <span class="archive__sub">${p.categoryLabel} · ${p.client}</span>
-                  </span>
-                  <span class="archive__arrow" aria-hidden="true">↗</span>
-                </button>
-              </li>`).join("")}
-          </ul>
-        </div>`).join("");
-    }
-
-    function renderAll() { renderYears(); renderMonths(); renderList(); }
-
-    yearsEl.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-year]");
-      if (!btn) return;
-      state.year = +btn.dataset.year;
-      state.month = null;
-      renderAll();
-    });
-
-    monthsEl.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-month]");
-      if (!btn || btn.disabled) return;
-      const m = +btn.dataset.month;
-      state.month = state.month === m ? null : m;   // 같은 월 다시 누르면 해제
-      renderMonths();
-      renderList();
-    });
-
-    resetBtn.addEventListener("click", () => { state.month = null; renderMonths(); renderList(); });
-
-    listEl.addEventListener("click", (e) => {
-      const row = e.target.closest(".archive__row");
-      if (row) openModal(row.dataset.id);
-    });
-
-    renderAll();
-  }
-
-  /* ---------- Init (main.js보다 먼저 실행되어야 스크롤 효과가 적용됨) ---------- */
-  initModal();
-  // PROJECTS는 이제 Supabase에서 비동기로 불러오므로, 데이터가 준비된 뒤에 그려요.
-  (window.PROJECTS_READY || Promise.resolve()).then(initArchive);
+  (window.PROJECTS_READY || Promise.resolve()).then(() => {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+  });
 })();

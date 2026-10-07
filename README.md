@@ -18,7 +18,7 @@
 ```
 portfolio/
 ├── index.html          # 메인: 표지 → Profile → Credentials → Skills → 작업물 보러가기 → 연락처
-├── works.html          # 작업물 페이지: 연도 → 월별 Archive
+├── works.html          # 작업물 페이지: 한눈에 보기 → 프로젝트 카드 / 아카이브(연도 → 월별)
 ├── manage.html         # 관리 페이지 (비밀번호, 링크 어디에도 없음)
 ├── projects.html       # 예전 주소 → works.html 로 이동
 ├── css/
@@ -29,7 +29,7 @@ portfolio/
 │   ├── roles.js        # ⭐ 직무별 문구·스킬, 비밀 코드, 관리자 막대
 │   ├── projects.js     # ⭐ 프로젝트 데이터 (roles로 직무 지정)
 │   ├── resume.js       # ⭐ 이력 데이터: 학력·경력·교육·수상·자격증
-│   ├── works.js        # 작업물 페이지 전용: Archive, 상세 모달
+│   ├── works.js        # 작업물 페이지 전용: 한눈에 보기, 분야 필터, 카드, 아카이브, 상세 모달
 │   └── main.js         # 공통: 메뉴, 스크롤 효과, 메인 미리보기
 ├── img/
 │   ├── favicon.svg     # 브라우저 탭 아이콘
@@ -52,7 +52,9 @@ portfolio/
 1. **이름·소개·이메일** → `index.html`에서 `홍길동`, `HONG`, `hello@example.com` 검색해서 수정
 2. **작업물** → `img/projects/`에 이미지 넣고, `js/projects.js`에서 제목·설명·이미지 경로 수정
    - 프로젝트를 늘리거나 줄이려면 `{ ... },` 블록을 복사/삭제
-   - `date: "2025-08"` → Archive 섹션의 **연도 → 월별** 보기가 이 값으로 자동 생성됩니다
+   - `date: "2025-08"` → '아카이브' 보기의 **연도 → 월별** 묶음이 이 값으로 자동 생성됩니다
+   - `summary`(한 줄 요약), `did`(한 일), `tools`(사용한 도구), `result`(결과 숫자) → 프로젝트 카드에 보여요
+   - 페이지 맨 위 '작업 분야'와 '많이 쓴 도구'는 `categoryLabel`과 `tools`로 자동 계산됩니다
    - `featured: true` → 메인 '작업물 보러가기' 배너 썸네일에 사용 (최신 3개)
 3. **프로필 사진** → `img/profile.jpg`로 넣고 `index.html`의 `img/profile.svg`를 `img/profile.jpg`로 변경
 4. **이력서** → `files/resume.pdf`를 내 파일로 교체

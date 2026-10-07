@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Projects | 박영희 Design Portfolio</title>
+  <title>Projects | 박영희 Portfolio</title>
   <meta name="description" content="디자이너 박영희의 작업물 모음" />
 
   <meta property="og:title" content="Projects | 박영희 Design Portfolio" />
@@ -44,26 +44,42 @@
 
   <main id="top">
 
-    <!-- ===== Projects (Archive) : 연도 → 월별 보기 ===== -->
-    <section class="section archive archive--page" id="archive">
+    <!-- ===== Projects : 무엇을 했고 어떤 능력이 있는지 ===== -->
+    <section class="section works archive--page" id="works">
       <div class="container">
-        <div class="section__head reveal">
-          <div>
-            <h1 class="page-title">Projects</h1>
-            <p class="archive__lead">연도와 월을 골라 작업을 살펴보세요. 항목을 누르면 자세한 내용이 열려요.</p>
+        <div class="works__head reveal">
+          <h1 class="page-title">Projects</h1>
+          <p class="works__lead">어떤 작업을 했고, 그 안에서 제가 무엇을 맡았는지 정리했어요. 이미지를 누르면 자세히 볼 수 있어요.</p>
+        </div>
+
+        <!-- 한눈에 보는 능력: js/projects.js 의 category · tools 로 자동 계산 -->
+        <div class="overview reveal" aria-label="한눈에 보기">
+          <div class="overview__count"><strong id="ovCount">0</strong><span>Projects</span></div>
+          <div class="overview__block">
+            <p class="overview__label">작업 분야</p>
+            <ul class="overview__fields" id="ovFields"></ul>
           </div>
-          <!-- 연도 버튼: projects.js의 date 값으로 자동 생성 -->
-          <div class="archive__years" id="archiveYears" role="tablist" aria-label="연도 선택"></div>
+          <div class="overview__block">
+            <p class="overview__label">많이 쓴 도구</p>
+            <ul class="overview__tools" id="ovTools"></ul>
+          </div>
         </div>
 
-        <div class="archive__months reveal" id="archiveMonths" aria-label="월 선택"></div>
-
-        <div class="archive__summary">
-          <p id="archiveSummary" aria-live="polite"></p>
-          <button type="button" class="archive__reset" id="archiveReset" hidden>전체 월 보기 ↺</button>
+        <div class="view-toggle reveal" id="viewToggle" role="tablist" aria-label="보기 방식: 프로젝트 또는 아카이브">
+          <button type="button" role="tab" data-view="cards" aria-selected="true">프로젝트</button>
+          <button type="button" role="tab" data-view="timeline" aria-selected="false">아카이브</button>
         </div>
+        <div class="filter reveal" id="filter" role="group" aria-label="분야로 보기"></div>
+        <div class="works__list" id="worksList"></div>
 
-        <div class="archive__list" id="archiveList"></div>
+        <!-- 날짜별로 한 번에 보기: date 값으로 연도별 자동 정리 -->
+        <section class="yarch yarch--tab reveal" id="timeline" hidden aria-labelledby="timelineTitle">
+          <div class="yarch__head">
+            <h2 class="yarch__title" id="timelineTitle">아카이브</h2>
+            <p class="yarch__lead">언제, 어떤 순서로 작업했는지 한 번에 볼 수 있어요. 누르면 위의 작업으로 이동해요.</p>
+          </div>
+          <div class="yarch__years" id="timelineList"></div>
+        </section>
       </div>
     </section>
   </main>
