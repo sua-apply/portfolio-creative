@@ -21,10 +21,13 @@ export const profile = {
 
 export const defaultRole = 'design';
 
+// 직무별 표시 이름, 색, 비밀 코드
+// 지원할 때는 주소 뒤에 ?v=코드 를 붙여서 보냅니다. 예: /portfolio-creative/?v=9d35c7
+// 코드는 다른 직무를 짐작하지 못하게 하는 용도입니다. 바꾸고 싶으면 아무 글자로 바꿔도 됩니다.
 export const roles = {
-  design: { label: 'Design', eyebrow: 'DESIGN', tagline: '[브랜드 · 비주얼 디자이너]' },
-  marketing: { label: 'Marketing', eyebrow: 'MARKETING', tagline: '[퍼포먼스 · 콘텐츠 마케터]' },
-  pr: { label: 'PR', eyebrow: 'PR', tagline: '[브랜드 PR · 커뮤니케이터]' },
+  design: { label: 'Design', eyebrow: 'DESIGN', tagline: '[브랜드 · 비주얼 디자이너]', accent: '#ff5b2e', soft: '#fff1ea', code: '9d35c7' },
+  marketing: { label: 'Marketing', eyebrow: 'MARKETING', tagline: '[퍼포먼스 · 콘텐츠 마케터]', accent: '#2b59ff', soft: '#eef2ff', code: '7337ec' },
+  pr: { label: 'PR', eyebrow: 'PR', tagline: '[브랜드 PR · 커뮤니케이터]', accent: '#e2378c', soft: '#fdeef5', code: 'bab4f6' },
 };
 
 // 직무별로 할 수 있는 일 3가지와 툴

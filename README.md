@@ -5,21 +5,13 @@
 - `index.html`: 소개 (INFO · SKILL · CAREER)
 - `projects.html`: 프로젝트 (Selected Work)
 
-## 직무별 링크
+## 직무별로 따로 보이기
 
-주소 뒤에 `?role=`을 붙이면 소개 문구, 스킬, 프로젝트 순서와 상세 화면 형태가 그 직무에 맞게 바뀝니다. 메인에서 프로젝트 페이지로 넘어가도 직무가 유지됩니다.
+이 사이트는 한 번에 한 직무만 보여줍니다 (design, marketing, pr).
+주소 뒤의 `?v=코드`로 어떤 직무를 보여줄지 정하고, 방문자 화면에는 직무를 바꾸는 버튼이 없습니다.
+코드는 `assets/js/data.js`의 `roles`에 있는 `code` 값입니다.
 
-| 직무 | 링크 |
-|---|---|
-| Design | `https://[아이디].github.io/portfolio-creative/?role=design` |
-| Marketing | `https://[아이디].github.io/portfolio-creative/?role=marketing` |
-| PR | `https://[아이디].github.io/portfolio-creative/?role=pr` |
-
-직무별 상세 화면
-
-- **design**: 큰 메인 비주얼, 디테일 이미지, 컬러 팔레트
-- **marketing**: 큰 성과 숫자 3개, 목표 · 전략 · 결과
-- **pr**: 기사 · 보도자료 캡처, 보도 건수와 노출 수치
+직무별 링크 복사와 관리자 모드는 따로 연결되지 않은 관리 페이지에서 비밀번호를 넣고 사용합니다.
 
 ## 내용 고치기
 
@@ -28,7 +20,7 @@
 - `profile`: 이름, 연락처, 학력, 링크, 프로필 사진 경로
 - `skills`: 직무별 할 수 있는 일과 툴
 - `career`: 경력, 학력, 자격증 · 수상
-- `projects`: 프로젝트와 직무별 상세 내용
+- `projects`: 프로젝트와 직무별 상세 내용. `roles`에 적힌 직무에서만 보입니다.
 
 이미지는 `assets/img/` 폴더를 만들어 넣고 경로를 적으면 됩니다.
 
@@ -42,6 +34,7 @@ assets/js/data.js      ← 내용
 assets/js/common.js    ← 직무 전환, 공통 효과
 assets/js/home.js      ← 소개 페이지
 assets/js/projects.js  ← 프로젝트 페이지
+assets/js/admin-bar.js, manage.js ← 관리자 기능
 ```
 
 빌드 과정 없이 HTML, CSS, JavaScript만으로 동작합니다.

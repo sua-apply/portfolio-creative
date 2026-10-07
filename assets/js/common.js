@@ -1,55 +1,33 @@
 import { roles, defaultRole } from './data.js';
+import { roleFromURL, mountAdminBar } from './admin-bar.js';
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-export const roleKeys = Object.keys(roles);
 
-export function readRole() {
-  const r = new URLSearchParams(location.search).get('role');
-  return roleKeys.includes(r) ? r : defaultRole;
-}
+// 주소의 ?v=코드 로 직무를 정합니다. 방문자에게는 그 직무만 보이고,
+// 직무 전환은 관리자 모드(manage.html)에서만 화면 구석 막대로 할 수 있습니다.
+export function initRole(onChange) {
+  let current = roleFromURL(roles, defaultRole);
 
-// 직무 버튼을 그리고, 바뀔 때마다 onChange(role)를 부릅니다.
-export function setupRoleTabs(container, onChange) {
-  let current = readRole();
-  container.innerHTML = roleKeys.map((k) => `<button type="button" role="tab" data-role="${k}">${esc(roles[k].label)}</button>`).join('');
-
-  function apply(role, push) {
+  function apply(role) {
     current = role;
-    if (push) {
-      const url = new URL(location.href);
-      url.searchParams.set('role', role);
-      history.replaceState(null, '', url);
-    }
-    $$('button', container).forEach((b) => {
-      const on = b.dataset.role === role;
-      b.setAttribute('aria-selected', on);
-      b.tabIndex = on ? 0 : -1;
-    });
-    // 다른 페이지로 가는 링크에도 직무를 이어 붙입니다.
-    $$('a[data-keep-role]').forEach((a) => {
-      const base = a.getAttribute('data-keep-role');
-      const [path, hash] = base.split('#');
-      a.href = `${path}?role=${role}${hash ? `#${hash}` : ''}`;
+    const r = roles[role];
+    const root = document.documentElement;
+    root.style.setProperty('--accent', r.accent);
+    root.style.setProperty('--soft', r.soft);
+    root.dataset.role = role;
+    // 다른 페이지로 가는 링크에도 같은 코드를 이어 붙입니다.
+    $$('a[data-keep]').forEach((a) => {
+      const [path, hash] = a.getAttribute('data-keep').split('#');
+      a.href = `${path}?v=${r.code}${hash ? `#${hash}` : ''}`;
     });
     onChange(role);
   }
 
-  container.addEventListener('click', (e) => {
-    const b = e.target.closest('button[data-role]');
-    if (b && b.dataset.role !== current) apply(b.dataset.role, true);
-  });
-  container.addEventListener('keydown', (e) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-    const i = roleKeys.indexOf(current);
-    const next = roleKeys[(i + (e.key === 'ArrowRight' ? 1 : roleKeys.length - 1)) % roleKeys.length];
-    apply(next, true);
-    $(`button[data-role="${next}"]`, container).focus();
-  });
-  window.addEventListener('popstate', () => apply(readRole(), false));
-  apply(current, false);
+  apply(current);
+  mountAdminBar(roles, () => current, apply);
 }
 
 const revealObserver = new IntersectionObserver((entries) => {
@@ -82,5 +60,5 @@ export function splitLetters(el) {
     });
   };
   walk(el);
-  $$('.ltr', el).forEach((s, i) => { s.style.animationDelay = `${0.15 + i * 0.04}s`; });
+  $$('.ltr', el).forEach((s, i) => { s.style.animationDelay = `${0.1 + i * 0.035}s`; });
 }
