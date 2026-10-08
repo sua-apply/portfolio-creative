@@ -57,6 +57,10 @@
     });
   }
 
+  /* 프로젝트 구분 표시 이름 */
+  const KINDS = { personal: "개인 프로젝트", team: "팀 프로젝트", contest: "공모전", school: "학교 과제", client: "외주" };
+  const kindLabel = (p) => KINDS[p.type] || (p.client ? "외주" : "개인 프로젝트");
+
   /* ---------- 3. 프로젝트 목록 ---------- */
   function renderList(list) {
     $("#worksList").innerHTML = list.map((p, i) => `
@@ -71,7 +75,8 @@
           <p class="work__summary">${esc(p.summary || p.desc)}</p>
           <dl class="work__facts">
             <div><dt>역할</dt><dd>${esc(p.role)}</dd></div>
-            <div><dt>클라이언트</dt><dd>${esc(p.client)}</dd></div>
+            <div><dt>구분</dt><dd>${esc(kindLabel(p))}</dd></div>
+            ${p.client ? `<div><dt>클라이언트</dt><dd>${esc(p.client)}</dd></div>` : ""}
           </dl>
           ${p.did && p.did.length ? `<div class="work__did"><p class="work__label">한 일</p><ul>${p.did.map((d) => `<li>${esc(d)}</li>`).join("")}</ul></div>` : ""}
           ${p.tools && p.tools.length ? `<ul class="work__tools" aria-label="사용한 도구">${p.tools.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
@@ -149,7 +154,7 @@
     if (!p || !modal) return;
     $("#modalImg").src = p.image;
     $("#modalImg").alt = p.title;
-    $("#modalMeta").textContent = `${p.categoryLabel} · ${fmtDate(p.date)} · ${p.client}`;
+    $("#modalMeta").textContent = `${p.categoryLabel} · ${fmtDate(p.date)} · ${kindLabel(p)}${p.client ? ` · ${p.client}` : ""}`;
     $("#modalTitle").textContent = p.title;
     $("#modalDesc").textContent = p.desc;
     $("#modalTags").innerHTML = [...(p.tools || []), ...(p.tags || [])].map((t) => `<li>${esc(t)}</li>`).join("");

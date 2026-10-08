@@ -44,6 +44,50 @@
     set();
   }
 
+  /* 대외활동 · 교내활동: 요약 숫자 + 종류 버튼 + 목록(4개 넘으면 더보기) */
+  const ACT_TYPES = { external: "대외활동", campus: "교내활동" };
+  function renderActivities(all) {
+    const box = $("#activities");
+    const acts = all.filter((a) => ACT_TYPES[a.type]).sort(latestFirst("start"));
+    if (!box) return;
+    if (!acts.length) { box.hidden = true; return; }
+    const count = (t) => acts.filter((a) => a.type === t).length;
+    $("#actStats").innerHTML = [[count("external"), "개", "대외활동"], [count("campus"), "개", "교내활동"]]
+      .map(([v, u, l]) => `<div class="act-stat"><strong>${v}<small>${u}</small></strong><span>${l}</span></div>`).join("");
+
+    let filter = "all", open = false;
+    const LIMIT = 4;
+    const period = (s, e) => (!e ? `${s} — 현재` : s === e ? s : `${s} — ${e}`);
+    const drawFilter = () => {
+      $("#actFilter").innerHTML = [["all", "전체", acts.length], ...Object.entries(ACT_TYPES).map(([k, l]) => [k, l, count(k)])]
+        .filter((o) => o[2]).map(([k, l, n]) => `<button type="button" data-f="${k}" aria-pressed="${k === filter}">${l}<sup>${n}</sup></button>`).join("");
+    };
+    const drawList = () => {
+      const shown = acts.filter((a) => filter === "all" || a.type === filter);
+      $("#actList").innerHTML = shown.map((a, i) => `
+        <li class="act act--${a.type}"${!open && i >= LIMIT ? " hidden" : ""}>
+          <span class="act__date">${period(a.start, a.end)}</span>
+          <div class="act__body">
+            <span class="act__type">${ACT_TYPES[a.type]}</span>
+            <strong class="act__title">${a.title}</strong>
+            ${a.org ? `<span class="act__org">${a.org}</span>` : ""}
+            ${a.desc ? `<p class="act__desc">${a.desc}</p>` : ""}
+          </div>
+          <div class="act__side">${a.role ? `<b>${a.role}</b><span>역할</span>` : ""}</div>
+        </li>`).join("");
+      const more = $("#actMore"), extra = shown.length - LIMIT;
+      more.hidden = extra <= 0;
+      more.textContent = open ? "접기 ↑" : `활동 ${extra}개 더보기 ↓`;
+      more.setAttribute("aria-expanded", String(open));
+    };
+    $("#actFilter").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-f]"); if (!b) return;
+      filter = b.dataset.f; open = false; drawFilter(); drawList();
+    });
+    $("#actMore").addEventListener("click", () => { open = !open; drawList(); });
+    drawFilter(); drawList();
+  }
+
   function renderResume() {
     if (typeof RESUME === "undefined") return;
     const R = RESUME;
@@ -103,6 +147,27 @@
           <span class="award__org">${a.org}</span>
         </div>
       </article>`).join(""));
+
+    // 대외활동 · 교내활동
+    renderActivities(R.activities || []);
+
+    // 어학: 최신순, 유효기간 지나면 흐리게
+    const langs = [...(R.languages || [])].sort(latestFirst("date"));
+    text("#langCount", langs.length);
+    put("#langList", langs.map((l) => {
+      const expired = l.expires && l.expires < NOW;
+      const state = !l.expires ? "평생 유효" : expired ? `만료 · ${l.expires}` : `유효 ~${l.expires}`;
+      return `
+      <div class="lang${expired ? " is-expired" : ""}">
+        <span class="lang__test">${l.test}</span>
+        <strong class="lang__score">${l.score}</strong>
+        <div class="lang__meta">
+          <span>${l.date} 취득${l.org ? ` · ${l.org}` : ""}</span>
+          <span class="lang__state">${state}</span>
+        </div>
+      </div>`;
+    }).join(""));
+    const langBox = $(".langs"); if (langBox && !langs.length) langBox.hidden = true;
 
     // 자격증: 연도별 묶음
     const certs = [...(R.certificates || [])].sort(latestFirst("date"));

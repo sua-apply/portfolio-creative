@@ -8,6 +8,8 @@
    - summary: 카드에 보이는 한 줄 요약
    - did: 내가 한 일 (2~4줄). 작업물 페이지에서 '한 일'로 보여요
    - tools: 사용한 도구. 페이지 맨 위 '이 사람이 쓰는 도구'가 이걸로 자동 계산돼요
+   - type: 프로젝트 구분 "personal"(개인) | "team"(팀) | "contest"(공모전) | "school"(학교 과제) | "client"(외주)
+   - client: 외주일 때만 적어요. 비우면 화면에 안 보여요
    - result: 결과 숫자 하나 { value: "+32%", label: "재구매율" } (없으면 null)
    - 나중에 Supabase로 옮기면 이 배열 대신 DB에서 같은 모양으로 불러오면 됩니다.
    ========================================= */
@@ -23,7 +25,7 @@
       result: { value: "[+32%]", label: "[재방문율]" },
       roles: ["design"],
       title: "[Aurora Coffee 브랜드 아이덴티티]", category: "branding", categoryLabel: "Branding",
-      date: "2025-08", featured: true, client: "[클라이언트]", role: "[담당 역할]",
+      date: "2025-08", featured: true, type: "personal", client: "", role: "[담당 역할]",
       thumb: "img/projects/project-01.svg", image: "img/projects/project-01.svg",
       desc: "[프로젝트 설명. 어떤 문제가 있었고, 어떻게 풀었고, 어떤 결과가 나왔는지 두세 문장으로 적어주세요.]",
       tags: ["Branding", "Logo", "Packaging"], link: ""
@@ -36,7 +38,7 @@
       result: { value: "[-40%]", label: "[예약 이탈률]" },
       roles: ["design"],
       title: "[B2C 앱 리디자인]", category: "uiux", categoryLabel: "UI/UX",
-      date: "2025-03", featured: true, client: "[클라이언트]", role: "[담당 역할]",
+      date: "2025-03", featured: true, type: "personal", client: "", role: "[담당 역할]",
       thumb: "img/projects/project-02.svg", image: "img/projects/project-02.svg",
       desc: "[프로젝트 설명]", tags: ["UI/UX", "Design System"], link: ""
     },
@@ -48,7 +50,7 @@
       result: null,
       roles: ["design", "pr"],
       title: "[전시 포스터 시리즈]", category: "graphic", categoryLabel: "Graphic",
-      date: "2024-11", featured: true, client: "[클라이언트]", role: "[담당 역할]",
+      date: "2024-11", featured: true, type: "team", client: "", role: "[담당 역할]",
       thumb: "img/projects/project-03.svg", image: "img/projects/project-03.svg",
       desc: "[프로젝트 설명]", tags: ["Poster", "Typography"], link: ""
     },
@@ -60,7 +62,7 @@
       result: { value: "[3종]", label: "[라인업 출시]" },
       roles: ["design", "marketing"],
       title: "[패키지 디자인]", category: "branding", categoryLabel: "Packaging",
-      date: "2024-06", featured: false, client: "[클라이언트]", role: "[담당 역할]",
+      date: "2024-06", featured: false, type: "contest", client: "", role: "[담당 역할]",
       thumb: "img/projects/project-04.svg", image: "img/projects/project-04.svg",
       desc: "[프로젝트 설명]", tags: ["Packaging"], link: ""
     },
@@ -72,7 +74,7 @@
       result: { value: "[+XX%]", label: "[전환율]" },
       roles: ["marketing", "pr"],
       title: "[SNS 캠페인]", category: "marketing", categoryLabel: "Campaign",
-      date: "2025-05", featured: true, client: "[클라이언트]", role: "[담당 역할]",
+      date: "2025-05", featured: true, type: "personal", client: "", role: "[담당 역할]",
       thumb: "img/projects/project-05.svg", image: "img/projects/project-05.svg",
       desc: "[목표, 전략, 성과 수치를 두세 문장으로 적어주세요.]", tags: ["Performance", "Content"], link: ""
     },
@@ -84,7 +86,7 @@
       result: { value: "[XX건]", label: "[언론 보도]" },
       roles: ["pr"],
       title: "[브랜드 런칭 언론 홍보]", category: "pr", categoryLabel: "PR",
-      date: "2024-09", featured: true, client: "[클라이언트]", role: "[담당 역할]",
+      date: "2024-09", featured: true, type: "school", client: "", role: "[담당 역할]",
       thumb: "img/projects/project-06.svg", image: "img/projects/project-06.svg",
       desc: "[보도자료 배포, 보도 건수, 노출 수치를 적어주세요.]", tags: ["Press", "Media"], link: ""
     },
@@ -96,7 +98,7 @@
       result: { value: "[X.X배]", label: "[ROAS]" },
       roles: ["marketing"],
       title: "[브랜드 캠페인]", category: "marketing", categoryLabel: "Campaign",
-      date: "2024-03", featured: true, client: "[클라이언트]", role: "[담당 역할]",
+      date: "2024-03", featured: true, type: "team", client: "", role: "[담당 역할]",
       thumb: "img/projects/project-01.svg", image: "img/projects/project-01.svg",
       desc: "[목표, 전략, 성과 수치를 두세 문장으로 적어주세요.]", tags: ["Campaign", "CRM"], link: ""
     }

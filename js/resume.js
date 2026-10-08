@@ -38,7 +38,6 @@ const RESUME = {
     { date: "2022.08", name: "ACP InDesign", org: "Adobe" },
     { date: "2022.04", name: "ACP Photoshop", org: "Adobe" },
     { date: "2022.04", name: "ACP Illustrator", org: "Adobe" },
-    { date: "2022.01", name: "OPIc IM2", org: "ACTFL" },
     { date: "2021.11", name: "시각디자인산업기사", org: "한국산업인력공단" },
     { date: "2021.06", name: "컬러리스트산업기사", org: "한국산업인력공단" },
     { date: "2020.09", name: "GTQi 일러스트 1급", org: "한국생산성본부" },
@@ -46,5 +45,25 @@ const RESUME = {
     { date: "2019.12", name: "웹디자인개발기능사", org: "한국산업인력공단" },
     { date: "2019.08", name: "컴퓨터그래픽스운용기능사", org: "한국산업인력공단" },
     { date: "2018.07", name: "컴퓨터활용능력 2급", org: "대한상공회의소" }
+  ],
+
+  /* 대외활동 · 교내활동 (최신순 자동 정렬, 4개 넘으면 '더보기')
+     type: "external"(대외활동: 서포터즈 · 공모전 · 기자단 …) | "campus"(교내활동: 동아리 · 학생회 · 학회 …)
+     role: 맡은 역할 → 오른쪽에 크게 보여요. 활동 중이면 end: "" */
+  activities: [
+    { type: "external", start: "2025.03", end: "2025.08", title: "[OO 브랜드 대학생 서포터즈 12기]", org: "[OO 기업]", role: "[콘텐츠 디자인 팀장]", desc: "[SNS 카드뉴스 24건 제작, 우수 활동상]" },
+    { type: "campus", start: "2024.03", end: "2025.02", title: "[시각디자인 소모임 OO]", org: "[OO대학교 동아리]", role: "[회장]", desc: "[정기 전시 2회 기획 · 포스터 제작]" },
+    { type: "external", start: "2024.11", end: "2024.12", title: "[OO 디자인 해커톤]", org: "[OO 재단]", role: "[UI 디자인]", desc: "[48시간 앱 프로토타입, 장려상]" },
+    { type: "external", start: "2023.09", end: "2023.12", title: "[OO 공모전 팀 프로젝트]", org: "[OO 협회]", role: "[브랜딩 담당]", desc: "[본선 진출]" },
+    { type: "campus", start: "2022.09", end: "2023.02", title: "[OO대학교 디자인 학회]", org: "[OO대학교]", role: "[학회원]", desc: "[브랜드 리서치 세미나 발표]" },
+    { type: "campus", start: "2021.03", end: "2021.12", title: "[OO대학교 학생회 홍보국]", org: "[OO대학교]", role: "[홍보국원]", desc: "[행사 포스터 · SNS 콘텐츠 제작]" }
+  ],
+
+  /* 어학: score(점수·등급)를 크게 보여줘요.
+     expires(유효기간)가 지나면 '만료'로 흐리게, 비우면 '평생 유효'로 표시 */
+  languages: [
+    { test: "TOEIC", score: "[900]", date: "2025.05", expires: "2027.05", org: "ETS" },
+    { test: "OPIc", score: "IM2", date: "2022.01", expires: "2024.01", org: "ACTFL" },
+    { test: "JLPT", score: "[N2]", date: "2024.12", expires: "", org: "일본국제교류기금" }
   ]
 };

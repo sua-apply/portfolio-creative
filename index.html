@@ -21,7 +21,7 @@
 
   <!-- 스타일 (?v= 숫자는 수정 후 올릴 때마다 바꾸면 캐시 문제 없음) -->
   <link rel="stylesheet" href="css/reset.css?v=20261001e" />
-  <link rel="stylesheet" href="css/style.css?v=20261001e" />
+  <link rel="stylesheet" href="css/style.css?v=20261008a" />
   <link rel="stylesheet" href="css/responsive.css?v=20261001e" />
 </head>
 <body>
@@ -46,6 +46,7 @@
   <nav class="dots" id="dots" aria-label="섹션 이동">
     <span class="dots__fill" id="dotsFill" aria-hidden="true"></span>
     <a href="#profile" class="dots__item"><span class="dots__label">Profile</span><i></i></a>
+    <a href="#activities" class="dots__item"><span class="dots__label">Activities</span><i></i></a>
     <a href="#credentials" class="dots__item"><span class="dots__label">Credentials</span><i></i></a>
     <a href="#skills" class="dots__item"><span class="dots__label">Skills</span><i></i></a>
     <a href="#projects" class="dots__item"><span class="dots__label">Projects</span><i></i></a>
@@ -135,14 +136,36 @@
       </div>
     </section>
 
-    <!-- ===== About 2 · Credentials (수상 + 자격증) ===== -->
+    <!-- ===== About 2 · Activities (대외활동 · 교내활동) ===== -->
+    <section class="section activities" id="activities">
+      <div class="container">
+        <p class="section__num reveal">02 — Activities</p>
+        <h2 class="section__title reveal">Beyond <em>Work</em></h2>
+        <!-- 요약 숫자 · 종류 버튼 · 목록: js/resume.js 의 activities 에서 자동 생성 -->
+        <div class="act-stats reveal" id="actStats"></div>
+        <div class="act-filter reveal" id="actFilter" role="group" aria-label="활동 종류"></div>
+        <ol class="act-list" id="actList"></ol>
+        <button type="button" class="more-btn" id="actMore" hidden></button>
+      </div>
+    </section>
+
+    <!-- ===== About 3 · Credentials (수상 + 어학 + 자격증) ===== -->
     <section class="section credentials" id="credentials">
       <div class="container">
-        <p class="section__num reveal">02 — Credentials</p>
+        <p class="section__num reveal">03 — Credentials</p>
         <h2 class="section__title reveal">Awards &amp; <em>Certificates</em></h2>
 
         <!-- 수상: js/resume.js 의 awards 에서 자동 생성 -->
         <div class="awards" id="awardList"></div>
+
+        <!-- 어학: js/resume.js 의 languages 에서 자동 생성 -->
+        <div class="langs reveal">
+          <div class="certs__head">
+            <h3 class="certs__title">Languages</h3>
+            <span class="certs__count" id="langCount"></span>
+          </div>
+          <div class="langs__grid" id="langList"></div>
+        </div>
 
         <!-- 자격증: 연도별 최신순 자동 묶음, 최근 3개 연도까지 보이고 나머지는 '더보기' -->
         <div class="certs reveal">
@@ -159,7 +182,7 @@
     <!-- ===== Skills ===== -->
     <section class="section skills" id="skills">
       <div class="container">
-        <p class="section__num reveal">03 — Skills</p>
+        <p class="section__num reveal">04 — Skills</p>
         <h2 class="section__title reveal">Skills &amp; <em>Tools</em></h2>
         <div class="skills__grid" id="skillsGrid">
           <div class="skill-card reveal">
@@ -196,7 +219,7 @@
     <!-- ===== 작업물 보러가기 ===== -->
     <section class="section projects-cta" id="projects">
       <div class="container">
-        <p class="section__num reveal">04 — Projects</p>
+        <p class="section__num reveal">05 — Projects</p>
         <a href="works.html" data-keep="works.html" class="cta reveal">
           <div class="cta__text">
             <p class="cta__eyebrow">Projects · Archive</p>
@@ -234,8 +257,8 @@
 
   <!-- 스크립트 -->
   <script src="js/roles.js?v=1"></script>
-  <script src="js/projects.js?v=20261001f"></script>
-  <script src="js/resume.js?v=20261001e"></script>
-  <script src="js/main.js?v=20261001f"></script>
+  <script src="js/projects.js?v=20261008a"></script>
+  <script src="js/resume.js?v=20261008a"></script>
+  <script src="js/main.js?v=20261008a"></script>
 </body>
 </html>
