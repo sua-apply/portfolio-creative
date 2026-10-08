@@ -43,6 +43,8 @@
       result: p.result_value ? { value: p.result_value, label: p.result_label || "" } : null,
       thumb: p.thumb, image: p.image || p.thumb,
       link: (p.links && (p.links.detail || p.links.behance || p.links.demo)) || "",
+      period: p.period_label || "",
+      detail: p.detail || {},
     };
   }
   function toResume(rows) {

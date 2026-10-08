@@ -20,7 +20,7 @@
 
   <!-- 스타일 -->
   <link rel="stylesheet" href="css/reset.css?v=20261001e" />
-  <link rel="stylesheet" href="css/style.css?v=20261008c" />
+  <link rel="stylesheet" href="css/style.css?v=20261008d" />
   <link rel="stylesheet" href="css/responsive.css?v=20261001e" />
 
 </head>
@@ -96,6 +96,8 @@
     <div class="modal__backdrop" data-close></div>
     <article class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <button class="modal__close" data-close aria-label="닫기">✕</button>
+      <!-- 케이스 스터디: DB projects.detail 이 있는 프로젝트만 여기에 그려져요 -->
+      <div class="cs" id="modalCase" hidden></div>
       <img class="modal__img" id="modalImg" src="" alt="" />
       <div class="modal__body">
         <p class="modal__meta" id="modalMeta"></p>
@@ -108,9 +110,9 @@
   </div>
 
   <!-- 스크립트 (순서 중요: 데이터 → 작업물 페이지 → 공통) -->
-  <script src="js/db.js?v=20261008c"></script>
-  <script src="js/data.js?v=20261008c"></script>
-  <script src="js/works.js?v=20261008c"></script>
-  <script src="js/main.js?v=20261008c"></script>
+  <script src="js/db.js?v=20261008d"></script>
+  <script src="js/data.js?v=20261008d"></script>
+  <script src="js/works.js?v=20261008d"></script>
+  <script src="js/main.js?v=20261008d"></script>
 </body>
 </html>

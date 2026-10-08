@@ -145,12 +145,113 @@
     show(current);
   }
 
-  /* ---------- 5. 상세 모달 ---------- */
+  /* ---------- 5. 케이스 스터디 (DB projects.detail 이 채워진 프로젝트) ----------
+     detail = { sections: [ { type, label, title, body:[문단], ... } ] }
+     type: text · target · cards · cast · scenario · mockup · gallery · palette(colors, fonts) · process · notes
+     섹션 번호(01, 02…)는 순서대로 자동으로 붙어요. */
+  const HEX = /^#[0-9a-f]{3,8}$/i;
+  const paras = (b) => (Array.isArray(b) ? b : b ? [b] : []).map((t) => `<p>${esc(t)}</p>`).join("");
+  const img = (src, alt) => (src ? `<img src="${esc(src)}" alt="${esc(alt || "")}" loading="lazy" />` : "");
+
+  const SECTION = {
+    text: (s) => paras(s.body),
+    target: (s) => {
+      const pc = s.persona || {};
+      return `${paras(s.body)}<div class="cs-persona">
+        <div class="cs-persona__card">
+          ${pc.kicker ? `<small>${esc(pc.kicker)}</small>` : ""}
+          <h4>${esc(pc.name)}</h4>
+          ${pc.desc ? `<p>${esc(pc.desc)}</p>` : ""}
+          ${(pc.chips || []).length ? `<div>${pc.chips.map((c) => `<span class="cs-chip">${esc(c)}</span>`).join("")}</div>` : ""}
+          ${pc.note ? `<small>${esc(pc.note)}</small>` : ""}
+        </div>
+        <ul class="cs-decide">${(s.decisions || []).map(([a, b]) => `<li><span>${esc(a)}</span><span aria-hidden="true">→</span><span>${esc(b)}</span></li>`).join("")}</ul>
+      </div>`;
+    },
+    cards: (s) => `${paras(s.body)}<div class="cs-cards">${(s.items || []).map((it) => `
+      <div>${it.kicker ? `<b>${esc(it.kicker)}</b>` : ""}<strong>${esc(it.title)}</strong>${it.desc ? `<span>${esc(it.desc)}</span>` : ""}</div>`).join("")}</div>`,
+    notes: (s) => `${paras(s.body)}<div class="cs-notes">${(s.items || []).map((it) => `
+      <div><h4>${esc(it.title)}</h4><p>${esc(it.desc)}</p></div>`).join("")}</div>`,
+    cast: (s) => `${paras(s.body)}<div class="cs-cast">${(s.items || []).map((it) => `
+      <figure><div class="cs-cast__sw" style="background:${HEX.test(it.color) ? it.color : "var(--bg-alt)"}"><i>${esc(it.sound)}</i></div>
+      <figcaption>${esc(it.name)}<small>${esc(it.note || "")}${it.color ? ` · ${esc(it.color)}` : ""}</small></figcaption></figure>`).join("")}</div>`,
+    scenario: (s) => {
+      const arc = s.arc || [];
+      return `${paras(s.body)}
+        ${arc.length ? `<div class="cs-arc" style="grid-template-columns:${arc.map((a) => `${Number(a.span) || 1}fr`).join(" ")}">${arc.map((a) => `<span${a.key ? ' class="is-key"' : ""}>${esc(a.label)}</span>`).join("")}</div>` : ""}
+        <ol class="cs-scenes">${(s.scenes || []).map((sc, i) => `
+          <li${sc.key ? ' class="is-key"' : ""}><div class="cs-scenes__box">${sc.image ? img(sc.image) : String(i + 1).padStart(2, "0")}</div><b>${esc(sc.title)}</b><span>${esc(sc.desc || "")}</span></li>`).join("")}</ol>
+        ${(s.scenes || []).some((x) => x.key) ? `<p class="cs-hint">주황 테두리 = 연출 포인트 장면</p>` : ""}`;
+    },
+    mockup: (s, p) => `<div class="cs-tablet">${img(s.image || p.image, s.caption || p.title)}</div>`,
+    gallery: (s) => `<div class="cs-gallery">${(s.items || []).map((it) => `
+      <figure class="${it.image ? "" : "is-empty"}">${it.image ? img(it.image, it.title) : ""}<figcaption><b>${esc(it.title)}</b>${esc(it.desc || "")}</figcaption></figure>`).join("")}</div>`,
+    palette: (s) => `${paras(s.body)}
+      <div class="cs-pal">${(s.colors || []).filter((c) => HEX.test(c.hex)).map((c) => `
+        <div><i style="background:${c.hex}"></i><span>${esc(c.name)}</span><code>${esc(c.hex.toUpperCase())}</code></div>`).join("")}</div>
+      ${(s.fonts || []).length ? `<div class="cs-type">${s.fonts.map((t) => `
+        <div><div class="cs-type__${t.style === "display" ? "big" : "body"}">${esc(t.sample)}</div><small>${esc(t.note || "")}</small></div>`).join("")}</div>` : ""}`,
+    process: (s) => `${paras(s.body)}
+      <ol class="cs-flow">${(s.steps || []).map((st) => `<li><b>${esc(st.title)}</b>${esc(st.desc || "")}</li>`).join("")}</ol>
+      ${s.note ? `<p class="cs-note">${esc(s.note)}</p>` : ""}`,
+  };
+  const WIDE = { mockup: 1, gallery: 1 };
+
+  function renderCase(p) {
+    let n = 0;
+    const secs = (p.detail.sections || []).filter((s) => SECTION[s.type]).map((s) => {
+      n += 1;
+      const no = String(n).padStart(2, "0");
+      const inner = SECTION[s.type](s, p);
+      if (WIDE[s.type]) {
+        return `<section class="cs-band"><p class="cs-band__cap"><span><em>${no}</em> ${esc(s.label || "")}</span>${s.caption ? `<span>${esc(s.caption)}</span>` : ""}</p>${s.title ? `<h3 class="cs-band__title">${esc(s.title)}</h3>` : ""}${inner}</section>`;
+      }
+      return `<section class="cs-sec"><div class="cs-sec__label"><em>${no}</em>${esc(s.label || "")}</div>
+        <div class="cs-sec__body">${s.title ? `<h3>${esc(s.title)}</h3>` : ""}${inner}</div></section>`;
+    }).join("");
+    const facts = [
+      ["역할", p.role],
+      ["기간", p.period || fmtDate(p.date)],
+      ["구분", [kindLabel(p), p.client].filter(Boolean).join(" · ")],
+      ["도구", (p.tools || []).join(" · ")],
+    ].filter(([, v]) => v);
+    return `
+      <header class="cs-hero">
+        <p class="cs-hero__meta">${esc(p.categoryLabel)} · ${fmtDate(p.date)}</p>
+        <h2 class="cs-hero__title" id="caseTitle">${esc(p.title)}</h2>
+        ${p.summary ? `<p class="cs-hero__lead">${esc(p.summary)}</p>` : ""}
+        <div class="cs-hero__img">${img(p.image, p.title)}</div>
+        <dl class="cs-facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+      </header>
+      ${secs}
+      ${p.link ? `<p class="cs-end"><a class="btn btn--primary" href="${esc(p.link)}" target="_blank" rel="noopener">작품 보러 가기 ↗</a></p>` : ""}`;
+  }
+
+  /* ---------- 6. 상세 모달 ---------- */
   const modal = $("#modal");
   let lastFocused = null;
   function openModal(id) {
     const p = PROJECTS.find((x) => x.id === id);
     if (!p || !modal) return;
+    const isCase = !!(p.detail && (p.detail.sections || []).length);
+    const box = $("#modalCase");
+    modal.classList.toggle("is-case", isCase && !!box);
+    if (box) {
+      box.hidden = !isCase;
+      box.innerHTML = isCase ? renderCase(p) : "";
+      $("#modalImg").hidden = isCase;
+      $(".modal__body", modal).hidden = isCase;
+      $(".modal__panel", modal).setAttribute("aria-labelledby", isCase ? "caseTitle" : "modalTitle");
+      $(".modal__panel", modal).scrollTop = 0;
+    }
+    if (isCase && box) {
+      lastFocused = document.activeElement;
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("is-locked");
+      $(".modal__close", modal).focus();
+      return;
+    }
     $("#modalImg").src = p.image;
     $("#modalImg").alt = p.title;
     $("#modalMeta").textContent = `${p.categoryLabel} · ${fmtDate(p.date)} · ${kindLabel(p)}${p.client ? ` · ${p.client}` : ""}`;

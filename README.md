@@ -63,6 +63,10 @@ portfolio/
    - `kind`: 구분 → `personal`(개인 프로젝트) · `team`(팀 프로젝트) · `contest`(공모전) · `school`(학교 과제) · `client`(외주)
    - `client`: 주최·발주처. 목록 카드에는 안 보이고 '자세히 보기' 창에만 보여요. 비워두면 어디에도 안 보여요
    - `summary`(한 줄 요약), `did`(한 일), `tools`(사용한 도구), `result_value`·`result_label`(결과 숫자) → 프로젝트 카드에 보여요
+   - `detail`: '자세히 보기'를 케이스 스터디(넓은 창)로 보여줄 때 채워요. 비워두면(`{}`) 기존 작은 창이 열려요
+     - 모양: `{"sections": [ {"type": "...", "label": "Overview", "title": "...", "body": ["문단", ...]}, ... ]}`
+     - `type` 종류: `text`(글) · `target`(persona, decisions) · `cards`(items) · `cast`(items: name, sound, color, note) · `scenario`(arc, scenes) · `mockup`(태블릿 목업, image 없으면 대표 이미지) · `gallery`(items: title, desc, image) · `palette`(colors: name, hex / fonts: style, sample, note) · `process`(steps, note) · `notes`(items: title, desc)
+     - 섹션 번호는 순서대로 자동으로 붙어요. 예시는 `recycling-band` 프로젝트를 참고하세요
    - 페이지 맨 위 '작업 분야'와 '많이 쓴 도구'는 `category`와 `tools`로 자동 계산됩니다
    - `featured` 켜기 → 메인 '작업물 보러가기' 배너 썸네일에 사용 (최신 3개), `published` 끄기 → 숨기기
 3. **프로필 사진** → `img/profile.jpg`로 넣고 `index.html`의 `img/profile.svg`를 `img/profile.jpg`로 변경
