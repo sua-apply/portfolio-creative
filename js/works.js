@@ -217,11 +217,13 @@
     ].filter(([, v]) => v);
     return `
       <header class="cs-hero">
-        <p class="cs-hero__meta">${esc(p.categoryLabel)} · ${fmtDate(p.date)}</p>
-        <h2 class="cs-hero__title" id="caseTitle">${esc(p.title)}</h2>
-        ${p.summary ? `<p class="cs-hero__lead">${esc(p.summary)}</p>` : ""}
         <div class="cs-hero__img">${img(p.image, p.title)}</div>
-        <dl class="cs-facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+        <div class="cs-hero__text">
+          <p class="cs-hero__meta">${esc(p.categoryLabel)} · ${fmtDate(p.date)}</p>
+          <h2 class="cs-hero__title" id="caseTitle">${esc(p.title)}</h2>
+          ${p.summary ? `<p class="cs-hero__lead">${esc(p.summary)}</p>` : ""}
+          <dl class="cs-facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+        </div>
       </header>
       ${secs}
       ${p.link ? `<p class="cs-end"><a class="btn btn--primary" href="${esc(p.link)}" target="_blank" rel="noopener">작품 보러 가기 ↗</a></p>` : ""}`;
@@ -242,7 +244,7 @@
       $("#modalImg").hidden = isCase;
       $(".modal__body", modal).hidden = isCase;
       $(".modal__panel", modal).setAttribute("aria-labelledby", isCase ? "caseTitle" : "modalTitle");
-      $(".modal__panel", modal).scrollTop = 0;
+      box.scrollTop = 0;
     }
     if (isCase && box) {
       lastFocused = document.activeElement;

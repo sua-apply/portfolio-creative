@@ -1258,28 +1258,29 @@ main, .hero { transition: opacity .4s ease; }
 .load-error { position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 50; padding: 12px 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font-size: 14px; }
 
 /* ===== 작업물 상세: 케이스 스터디 (projects.detail 이 있을 때) ===== */
-.modal.is-case .modal__panel { max-width: 1120px; max-height: 94vh; }
-.modal.is-case .modal__close { position: sticky; top: 16px; float: right; margin: 16px 16px -60px 0; background: var(--card); box-shadow: 0 2px 10px rgba(0, 0, 0, .08); }
-.cs { padding: 56px 64px 72px; clear: both; }
+/* 창(panel)은 고정하고 안쪽(.cs)만 스크롤 → 닫기 버튼이 늘 창 모서리에 있어요 */
+.modal.is-case .modal__panel { max-width: 1120px; max-height: 94vh; display: flex; flex-direction: column; overflow: hidden; }
+.modal.is-case .modal__close { background: var(--card); box-shadow: 0 2px 10px rgba(0, 0, 0, .08); }
+.cs { padding: 64px 64px 72px; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 .cs em { color: var(--accent); }
 .cs p { max-width: 38em; margin-bottom: 14px; color: var(--ink-soft); }
-.cs-hero { display: grid; gap: 18px; }
+.cs-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center; }
+.cs-hero__text { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .cs .cs-hero__meta { font-size: 14px; font-weight: 600; color: var(--accent); margin: 0; }
-.cs-hero__title { font-size: clamp(40px, 6vw, 76px); font-weight: 800; line-height: 1.08; letter-spacing: -0.04em; text-wrap: balance; }
-.cs .cs-hero__lead { font-size: clamp(17px, 2vw, 21px); max-width: 34em; margin: 0; }
-.cs-hero__img { width: 100%; max-width: 640px; margin: 8px auto 0; border-radius: 20px; overflow: hidden; background: var(--bg-alt); }
+.cs-hero__title { font-size: clamp(36px, 4.6vw, 60px); font-weight: 800; line-height: 1.08; letter-spacing: -0.04em; text-wrap: balance; }
+.cs .cs-hero__lead { font-size: 18px; margin: 0; }
+.cs-hero__img { border-radius: 20px; overflow: hidden; background: var(--bg-alt); }
 .cs-hero__img img { width: 100%; }
 
 /* 모달 스크롤바: 기본 회색 화살표 스크롤바 대신 얇은 둥근 막대 */
-.modal__panel::-webkit-scrollbar { width: 10px; }
-.modal__panel::-webkit-scrollbar-track { background: transparent; margin-block: 18px; }
-.modal__panel::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; }
-.modal__panel::-webkit-scrollbar-thumb:hover { background-color: var(--ink-soft); }
-.modal__panel::-webkit-scrollbar-button { display: none; height: 0; }
-@supports (-moz-appearance: none) { .modal__panel { scrollbar-width: thin; scrollbar-color: var(--line) transparent; } }
-.cs-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.cs-facts div { padding: 14px 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.cs-facts div + div { padding-left: 20px; border-left: 1px solid var(--line); }
+.modal__panel::-webkit-scrollbar, .cs::-webkit-scrollbar { width: 10px; }
+.modal__panel::-webkit-scrollbar-track, .cs::-webkit-scrollbar-track { background: transparent; margin-block: 18px; }
+.modal__panel::-webkit-scrollbar-thumb, .cs::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; }
+.modal__panel::-webkit-scrollbar-thumb:hover, .cs::-webkit-scrollbar-thumb:hover { background-color: var(--ink-soft); }
+.modal__panel::-webkit-scrollbar-button, .cs::-webkit-scrollbar-button { display: none; height: 0; }
+@supports (-moz-appearance: none) { .modal__panel, .cs { scrollbar-width: thin; scrollbar-color: var(--line) transparent; } }
+.cs-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; margin-top: 8px; }
+.cs-facts div { padding: 14px 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; border-top: 1px solid var(--line); }
 .cs-facts dt { font-size: 12px; font-weight: 600; letter-spacing: .06em; color: var(--ink-soft); }
 .cs-facts dd { margin: 0; font-size: 15px; font-weight: 600; }
 
@@ -1365,10 +1366,9 @@ main, .hero { transition: opacity .4s ease; }
 
 @media (max-width: 760px) {
   .modal.is-case .modal__panel { max-height: 94vh; }
-  .cs { padding: 40px 20px 48px; }
-  .cs-facts { grid-template-columns: 1fr 1fr; }
-  .cs-facts div:nth-child(3) { padding-left: 0; border-left: 0; }
-  .cs-facts div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .cs { padding: 72px 20px 48px; }
+  .cs-hero { grid-template-columns: 1fr; gap: 28px; }
+  .cs-hero__text { order: -1; }
   .cs-sec { grid-template-columns: 1fr; gap: 12px; padding-top: 44px; margin-top: 44px; }
   .cs-sec__label { flex-direction: row; align-items: baseline; gap: 12px; }
   .cs-sec__label em { font-size: 28px; }
