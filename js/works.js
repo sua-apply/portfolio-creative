@@ -45,6 +45,15 @@
       filter = b.dataset.f;
       $$("button", box).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
       $$(".work").forEach((el) => { el.hidden = filter !== "all" && el.dataset.cat !== filter; });
+      layout();
+    });
+  }
+
+  // 보이는 작업만 01부터 다시 번호를 매기고, 이미지 위치(왼쪽·오른쪽)도 보이는 순서대로 번갈아 둬요.
+  function layout() {
+    $$(".work").filter((el) => !el.hidden).forEach((el, i) => {
+      $(".work__no", el).textContent = String(i + 1).padStart(2, "0");
+      el.classList.toggle("is-flip", i % 2 === 1);
     });
   }
 
@@ -120,6 +129,7 @@
         filter = "all";
         $$("#filter button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.f === "all")));
         $$(".work").forEach((el) => { el.hidden = false; });
+        layout();
       }
     });
     box.addEventListener("keydown", (e) => {
@@ -163,6 +173,7 @@
     renderOverview(list);
     renderFilter(list);
     renderList(list);
+    layout();
     renderTimeline(list);
     // 보기 전환 (works2.html 처럼 #viewToggle 이 있을 때만)
     const toggle = $("#viewToggle");
