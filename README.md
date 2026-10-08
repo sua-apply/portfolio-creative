@@ -7,11 +7,15 @@
 이 사이트는 한 번에 한 직무만 보여줍니다 (design, marketing, pr).
 주소 뒤의 `?v=코드`로 어떤 직무를 보여줄지 정하고, 방문자 화면에는 직무를 바꾸는 버튼이 없습니다.
 
-- 직무별 표지 문장, 소개, 흘러가는 띠, Skills & Tools → `js/roles.js`
-- 프로젝트 → `js/projects.js` (각 프로젝트의 `roles`에 적힌 직무에서만 보여요)
-- 학력·경력·교육·대외·교내활동·수상·어학·자격증 → `js/resume.js` (모든 직무에서 똑같이 보여요)
+모든 내용은 **Supabase DB**에 있고, 사이트는 열릴 때 그 직무 내용만 받아와요.
+사이트 코드에는 다른 직무의 내용도, 링크 코드도, 관리 비밀번호도 들어 있지 않아요.
 
-직무별 링크 복사와 관리자 모드는 따로 연결되지 않은 관리 페이지에서 비밀번호를 넣고 사용합니다.
+- 고치는 곳: Supabase → **Table Editor** → 왼쪽 위 schema를 **portfolio**로 바꾸기
+  - `roles` 직무별 표지 문장·소개·흘러가는 띠·링크 코드 / `skills` 직무별 스킬
+  - `projects` 프로젝트, `project_roles` 어느 직무에 보일지(sort 작을수록 먼저)
+  - `resume_items` 학력·경력·교육·대외/교내활동·수상·어학·자격증 (모든 직무 공통)
+- 방문자는 테이블을 직접 읽을 수 없고, 공개 함수 `get_portfolio`로 그 직무 내용만 받아요.
+- 직무별 링크 복사와 관리자 모드는 따로 연결되지 않은 관리 페이지(`manage.html`)에서 비밀번호를 넣고 사용해요. 비밀번호는 DB에서 확인하고, 15분에 10번 틀리면 잠겨요.
 
 ## 📁 폴더 구조
 
@@ -26,9 +30,8 @@ portfolio/
 │   ├── style.css       # 메인 스타일 (맨 위 :root 에서 색상/폰트 변경)
 │   └── responsive.css  # 태블릿·모바일 대응
 ├── js/
-│   ├── roles.js        # ⭐ 직무별 문구·스킬, 비밀 코드, 관리자 막대
-│   ├── projects.js     # ⭐ 프로젝트 데이터 (roles로 직무 지정)
-│   ├── resume.js       # ⭐ 이력 데이터: 학력·경력·교육·대외·교내활동·수상·어학·자격증
+│   ├── db.js           # Supabase 주소와 방문자용 공개 키
+│   ├── data.js         # DB에서 그 직무 내용을 받아 화면에 채우기, 관리자 막대
 │   ├── works.js        # 작업물 페이지 전용: 한눈에 보기, 분야 필터, 카드, 아카이브, 상세 모달
 │   └── main.js         # 공통: 메뉴, 스크롤 효과, 메인 미리보기
 ├── img/
@@ -44,23 +47,24 @@ portfolio/
 
 ## ✏️ 내 정보로 바꾸기
 
-1. **학력·경력·교육·대외·교내활동·수상·어학·자격증** → `js/resume.js`에 한 줄씩 추가
-   - 대외활동·교내활동은 `activities`에: `type`을 `external`(대외) 또는 `campus`(교내)로. 위 숫자 요약과 종류 버튼은 자동 계산
-   - 어학은 `languages`에: 점수가 크게 보이고, `expires`(유효기간)가 지나면 '만료'로 흐리게, 비우면 '평생 유효'로 표시
+1. **내용 고치기** → Supabase Table Editor (schema: portfolio). 저장하면 사이트에 바로 반영돼요
+   - `resume_items`의 `kind`로 종류를 골라요: education · experience · training · activity · award · language · certificate
+     - 활동(activity)은 `activity_type`을 external(대외) 또는 campus(교내)로, 맡은 역할은 `my_role`
+     - 어학(language)은 `score`(점수)와 `expires_date`(유효기간, 비우면 '평생 유효')
+     - 날짜는 `start_date`(취득일·시작일), 재직 중·수강 중이면 `end_date`를 비워요
    - 순서 상관없이 **최신순 자동 정렬**, 자격증은 **연도별 자동 묶음**, 개수도 자동
    - 경력·교육 4개, 자격증 3개 연도를 넘으면 자동으로 **더보기**로 접힘 (`js/main.js` 맨 위 `LIMITS`에서 변경)
-   - 재직 중·수강 중이면 `end: ""`
    - 비어 있는 칸(예: 어학이 하나도 없음)은 제목까지 통째로 안 보이고, 섹션 번호·오른쪽 점 메뉴도 남은 것만으로 다시 매겨져요
-1. **올린 뒤 화면이 안 바뀌면** → HTML의 `?v=20261001e` 숫자를 바꿔서 다시 업로드
-1. **이름·소개·이메일** → `index.html`에서 `홍길동`, `HONG`, `hello@example.com` 검색해서 수정
-2. **작업물** → `img/projects/`에 이미지 넣고, `js/projects.js`에서 제목·설명·이미지 경로 수정
-   - 프로젝트를 늘리거나 줄이려면 `{ ... },` 블록을 복사/삭제
-   - `date: "2025-08"` → '아카이브' 보기의 **연도 → 월별** 묶음이 이 값으로 자동 생성됩니다
-   - `type`: 구분 → `personal`(개인 프로젝트) · `team`(팀 프로젝트) · `contest`(공모전) · `school`(학교 과제) · `client`(외주)
+1. **올린 뒤 화면이 안 바뀌면** → HTML의 `?v=20261008c` 숫자를 바꿔서 다시 업로드
+1. **이름·소개·이메일** → `index.html`에서 직접 수정
+2. **작업물** → `img/projects/`에 이미지 넣고, `projects` 표에 한 줄 추가 + `project_roles`에 보일 직무 연결
+   - `id`는 영문 소문자·숫자·`-`만 (주소에 써요)
+   - `date` → '아카이브' 보기의 **연도 → 월별** 묶음이 이 값으로 자동 생성됩니다
+   - `kind`: 구분 → `personal`(개인 프로젝트) · `team`(팀 프로젝트) · `contest`(공모전) · `school`(학교 과제) · `client`(외주)
    - `client`: 외주일 때만 적어요. 비워두면 화면에 안 보여요
-   - `summary`(한 줄 요약), `did`(한 일), `tools`(사용한 도구), `result`(결과 숫자) → 프로젝트 카드에 보여요
-   - 페이지 맨 위 '작업 분야'와 '많이 쓴 도구'는 `categoryLabel`과 `tools`로 자동 계산됩니다
-   - `featured: true` → 메인 '작업물 보러가기' 배너 썸네일에 사용 (최신 3개)
+   - `summary`(한 줄 요약), `did`(한 일), `tools`(사용한 도구), `result_value`·`result_label`(결과 숫자) → 프로젝트 카드에 보여요
+   - 페이지 맨 위 '작업 분야'와 '많이 쓴 도구'는 `category`와 `tools`로 자동 계산됩니다
+   - `featured` 켜기 → 메인 '작업물 보러가기' 배너 썸네일에 사용 (최신 3개), `published` 끄기 → 숨기기
 3. **프로필 사진** → `img/profile.jpg`로 넣고 `index.html`의 `img/profile.svg`를 `img/profile.jpg`로 변경
 4. **이력서** → `files/resume.pdf`를 내 파일로 교체
 5. **색상** → `css/style.css` 맨 위 `--accent` 값 변경

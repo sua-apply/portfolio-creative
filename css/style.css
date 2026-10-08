@@ -1251,3 +1251,8 @@ em {
 /* 내용이 없는 칸을 숨겼을 때 */
 .career.is-single { grid-template-columns: 1fr; }
 .credentials .is-first { margin-top: 56px; }
+
+/* DB에서 내용을 불러오는 동안 */
+.is-loading main, .is-loading .hero { opacity: 0; }
+main, .hero { transition: opacity .4s ease; }
+.load-error { position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 50; padding: 12px 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font-size: 14px; }

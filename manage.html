@@ -58,26 +58,23 @@
         <div><strong>관리자 모드</strong><p class="note" id="modeState"></p></div>
         <button type="button" id="mode"></button>
       </div>
-      <p class="note">링크 코드는 js/roles.js 의 code 값이에요. 이 페이지 주소는 사이트 어디에도 연결되어 있지 않아요.</p>
+      <p class="note">링크 코드는 Supabase → Table Editor → schema <b>portfolio</b> → <b>roles</b> 표의 code 칸이에요. 이 페이지 주소는 사이트 어디에도 연결되어 있지 않아요.</p>
     </section>
   </main>
 
-  <script src="js/roles.js?v=1"></script>
+  <script src="js/db.js?v=20261008c"></script>
   <script>
     (function () {
       "use strict";
-      // 비밀번호의 SHA-256 값. 바꾸려면 새 비밀번호의 SHA-256 값으로 교체하세요.
-      var HASH = "f41052558c8def4a82c4e433b374c6d20fd65af85f9e8a0c01cb663d3f18e40d";
-      var ADMIN = "pf-admin-mode", SESSION = "pf-admin-session";
+      // 비밀번호는 DB에서만 확인해요 (이 파일에는 비밀번호도, 링크 코드도 없어요)
+      var TRACK = "creative";
+      var ADMIN = "pf-admin-mode", LINKS = "pf-admin-links", SESSION = "pf-admin-session";
       var $ = function (s) { return document.querySelector(s); };
       var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
-      var isAdmin = function () { try { return localStorage.getItem(ADMIN) === "1"; } catch (e) { return false; } };
+      var get = function (st, k) { try { return st.getItem(k); } catch (e) { return null; } };
+      var isAdmin = function () { return get(localStorage, ADMIN) === "1"; };
+      var links = null;
 
-      function sha256(t) {
-        return crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)).then(function (b) {
-          return Array.from(new Uint8Array(b)).map(function (x) { return x.toString(16).padStart(2, "0"); }).join("");
-        });
-      }
       function sync() {
         var on = isAdmin();
         $("#mode").textContent = on ? "관리자 모드 끄기" : "관리자 모드 켜기";
@@ -89,20 +86,30 @@
         $("#gate").hidden = true;
         $("#panel").hidden = false;
         var base = new URL("./", location.href);
-        $("#rows").innerHTML = Object.keys(window.ROLES).map(function (k) {
-          var url = new URL("index.html?v=" + window.ROLES[k].code, base).href;
-          return '<li class="row"><strong>' + esc(window.ROLES[k].label) + '</strong><code>' + esc(url) + '</code>' +
+        $("#rows").innerHTML = links.filter(function (l) { return l.track === TRACK; }).map(function (l) {
+          var url = new URL("index.html?v=" + encodeURIComponent(l.code), base).href;
+          return '<li class="row"><strong>' + esc(l.label) + (l.is_default ? ' <small>(기본)</small>' : '') + '</strong><code>' + esc(url) + '</code>' +
             '<div><button type="button" data-copy="' + esc(url) + '">복사</button><a href="' + esc(url) + '" target="_blank" rel="noopener">열기</a></div></li>';
         }).join("");
         sync();
       }
       $("#gate").addEventListener("submit", function (e) {
         e.preventDefault();
-        sha256($("#pw").value).then(function (h) {
-          if (h !== HASH) { $("#err").hidden = false; $("#pw").select(); return; }
-          sessionStorage.setItem(SESSION, "1");
+        var btn = $("#gate button"), err = $("#err");
+        btn.disabled = true; btn.textContent = "확인 중…";
+        window.rpc("admin_role_links", { p_password: $("#pw").value }).then(function (res) {
+          if (!res || !res.ok) {
+            err.textContent = res && res.reason === "locked" ? "너무 많이 틀렸어요. 15분 뒤에 다시 해주세요." : "비밀번호가 맞지 않아요.";
+            err.hidden = false; $("#pw").select(); return;
+          }
+          links = res.links || [];
+          sessionStorage.setItem(SESSION, JSON.stringify(links));
+          if (isAdmin()) localStorage.setItem(LINKS, JSON.stringify(links));
+          $("#pw").value = "";
           show();
-        });
+        }).catch(function () {
+          err.textContent = "DB에 연결하지 못했어요. 잠시 후 다시 해주세요."; err.hidden = false;
+        }).then(function () { btn.disabled = false; btn.textContent = "들어가기"; });
       });
       $("#pw").addEventListener("input", function () { $("#err").hidden = true; });
       $("#rows").addEventListener("click", function (e) {
@@ -111,16 +118,20 @@
         navigator.clipboard.writeText(b.dataset.copy).then(function () { b.textContent = "복사됨"; }, function () { b.textContent = "복사 실패"; });
         setTimeout(function () { b.textContent = "복사"; }, 1400);
       });
+      // 관리자 모드를 켜면 이 브라우저에만 링크 목록을 저장해서 직무 전환 막대에 써요
       $("#mode").addEventListener("click", function () {
-        if (isAdmin()) localStorage.removeItem(ADMIN); else localStorage.setItem(ADMIN, "1");
+        if (isAdmin()) { localStorage.removeItem(ADMIN); localStorage.removeItem(LINKS); }
+        else { localStorage.setItem(ADMIN, "1"); localStorage.setItem(LINKS, JSON.stringify(links)); }
         sync();
       });
       $("#logout").addEventListener("click", function () {
         sessionStorage.removeItem(SESSION);
         localStorage.removeItem(ADMIN);
+        localStorage.removeItem(LINKS);
         location.reload();
       });
-      if (sessionStorage.getItem(SESSION) === "1") show(); else $("#pw").focus();
+      try { links = JSON.parse(get(sessionStorage, SESSION) || "null"); } catch (e) { links = null; }
+      if (Array.isArray(links)) show(); else $("#pw").focus();
     })();
   </script>
 </body>

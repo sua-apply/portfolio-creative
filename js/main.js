@@ -89,8 +89,8 @@
   }
 
   function renderResume() {
-    if (typeof RESUME === "undefined") return;
-    const R = RESUME;
+    if (!window.RESUME) return;
+    const R = window.RESUME;
     const put = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
     const text = (id, t) => { const el = $(id); if (el) el.textContent = t; };
 
@@ -373,14 +373,16 @@
   }
 
   /* ---------- Init ---------- */
-  renderResume();
   initHeader();
   initMenu();
-  initReveal();
-  initActiveNav();
-  // roles.js 가 화면을 채운 뒤(DOMContentLoaded)에 빈 칸을 정리하고 점 메뉴를 켜요
-  document.addEventListener("DOMContentLoaded", () => { hideEmpty(); initDots(); });
   initYear();
-  // PROJECTS는 이제 Supabase에서 비동기로 불러오므로, 데이터가 준비된 뒤에 미리보기를 그려요.
-  (window.PROJECTS_READY || Promise.resolve()).then(renderPreview);
+  // 내용은 DB(js/data.js)에서 불러오므로, 도착한 뒤에 그리고 → 빈 칸 정리 → 등장 효과 · 메뉴 연결
+  (window.PROJECTS_READY || Promise.resolve()).then(() => {
+    renderResume();
+    renderPreview();
+    hideEmpty();
+    initReveal();
+    initActiveNav();
+    initDots();
+  });
 })();
