@@ -193,6 +193,57 @@
     collapse($("#certList"), $("#certMore"), LIMITS.certYears, "이전 자격증");
   }
 
+  /* ---------- 0-1. 내용이 없는 칸은 통째로 숨기기 ----------
+     DB(지금은 resume.js · roles.js · projects.js)에 내용이 없으면
+     제목까지 안 보이게 하고, 섹션 번호와 오른쪽 점 메뉴도 남은 것만으로 다시 매겨요. */
+  function hideEmpty() {
+    const empty = (sel) => { const el = $(sel); return !el || !el.children.length; };
+    const hide = (el, yes) => { if (el) el.hidden = yes; };
+
+    // Profile: 학력 · 경력 · 교육
+    hide($(".edu"), empty("#eduList"));
+    const expCol = $("#expList") && $("#expList").closest(".career__col");
+    const trainCol = $("#trainList") && $("#trainList").closest(".career__col");
+    hide(expCol, empty("#expList"));
+    hide(trainCol, empty("#trainList"));
+    const career = $(".career");
+    if (career) {
+      const shown = [expCol, trainCol].filter((c) => c && !c.hidden).length;
+      career.hidden = shown === 0;
+      career.classList.toggle("is-single", shown === 1);
+    }
+
+    // Credentials: 수상 · 어학 · 자격증 → 셋 다 없으면 섹션째로
+    hide($("#awardList"), empty("#awardList"));
+    hide($(".langs"), empty("#langList"));
+    hide($(".certs"), empty("#certList"));
+    const cred = $("#credentials");
+    if (cred) {
+      const blocks = [$("#awardList"), $(".langs"), $(".certs")].filter((b) => b && !b.hidden);
+      cred.hidden = blocks.length === 0;
+      blocks.forEach((b, i) => b.classList.toggle("is-first", i === 0));
+      // 제목도 있는 것만: 수상·자격증이 다 있으면 그대로, 아니면 남은 이름으로
+      const has = { Awards: !$("#awardList").hidden, Languages: !$(".langs").hidden, Certificates: !$(".certs").hidden };
+      const names = Object.keys(has).filter((k) => has[k]);
+      const title = $("#credTitle");
+      if (title && !(has.Awards && has.Certificates) && names.length) {
+        const last = names.pop();
+        title.innerHTML = names.length ? `${names.join(", ")} &amp; <em>${last}</em>` : `My <em>${last}</em>`;
+      }
+    }
+
+    // Skills · 작업물 보러가기
+    hide($("#skills"), empty("#skillsGrid"));
+    hide($("#projects"), typeof PROJECTS !== "undefined" && !PROJECTS.length);
+
+    // 섹션 번호 01, 02 … 다시 매기기
+    $$(".section__num").filter((n) => !n.closest("section").hidden).forEach((n, i) => {
+      n.textContent = n.textContent.replace(/^\d+/, String(i + 1).padStart(2, "0"));
+    });
+    // 숨긴 섹션은 오른쪽 점 메뉴에서도 빼기
+    $$(".dots__item").forEach((a) => { const t = $(a.getAttribute("href")); if (!t || t.hidden) a.remove(); });
+  }
+
   /* ---------- 1. 메인: 작업물 보러가기 미리보기 ---------- */
   function renderPreview() {
     const stack = $("#projectPreview");
@@ -327,7 +378,8 @@
   initMenu();
   initReveal();
   initActiveNav();
-  initDots();
+  // roles.js 가 화면을 채운 뒤(DOMContentLoaded)에 빈 칸을 정리하고 점 메뉴를 켜요
+  document.addEventListener("DOMContentLoaded", () => { hideEmpty(); initDots(); });
   initYear();
   // PROJECTS는 이제 Supabase에서 비동기로 불러오므로, 데이터가 준비된 뒤에 미리보기를 그려요.
   (window.PROJECTS_READY || Promise.resolve()).then(renderPreview);

@@ -1210,9 +1210,9 @@ em {
 .skills { background: var(--bg); }
 .projects-cta { background: var(--bg-alt); }
 .act-stats { display: grid; grid-template-columns: repeat(2, 1fr); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); margin-bottom: 32px; }
-.act-stat { padding: 28px 0 24px; display: flex; flex-direction: column; gap: 6px; }
+.act-stat { padding: 22px 0 20px; display: flex; flex-direction: column; gap: 6px; }
 .act-stat + .act-stat { padding-left: 32px; border-left: 1px solid var(--line); }
-.act-stat strong { font-family: var(--font-serif); font-weight: 400; font-size: clamp(56px, 7vw, 92px); line-height: .9; letter-spacing: -0.02em; }
+.act-stat strong { font-family: var(--font-serif); font-weight: 400; font-size: clamp(40px, 4.4vw, 60px); line-height: 1; letter-spacing: 0; }
 .act-stat strong small { font-family: var(--font-sans); font-size: 18px; font-weight: 600; margin-left: 4px; color: var(--ink-soft); letter-spacing: 0; }
 .act-stat span { font-size: 14px; font-weight: 600; color: var(--ink-soft); }
 .act-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
@@ -1240,10 +1240,14 @@ em {
 }
 @media (max-width: 600px) {
   .act-stat + .act-stat { padding-left: 14px; }
-  .act-stat strong { font-size: 44px; }
+  .act-stat strong { font-size: 38px; }
   .act-stat strong small { font-size: 13px; }
   .act-stat span { font-size: 12px; }
   .act-filter { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .act-filter button { flex: none; padding: 8px 14px; font-size: 13px; }
   .act__title { font-size: 18px; }
 }
+
+/* 내용이 없는 칸을 숨겼을 때 */
+.career.is-single { grid-template-columns: 1fr; }
+.credentials .is-first { margin-top: 56px; }
