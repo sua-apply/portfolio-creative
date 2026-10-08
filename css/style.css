@@ -1104,7 +1104,7 @@ em {
 .filter button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 
 .works__list { display: flex; flex-direction: column; gap: 96px; padding-bottom: 40px; }
-.work { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 56px; align-items: start; }
+.work { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 56px; align-items: center; }
 .work[hidden] { display: none; }
 .work.is-flip { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); } /* 이미지가 오른쪽일 때도 같은 크기 */
 .work.is-flip .work__media { order: 2; }

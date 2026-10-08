@@ -76,7 +76,6 @@
           <dl class="work__facts">
             <div><dt>역할</dt><dd>${esc(p.role)}</dd></div>
             <div><dt>구분</dt><dd>${esc(kindLabel(p))}</dd></div>
-            ${p.client ? `<div><dt>클라이언트</dt><dd>${esc(p.client)}</dd></div>` : ""}
           </dl>
           ${p.did && p.did.length ? `<div class="work__did"><p class="work__label">한 일</p><ul>${p.did.map((d) => `<li>${esc(d)}</li>`).join("")}</ul></div>` : ""}
           ${p.tools && p.tools.length ? `<ul class="work__tools" aria-label="사용한 도구">${p.tools.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
