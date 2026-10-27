@@ -1,6 +1,6 @@
 /* =========================================
    포트폴리오 PDF 쪽 만들기 (portfolio-pdf.html)
-   - 표지 → 프로필 → 이력 → 대표 프로젝트(프로젝트마다 2쪽) → 마지막 쪽
+   - 표지 → 프로필 → 이력 → 대표 프로젝트(표지 1 · 정리 최대 3 · 목업 1장 이상) → 마지막 쪽
    - 대표 프로젝트: 메인과 같은 규칙 (DB featured 켠 것, 없으면 최신순) 최대 4개
    - About Me · 연락처는 index.html 에 적힌 내용을, SNS 는 DB(sns_links)에서 가져와요
    - 이력 · 프로젝트 정보는 웹과 같은 규칙으로 보여줘요 (진행 상태·기간·교육 시간, '프로젝트 / 나의 참여' 묶음)
@@ -175,45 +175,65 @@
     </section>`;
   }
 
-  /* 6. 프로젝트 둘째 쪽: 한눈에 보기 + 핵심 두 가지 */
-  function highlights(p) {
-    const secs = (p.detail && p.detail.sections) || [];
-    const find = (t) => secs.find((s) => s.type === t);
-    const boxes = [];
-    if ((p.did || []).length) boxes.push(["작업 범위", "What I did", `<ol class="did">${p.did.slice(0, 6).map((d, i) => `<li><b>${pad2(i + 1)}</b>${esc(d)}</li>`).join("")}</ol>`]);
-    const pal = find("palette");
-    if (pal && (pal.colors || []).length) boxes.push([pal.title || "컬러", "Visual", `<ul class="sw">${pal.colors.filter((c) => HEX.test(c.hex)).slice(0, 8).map((c) => `<li><i style="background:${c.hex}"></i><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul>`]);
-    const cards = find("cards");
-    if (cards && (cards.items || []).length) boxes.push([cards.title || "콘셉트", "Concept", `<ul class="minis">${cards.items.slice(0, 3).map((it) => `<li>${it.kicker ? `<span>${esc(it.kicker)}</span>` : ""}<strong>${esc(it.title)}</strong>${esc(it.desc || "")}</li>`).join("")}</ul>`]);
-    const proc = find("process");
-    if (proc && (proc.steps || []).length) boxes.push([proc.title || "과정", "Process", `<ol class="steps">${proc.steps.slice(0, 5).map((st, i) => `<li><span>${pad2(i + 1)}</span><strong>${esc(st.title)}</strong><span>${esc(st.desc || "")}</span></li>`).join("")}</ol>`]);
-    const cast = find("cast");
-    if (cast && (cast.items || []).length) boxes.push([cast.title || "캐릭터", "Characters", `<ul class="cast">${cast.items.slice(0, 5).map((it) => `<li><i style="background:${HEX.test(it.color) ? it.color : "#ddd"}"></i><strong>${esc(it.name)}</strong>${it.sound ? `<em>${esc(it.sound)}</em>` : ""}<small>${esc(it.note || "")}</small></li>`).join("")}</ul>`]);
-    const notes = find("notes");
-    if (notes && (notes.items || []).length) boxes.push([notes.title || "돌아보며", "Retrospective", `<ul class="notes">${notes.items.slice(0, 2).map((it) => `<li><strong>${esc(it.title)}</strong>${esc(it.desc || "")}</li>`).join("")}</ul>`]);
-    return boxes.slice(0, 2);
-  }
-  function projectB(p, i) {
-    const did = (p.did || []).slice(0, 3);
+  /* 6. 프로젝트 정리 쪽 (최대 3장) — 1) 개요  2) 기획  3) 과정 · 비주얼
+     프로젝트 한 개 = 표지 1장 → 정리 최대 3장 → 목업 1장 이상 */
+  const sectionsOf = (p) => (p.detail && p.detail.sections) || [];
+  const BOX = {
+    cards: (s) => [s.title || "콘셉트", s.label || "Concept", `<ul class="minis">${(s.items || []).slice(0, 3).map((it) => `<li>${it.kicker ? `<span>${esc(it.kicker)}</span>` : ""}<strong>${esc(it.title)}</strong>${esc(it.desc || "")}</li>`).join("")}</ul>`],
+    target: (s) => { const pe = s.persona || {}; return [s.title || "타깃", s.label || "Target", `
+      ${pe.name ? `<div class="persona">${pe.kicker ? `<span>${esc(pe.kicker)}</span>` : ""}<strong>${esc(pe.name)}</strong>${pe.desc ? `<p>${esc(pe.desc)}</p>` : ""}</div>` : ""}
+      ${(s.decisions || []).length ? `<ul class="decide">${s.decisions.slice(0, 4).map(([a, b]) => `<li><span>${esc(a)}</span><b>→</b><strong>${esc(b)}</strong></li>`).join("")}</ul>` : ""}`]; },
+    cast: (s) => [s.title || "캐릭터", s.label || "Characters", `<ul class="cast">${(s.items || []).slice(0, 6).map((it) => `<li><i style="background:${HEX.test(it.color) ? it.color : "#ddd"}"></i><strong>${esc(it.name)}</strong>${it.sound ? `<em>${esc(it.sound)}</em>` : ""}<small>${esc(it.note || "")}</small></li>`).join("")}</ul>`],
+    scenario: (s) => [s.title || "시나리오", s.label || "Scenario", `<ol class="did">${(s.scenes || []).filter((sc) => sc.key).slice(0, 6).map((sc, n) => `<li><b>${pad2(n + 1)}</b>${esc(sc.title)}${sc.desc ? ` — ${esc(sc.desc)}` : ""}</li>`).join("")}</ol>`],
+    palette: (s) => [s.title || "컬러", s.label || "Visual", `<ul class="sw">${(s.colors || []).filter((c) => HEX.test(c.hex)).slice(0, 8).map((c) => `<li><i style="background:${c.hex}"></i><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul>`],
+    process: (s) => [s.title || "과정", s.label || "Process", `<ol class="steps">${(s.steps || []).slice(0, 5).map((st, n) => `<li><span>${pad2(n + 1)}</span><strong>${esc(st.title)}</strong><span>${esc(st.desc || "")}</span></li>`).join("")}</ol>`],
+    notes: (s) => [s.title || "돌아보며", s.label || "Retrospective", `<ul class="notes">${(s.items || []).slice(0, 2).map((it) => `<li><strong>${esc(it.title)}</strong>${esc(it.desc || "")}</li>`).join("")}</ul>`],
+  };
+  const boxes = (list) => `<div class="hl" style="grid-template-columns:repeat(${list.length},minmax(0,1fr))">${list.map(([t, en, body]) => `<div class="hl__box"><h4>${esc(t)}<span class="k">${esc(en)}</span></h4>${body}</div>`).join("")}</div>`;
+  const page = (p, i, en, body) => `<section class="page">
+      <div class="page__in">${head(pad2(i + 1), p.title, en)}${body}</div>${foot(p.title)}
+    </section>`;
+  function overviewPages(p, i) {
+    const secs = sectionsOf(p);
+    const pages = [];
+    // 1) 개요: 구분 · 주최 · 역할 + 소개 글 + 문제 / 내가 한 일 / 결과
+    const meta = [["구분", window.kindLabel(p)], ["주최 · 발주", p.client], ["역할", p.role]].filter(([, v]) => v);
+    const intro = secs.find((s) => s.type === "text");
+    const did = (p.did || []).slice(0, 4);
     const glance = [
       ["문제", p.problem ? `<p>${esc(p.problem)}</p>` : ""],
       ["내가 한 일", p.action ? `<p>${esc(p.action)}</p>` : did.length ? `<ul>${did.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>` : ""],
       ["결과", `${p.result ? `<p><strong>${esc(p.result.value)}</strong> ${esc(p.result.label)}</p>` : ""}${p.resultText ? `<p>${esc(p.resultText)}</p>` : ""}`],
     ].filter(([, v]) => v);
-    const boxes = highlights(p);
-    if (!glance.length && !boxes.length) return "";
-    return `<section class="page">
-      <div class="page__in">
-        ${head(pad2(i + 1), p.title, "At a glance")}
-        ${(() => { const m = [["구분", window.kindLabel(p)], ["주최 · 발주", p.client], ["역할", p.role]].filter(([, v]) => v);
-          return m.length ? `<dl class="pb-meta">${m.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""; })()}
-        ${glance.length ? `<ol class="glance" style="grid-template-columns:repeat(${glance.length},minmax(0,1fr))">${glance.map(([k, v], n) => `<li><span class="glance__no">${pad2(n + 1)}</span><h3>${k}</h3>${v}</li>`).join("")}</ol>` : ""}
-        ${boxes.length ? `<div class="hl">${boxes.map(([t, en, body]) => `<div class="hl__box"><h4>${esc(t)}<span class="k">${en}</span></h4>${body}</div>`).join("")}</div>` : ""}
-      </div>${foot(p.title)}
-    </section>`;
+    if (meta.length || intro || glance.length) pages.push(page(p, i, "Overview", `
+        ${meta.length ? `<dl class="pb-meta">${meta.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""}
+        ${intro ? `<div class="intro">${intro.title ? `<h3>${esc(intro.title)}</h3>` : ""}${(intro.body || []).slice(0, 2).map((b) => `<p>${esc(b)}</p>`).join("")}</div>` : ""}
+        ${glance.length ? `<ol class="glance" style="grid-template-columns:repeat(${glance.length},minmax(0,1fr))">${glance.map(([k, v], n) => `<li><span class="glance__no">${pad2(n + 1)}</span><h3>${k}</h3>${v}</li>`).join("")}</ol>` : ""}`));
+    // 2) 기획: 콘셉트 · 타깃 · 캐릭터 · 시나리오 중 앞의 두 개
+    const plan = secs.filter((s) => ["cards", "target", "cast", "scenario"].includes(s.type)).slice(0, 2).map((s) => BOX[s.type](s));
+    if (plan.length) pages.push(page(p, i, "Concept", boxes(plan)));
+    // 3) 과정 · 비주얼: 컬러 · 과정 · 돌아보며
+    const make = ["palette", "process", "notes"].map((t) => secs.find((s) => s.type === t)).filter(Boolean).map((s) => BOX[s.type](s));
+    if (make.length) pages.push(page(p, i, "Process · Visual", boxes(make)));
+    return pages.slice(0, 3);
   }
 
-  /* 7. 마지막 쪽 */
+  /* 7. 목업 쪽 (1장 이상) — 상세의 mockup · gallery 이미지. 섹션 하나 = 한 쪽 */
+  function mockupPages(p, i) {
+    const pages = sectionsOf(p).flatMap((s) => {
+      const imgs = s.type === "mockup" ? (s.image ? [{ image: s.image, title: s.caption }] : [])
+        : s.type === "gallery" ? (s.items || []).filter((it) => it.image) : [];
+      if (!imgs.length) return [];
+      const n = Math.min(imgs.length, 4);
+      return [page(p, i, s.label || "Mockup", `
+        ${s.title || s.caption ? `<p class="mk__title">${esc(s.title || s.caption)}</p>` : ""}
+        <div class="mk mk--${n}">${imgs.slice(0, 4).map((it) => `<figure><img src="${esc(it.image)}" alt="" />${it.title ? `<figcaption>${esc(it.title)}${it.desc ? ` · ${esc(it.desc)}` : ""}</figcaption>` : ""}</figure>`).join("")}</div>`)];
+    });
+    // 목업 이미지가 하나도 없으면 '준비 중' 한 장 (DB 상세 mockup · gallery 에 이미지를 넣으면 바뀌어요)
+    return pages.length ? pages : [page(p, i, "Mockup", `<div class="mk mk--empty"><p>목업 이미지 준비 중</p></div>`)];
+  }
+
+  /* 8. 마지막 쪽 */
   function closing(info) {
     const groups = info.sns.map((g) => ({ title: g.title, items: g.items.filter((s) => s.url) })).filter((g) => g.items.length);
     // 웹 Contact 제목을 그대로: "끝까지 봐 주셔서 감사합니다." → 마지막 단어만 핑크로 한 줄 내려요
@@ -250,7 +270,8 @@
     const pages = [cover(R, pick[0], info), profile(R, info, num())];
     const rs = resume(window.RESUME, pad2(n + 1)); if (rs) { n += 1; pages.push(rs); }
     // 목차(Selected Work) 쪽 없이 이력 다음에 바로 프로젝트로 넘어가요. 다시 넣으려면: pages.push(toc(pick, pages.length + 2, num()))
-    pick.forEach((p, i) => { pages.push(projectA(p, i)); const b = projectB(p, i); if (b) pages.push(b); });
+    // 프로젝트 하나: 표지 → 정리(최대 3장) → 목업(1장 이상)
+    pick.forEach((p, i) => { pages.push(projectA(p, i), ...overviewPages(p, i), ...mockupPages(p, i)); });
     pages.push(closing(info));
     const book = document.getElementById("book");
     book.innerHTML = pages.join("");

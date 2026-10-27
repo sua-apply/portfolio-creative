@@ -154,7 +154,7 @@ ul, ol { padding: 0; list-style: none; }
 .glance p, .glance li li { font-size: 9.2pt; line-height: 1.65; color: var(--ink-2); }
 .glance ul li { padding: 0; background: none; border: 0; position: relative; padding-left: 3mm; }
 .glance ul li::before { content: ""; position: absolute; left: 0; top: 2.2mm; width: 1.2mm; height: 1.2mm; border-radius: 50%; background: var(--pink); }
-.hl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9mm; margin-top: 7mm; flex: 1; min-height: 0; }
+.hl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9mm; margin-top: 2mm; align-content: start; }
 .hl__box { min-width: 0; }
 .hl__box h4 { display: flex; gap: 2mm; align-items: baseline; padding-bottom: 2mm; margin-bottom: 3mm; border-bottom: 1pt solid var(--navy); font-size: 10.5pt; font-weight: 800; }
 .hl__box h4 .k { margin-left: auto; }
@@ -194,3 +194,31 @@ ul, ol { padding: 0; list-style: none; }
 .end__sns h3 { font-size: 8pt; font-weight: 700; letter-spacing: .1em; color: rgba(255, 255, 255, .55); margin-bottom: 1mm; }
 .end__sns a { display: grid; grid-template-columns: 26mm minmax(0, 1fr); gap: 3mm; padding: 1.6mm 0; border-bottom: 0.5pt solid rgba(255, 255, 255, .12); color: #fff; text-decoration: none; font-size: 9pt; }
 .end__sns a span { color: rgba(255, 255, 255, .55); }
+
+/* ===== 6. 정리 쪽 ===== */
+.intro { margin-bottom: 7mm; max-width: 200mm; }
+.intro h3 { font-size: 15pt; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 2.5mm; }
+.intro p { font-size: 9.6pt; line-height: 1.75; color: var(--ink-2); }
+.persona { padding: 3.5mm 4mm; border-radius: 2.5mm; background: var(--bg); margin-bottom: 3mm; font-size: 8.8pt; color: var(--ink-2); }
+.persona span { display: block; font-size: 7.5pt; font-weight: 700; color: var(--pink-text); }
+.persona strong { display: block; font-size: 11pt; color: var(--ink); }
+.decide li { display: grid; grid-template-columns: minmax(0, 1fr) 5mm minmax(0, 1fr); gap: 1.5mm; padding: 1.8mm 0; border-bottom: 0.5pt solid var(--line); font-size: 8.8pt; color: var(--ink-3); }
+.decide li b { color: var(--pink); text-align: center; }
+.decide li strong { color: var(--ink); font-weight: 700; }
+.hl[style*="repeat(3"] .sw { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.hl[style*="repeat(3"] .steps li { grid-template-columns: 6mm minmax(0, 1fr); }
+.hl[style*="repeat(3"] .steps li span:last-child { grid-column: 2; font-size: 8.4pt; }
+
+/* ===== 7. 목업 쪽 ===== */
+.mk__title { margin: -2mm 0 4mm; font-size: 11pt; font-weight: 700; color: var(--ink-2); }
+.mk { flex: 1; min-height: 0; display: grid; gap: 5mm; }
+.mk--1 { grid-template-columns: 1fr; }
+.mk--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.mk--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.mk--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.mk figure { min-height: 0; display: flex; flex-direction: column; gap: 1.5mm; }
+.mk img { flex: 1; min-height: 0; width: 100%; object-fit: cover; border-radius: 2mm; background: var(--bg); }
+.mk--1 img, .mk--2 img { object-fit: contain; }
+.mk figcaption { font-size: 8pt; color: var(--ink-3); }
+.mk--empty { place-items: center; border: 1pt dashed var(--line); border-radius: 3mm; background: var(--bg); }
+.mk--empty p { font-size: 11pt; font-weight: 700; color: var(--ink-3); }
