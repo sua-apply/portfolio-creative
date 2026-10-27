@@ -74,7 +74,7 @@
   const hours = (h) => (h == null || h === "" ? "" : /^\d+(\.\d+)?$/.test(String(h).trim()) ? `${Number(h).toLocaleString("ko-KR")}시간` : String(h));
 
   // 진행 중: 끝난 날이 없거나, 끝나는 달이 이번 달 이후
-  const ongoing = (x) => !x.end || x.end >= NOW;
+  const ongoing = (x) => (typeof x.ongoing === "boolean" ? x.ongoing : !x.end || x.end >= NOW);
 
   function renderResume(R) {
     if (!R) return;
