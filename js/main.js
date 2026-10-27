@@ -108,8 +108,9 @@
       </li>`;
     }));
 
-    fill("#certList", "#certCount", [...(R.certificates || [])].sort(latestFirst("date")).map((c) =>
-      `<li class="trow"><span class="row__date">${esc(c.date)}</span><strong>${esc(c.name)}</strong><span class="trow__org">${esc(c.org)}</span></li>`),
+    // 자격증: 유효기간(expires_date)이 있으면 '유효 ~연.월'을 붙이고, 지나면 보여주지 않아요 (DB에는 그대로 남아 있어요)
+    fill("#certList", "#certCount", [...(R.certificates || [])].filter((c) => !c.expired).sort(latestFirst("date")).map((c) =>
+      `<li class="trow"><span class="row__date">${esc(c.date)}</span><strong>${esc(c.name)}</strong><span class="trow__org">${esc([c.org, c.expires ? `유효 ~${c.expires}` : ""].filter(Boolean).join(" · "))}</span></li>`),
       LIMITS.certificates, "자격증");
   }
 
