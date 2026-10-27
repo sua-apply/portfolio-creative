@@ -12,16 +12,16 @@ concurrency:
 jobs:
   pdf:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: 준비 (Playwright · 한글 글꼴)
+      - name: 준비 (Playwright)
         run: |
           pip install playwright==1.47.0
           python -m playwright install --with-deps chromium
-          sudo apt-get install -y fonts-noto-cjk
       - name: PDF 만들기
         run: python tools/make-pdf.py
       - name: 바뀌었으면 올리기
