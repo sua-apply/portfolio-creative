@@ -3,6 +3,7 @@
    - 표지 → 프로필 → 이력 → 목차 → 대표 프로젝트(프로젝트마다 2쪽) → 마지막 쪽
    - 대표 프로젝트: 메인과 같은 규칙 (DB featured 켠 것, 없으면 최신순) 최대 4개
    - About Me · 연락처는 index.html 에 적힌 내용을, SNS 는 DB(sns_links)에서 가져와요
+   - 이력 · 프로젝트 정보는 웹과 같은 규칙으로 보여줘요 (진행 상태·기간·교육 시간, '프로젝트 / 나의 참여' 묶음)
    ========================================= */
 (function () {
   "use strict";
@@ -24,9 +25,10 @@
         photo: doc.querySelector(".profile__photo")?.getAttribute("src") || "img/profile.jpg",
         facts, mail: doc.querySelector(".contact__mail")?.textContent.trim() || "", sns: window.SNS || [],
         contactTitle: doc.querySelector(".contact__title")?.textContent.trim() || "",
+        contactLead: doc.querySelector(".contact__lead")?.textContent.trim() || "",
       };
     } catch (e) {
-      return { about: [], photo: "img/profile.jpg", facts: [], mail: "", sns: window.SNS || [], contactTitle: "" };
+      return { about: [], photo: "img/profile.jpg", facts: [], mail: "", sns: window.SNS || [], contactTitle: "", contactLead: "" };
     }
   }
 
@@ -73,26 +75,43 @@
     </section>`;
   }
 
-  /* 3. 이력 (비어 있는 칸은 빼요) */
+  /* 3. 이력 (비어 있는 칸은 빼요) — 웹과 같은 순서 · 같은 표시
+     날짜 아래: 진행 중(재직 중 · 수강 중 · 활동 중, 핑크 글자) + 기간 · 교육 시간(회색) */
+  const ongoing = (x) => (typeof x.ongoing === "boolean" ? x.ongoing : !x.end || x.end >= NOW_YM);
+  function duration(s, e) {
+    if (!s) return "";
+    const [sy, sm] = s.split(".").map(Number);
+    const [ey, em] = (e || NOW_YM).split(".").map(Number);
+    const total = (ey - sy) * 12 + (em - sm) + 1;
+    const y = Math.floor(total / 12), m = total % 12;
+    return [y ? `${y}년` : "", m ? `${m}개월` : ""].filter(Boolean).join(" ") || "1개월";
+  }
+  const hours = (h) => (h == null || h === "" ? "" : /^\d+(\.\d+)?$/.test(String(h).trim()) ? `${Number(h).toLocaleString("ko-KR")}시간` : String(h));
+  const latest = (k) => (a, b) => (b[k] || NOW_YM).localeCompare(a[k] || NOW_YM);
   function resume(RS, num) {
     if (!RS) return "";
-    const range = (s, e) => [s, e].filter(Boolean).join(" – ");
+    const range = (s, e) => (!s ? e || "" : `${s} – ${e && !(e > NOW_YM) ? e : e || "현재"}`);
+    const r = (date, title, sub, status, len) => ({ date, title, sub, status, len });
+    const sorted = (list, k) => [...(list || [])].sort(latest(k));
+    const acts = sorted(RS.activities, "start");
+    const act = (x) => r(range(x.start, x.end), x.title, x.org, ongoing(x) ? "활동 중" : "", "");
     const blocks = [
-      ["학력", (RS.education || []).map((x) => [range(x.start, x.end), x.school, [x.major, x.status].filter(Boolean).join(" · ")])],
-      ["경력", (RS.experience || []).map((x) => [range(x.start, x.end), x.company, x.role])],
-      ["교육", (RS.training || []).map((x) => [range(x.start, x.end), x.title, x.org])],
-      ["활동", (RS.activities || []).map((x) => [range(x.start, x.end), x.title, [x.org, x.role].filter(Boolean).join(" · ")])],
-      ["수상", (RS.awards || []).map((x) => [x.date, x.title, x.org])],
-      ["어학", (RS.languages || []).filter((x) => !(x.expires && x.expires < NOW_YM)).map((x) => [x.date, `${x.test}${x.score ? ` ${x.score}` : ""}`, x.org])],
-      ["자격증", (RS.certificates || []).filter((x) => !x.expired).map((x) => [x.date, x.name, x.org])],
+      ["학력", sorted(RS.education, "start").map((x) => r(x.end || x.start, x.school, [x.major, x.status].filter(Boolean).join(" · ")))],
+      ["경력", sorted(RS.experience, "start").map((x) => r(range(x.start, x.end), x.company, x.role, ongoing(x) ? "재직 중" : "", duration(x.start, ongoing(x) ? NOW_YM : x.end)))],
+      ["교육", sorted(RS.training, "start").map((x) => r(range(x.start, x.end), x.title, x.org, ongoing(x) ? "수강 중" : "", hours(x.hours)))],
+      ["대외활동", acts.filter((a) => a.type !== "campus").map(act)],
+      ["교내활동", acts.filter((a) => a.type === "campus").map(act)],
+      ["수상", sorted(RS.awards, "date").map((x) => r(x.date, x.title, x.org))],
+      ["어학", sorted(RS.languages, "date").filter((x) => !(x.expires && x.expires < NOW_YM)).map((x) => r(x.date, `${x.test}${x.score ? ` ${x.score}` : ""}`, x.org))],
+      ["자격증", sorted(RS.certificates, "date").filter((x) => !x.expired).map((x) => r(x.date, x.name, x.org))],
     ].filter(([, rows]) => rows.length);
     if (!blocks.length) return "";
     return `<section class="page">
       <div class="page__in">
-        ${head(num, "Resume", "Education · Experience · Certificates")}
+        ${head(num, "Resume", blocks.map(([t]) => t).join(" · "))}
         <div class="resume resume--${Math.min(blocks.length, 3)}">${blocks.map(([t, rows]) => `
           <div class="rblock"><h3>${t} <small>${rows.length}</small></h3>
-            ${rows.map(([d, a, b]) => `<div class="rrow"><time>${esc(d)}</time><div><strong>${esc(a)}</strong>${b ? `<span>${esc(b)}</span>` : ""}</div></div>`).join("")}
+            ${rows.map((x) => `<div class="rrow"><div class="rrow__d"><time>${esc(x.date)}</time>${x.status || x.len ? `<span class="rrow__m">${x.status ? `<b>${esc(x.status)}</b>` : ""}${x.status && x.len ? " · " : ""}${x.len ? esc(x.len) : ""}</span>` : ""}</div><div><strong>${esc(x.title)}</strong>${x.sub ? `<span>${esc(x.sub)}</span>` : ""}</div></div>`).join("")}
           </div>`).join("")}</div>
       </div>${foot("Resume")}
     </section>`;
@@ -108,7 +127,7 @@
             <span class="toc__img"><img src="${esc(p.thumb)}" alt="" /></span>
             <span class="toc__no">${pad2(i + 1)}</span>
             <strong class="toc__title">${esc(p.title)}</strong>
-            <span class="toc__meta">${esc(p.categoryLabel)}${p.date ? ` · ${esc(p.date.slice(0, 4))}` : ""}</span>
+            <span class="toc__meta">${esc(p.categoryLabel)}${p.date ? ` · ${esc(p.date.slice(0, 4))}` : ""} · ${esc(window.kindLabel(p))}</span>
             <span class="toc__pg">p. ${pad2(startPage + i * 2)}</span>
           </a>`).join("")}</div>
         <p class="toc-note">전체 프로젝트와 작업 과정은 웹에서 볼 수 있어요 → <a href="${SITE}works.html">${SITE.replace(/^https:\/\//, "")}works.html</a></p>
@@ -118,16 +137,20 @@
 
   /* 5. 프로젝트 첫 쪽: 큰 이미지 + 정보 */
   function projectA(p, i) {
-    const kind = window.kindLabel(p);
-    const teamM = /(\d+)\s*인/.exec(p.team || "");
-    const pct = p.contribution != null ? Math.max(0, Math.min(100, Math.round(p.contribution))) : null;
-    const facts = [
-      ["기간", esc(p.period || p.date.replace("-", "."))],
-      ["구분", esc(kind)],
-      ["주최 · 발주", p.client && esc(p.client)],
-      ["참여", esc(teamM ? `팀 ${teamM[1]}인` : p.team || "") + (pct != null ? ` <span class="pct"><i><b style="width:${pct}%"></b></i>기여도 ${pct}%</span>` : "")],
-      ["역할", p.role && esc(p.role)],
-    ].filter(([, v]) => v);
+    // 웹 상세와 같은 묶음: 프로젝트(기간 · 구분 · 주최 · 발주) / 나의 참여(참여 · 역할 · 도구)
+    const t = window.teamInfo(p);
+    const groups = [
+      ["프로젝트", [
+        ["기간", esc(p.period || p.date.replace("-", "."))],
+        ["구분", esc(window.kindLabel(p))],
+        ["주최 · 발주", p.client && esc(p.client)],
+      ]],
+      ["나의 참여", [
+        ["참여", esc(t.label) + (t.pct != null ? ` <span class="pct"><i><b style="width:${t.pct}%"></b></i>기여도 ${t.pct}%</span>` : "")],
+        ["역할", p.role && esc(p.role)],
+        ["도구", (p.tools || []).length && esc(p.tools.join(", "))],
+      ]],
+    ].map(([g, list]) => [g, list.filter(([, v]) => v)]).filter(([, list]) => list.length);
     return `<section class="page" id="pj-${i + 1}">
       <div class="pj">
         <figure class="pj__art"><img src="${esc(p.image || p.thumb)}" alt="" /></figure>
@@ -136,8 +159,7 @@
           <p class="pj__meta">${esc(p.categoryLabel)}${p.date ? ` · ${esc(p.date.slice(0, 4))}` : ""}</p>
           <h2 class="pj__title">${esc(p.title)}</h2>
           ${p.summary ? `<p class="pj__sum">${esc(p.summary)}</p>` : ""}
-          <dl class="pj__facts">${facts.map(([k, v], i) => `<div${k === "참여" ? ' class="pj__gap"' : ""}><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
-          ${(p.tools || []).length ? `<div><p class="k" style="margin-bottom:2mm">Tools</p><div class="chips">${p.tools.map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div></div>` : ""}
+          ${groups.map(([g, list]) => `<div class="pj__group"><p class="k">${g}</p><dl class="pj__facts">${list.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl></div>`).join("")}
           <p class="pj__link">자세한 과정 → <a href="${SITE}project.html?id=${encodeURIComponent(p.id)}">웹에서 보기</a></p>
         </div>
       </div>${foot(p.title)}
@@ -182,17 +204,22 @@
 
   /* 7. 마지막 쪽 */
   function closing(info) {
-    const items = info.sns.flatMap((g) => g.items).filter((s) => s.url);
+    const groups = info.sns.map((g) => ({ title: g.title, items: g.items.filter((s) => s.url) })).filter((g) => g.items.length);
+    // 웹 Contact 제목을 그대로: "끝까지 봐 주셔서 감사합니다." → 마지막 단어만 핑크로 한 줄 내려요
+    const t = info.contactTitle || "끝까지 봐 주셔서 감사합니다.";
+    const m = /^(.*\S)\s+(\S+)$/.exec(t);
+    const title = m ? `${esc(m[1])}<br /><em>${esc(m[2])}</em>` : esc(t);
     return `<section class="page page--navy">
       <div class="end">
         <div class="end__l">
           <p class="end__k">CONTACT</p>
-          <h2 class="end__title">읽어 주셔서<br /><em>감사합니다.</em></h2>
+          <h2 class="end__title">${title}</h2>
+          ${info.contactLead ? `<p class="end__lead">${esc(info.contactLead)}</p>` : ""}
           ${info.mail ? `<a class="end__mail" href="mailto:${esc(info.mail)}">${esc(info.mail)}</a>` : ""}
         </div>
         <div class="end__r">
           <a class="end__web" href="${SITE}"><span>전체 프로젝트와 작업 과정은 웹 포트폴리오에서</span><strong>${SITE.replace(/^https:\/\//, "")}</strong></a>
-          ${items.length ? `<div class="end__sns"><h3>SNS</h3>${items.map((s) => `<a href="${esc(s.url)}"><span>${esc(s.platform)}</span>${esc(s.name)}</a>`).join("")}</div>` : ""}
+          ${groups.map((g) => `<div class="end__sns"><h3>${esc(g.title || "SNS")}</h3>${g.items.map((s) => `<a href="${esc(s.url)}"><span>${esc(s.platform)}</span>${esc(s.name)}</a>`).join("")}</div>`).join("")}
         </div>
       </div>
     </section>`;
