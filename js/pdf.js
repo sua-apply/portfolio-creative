@@ -35,7 +35,7 @@
   const foot = (label) => `<div class="foot"><span><b>PARK Younghee</b> · Portfolio · ${esc(label)}</span><span class="pg"></span></div>`;
   const head = (num, title, en) => `<header class="ph"><span class="ph__num">${num}</span><h2 class="ph__title">${esc(title)}</h2>${en ? `<span class="ph__en">${esc(en)}</span>` : ""}</header>`;
 
-  /* 1. 표지 */
+  /* 1. 표지: 글자만 (특정 프로젝트 이미지를 쓰지 않아요) */
   function cover(R, first, info) {
     const mail = info.mail;
     return `<section class="page page--navy">
@@ -47,7 +47,7 @@
           <div class="cover__name"><strong>박영희</strong><span>PARK Younghee</span></div>
           <p class="cover__meta">${mail ? `<a href="mailto:${esc(mail)}">${esc(mail)}</a>` : ""}<a href="${SITE}">${SITE.replace(/^https:\/\//, "").replace(/\/$/, "")}</a></p>
         </div>
-        <figure class="cover__art">${first ? `<img src="${esc(first.image || first.thumb)}" alt="" />` : ""}<span class="cover__year">SELECTED WORK</span></figure>
+        <p class="cover__big" aria-hidden="true">PORT<br />FOLIO</p>
       </div>
     </section>`;
   }
@@ -136,24 +136,8 @@
   }
 
   /* 5. 프로젝트 첫 쪽: 결과물이 주인공 (레퍼런스: 왼쪽 짧은 글 + 오른쪽 큰 이미지, 프로젝트 색 배경)
-     - 배경색: DB detail.pdf_bg 가 있으면 그 색, 없으면 컬러 팔레트의 '바탕' 색이나 아주 밝은 색, 그것도 없으면 연회색
+     - 배경색 · 배치는 모든 프로젝트가 같아요 (통일감). 색은 css/pdf.css 의 --pj-bg 하나로 바꿔요
      - 정보는 기간 · 참여 · 도구 세 가지만. 주최 · 역할은 둘째 쪽 위에 있어요 */
-  const lum = (hex) => {
-    let h = hex.replace("#", ""); if (h.length === 3) h = h.split("").map((c) => c + c).join("");
-    const [r, g, b] = [0, 2, 4].map((k) => parseInt(h.slice(k, k + 2), 16) / 255);
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  };
-  function pageColor(p) {
-    const d = p.detail || {};
-    if (HEX.test(d.pdf_bg || "")) return d.pdf_bg;
-    const pal = (d.sections || []).find((s) => s.type === "palette");
-    const colors = ((pal && pal.colors) || []).filter((c) => HEX.test(c.hex));
-    // 1) 이름에 '바탕 · 배경'이 들어간 색  2) 아주 밝은 색(종이 · 크림 같은) 중 가장 밝은 것  3) 연회색
-    const named = colors.find((c) => /바탕|배경|background/i.test(c.name || ""));
-    if (named) return named.hex;
-    const light = colors.map((c) => c.hex).filter((h) => lum(h) > 0.82 && lum(h) < 0.97);
-    return light.sort((a, b) => lum(b) - lum(a))[0] || "#EEEFF2";
-  }
   // 도구 → 작은 아이콘 배지 (Adobe처럼 두 글자). 목록에 없는 도구는 글자 칩으로
   const TOOL_BADGES = {
     photoshop: ["Ps", "#001E36", "#31A8FF"], illustrator: ["Ai", "#330000", "#FF9A00"], indesign: ["Id", "#49021F", "#FF3366"],
@@ -174,7 +158,7 @@
       ["도구", (p.tools || []).length && `<span class="tools">${p.tools.map(toolBadge).join("")}</span>`],
     ].filter(([, v]) => v);
     const year = p.date ? p.date.slice(0, 4) : "";
-    return `<section class="page pj-page" id="pj-${i + 1}" style="--pj-bg:${pageColor(p)}">
+    return `<section class="page pj-page" id="pj-${i + 1}">
       <div class="pj-top"><span>${esc([year, p.categoryLabel].filter(Boolean).join("  |  "))}</span><span>PARK Younghee · PORTFOLIO</span></div>
       <div class="pj">
         <div class="pj__info">
