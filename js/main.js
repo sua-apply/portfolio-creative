@@ -26,9 +26,10 @@
   }
 
   /* 한 줄: 날짜 | 이름 · 부제 · 설명 | 오른쪽 꼬리표 */
-  const row = ({ date, title, sub, desc, tag, now, link }) => `
+  // 날짜 바로 아래: status(진행 중 칩: 재직 중 · 수강 중 · 활동 중) + len(기간 · 교육 시간) / tag: 오른쪽 꼬리표
+  const row = ({ date, status, len, title, sub, desc, tag, now, link }) => `
     <li class="row${now ? " is-now" : ""}">
-      <span class="row__date">${esc(date)}</span>
+      <span class="row__date">${esc(date)}${status || len ? `<span class="row__meta">${status ? `<span class="row__when is-now">${esc(status)}</span>` : ""}${len ? `<span class="row__when">${esc(len)}</span>` : ""}</span>` : ""}</span>
       <div class="row__main">
         <strong class="row__title">${esc(title)}</strong>
         ${sub ? `<span class="row__sub">${esc(sub)}</span>` : ""}
@@ -69,21 +70,27 @@
     return p ? { href: window.keepLink(`project.html?id=${encodeURIComponent(p.id)}`), label: "프로젝트 보기" } : null;
   };
 
+  // 교육 시간: 960 → "960시간" (DB에 "960시간"처럼 적어도 그대로)
+  const hours = (h) => (h == null || h === "" ? "" : /^\d+(\.\d+)?$/.test(String(h).trim()) ? `${Number(h).toLocaleString("ko-KR")}시간` : String(h));
+
+  // 진행 중: 끝난 날이 없거나, 끝나는 달이 이번 달 이후
+  const ongoing = (x) => (typeof x.ongoing === "boolean" ? x.ongoing : !x.end || x.end >= NOW);
+
   function renderResume(R) {
     if (!R) return;
     fill("#eduList", null, [...(R.education || [])].sort(latestFirst("start")).map((e) =>
       row({ date: e.end || e.start, title: e.school, sub: [e.major, e.status].filter(Boolean).join(" · ") })));
 
     fill("#expList", null, [...(R.experience || [])].sort(latestFirst("start")).map((x) =>
-      row({ date: period(x.start, x.end), title: x.company, sub: x.role, desc: x.desc, tag: x.ongoing ? "재직 중" : duration(x.start, x.end), now: x.ongoing })),
+      row({ date: period(x.start, x.end), title: x.company, sub: x.role, desc: x.desc, status: ongoing(x) ? "재직 중" : "", len: duration(x.start, ongoing(x) ? NOW : x.end), now: ongoing(x) })),
       LIMITS.experience, "경력");
 
     fill("#trainList", "#trainCount", [...(R.training || [])].sort(latestFirst("start")).map((x) =>
-      row({ date: period(x.start, x.end), title: x.title, sub: x.org, desc: x.desc, tag: x.ongoing ? "수강 중" : "", now: x.ongoing })),
+      row({ date: period(x.start, x.end), title: x.title, sub: x.org, desc: x.desc, status: ongoing(x) ? "수강 중" : "", len: hours(x.hours), now: ongoing(x) })),
       LIMITS.training, "교육");
 
     const acts = [...(R.activities || [])].sort(latestFirst("start"));
-    const act = (a) => row({ date: period(a.start, a.end), title: a.title, sub: a.org, desc: a.desc, tag: a.role, now: a.ongoing });
+    const act = (a) => row({ date: period(a.start, a.end), title: a.title, sub: a.org, desc: a.desc, status: ongoing(a) ? "활동 중" : "", now: ongoing(a) });
     fill("#extList", "#extCount", acts.filter((a) => a.type === "external").map(act), LIMITS.activities, "대외활동");
     fill("#campList", "#campCount", acts.filter((a) => a.type === "campus").map(act), LIMITS.activities, "교내활동");
 

@@ -191,6 +191,12 @@ html::-webkit-scrollbar { display: none; }
 .rows { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--ink); }
 .row { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 6px 20px; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .row__date { font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums; padding-top: 2px; }
+/* 날짜 아래: 진행 상태 + 기간 · 교육 시간 */
+.row__meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 5px; margin-top: 4px; }
+.row__when { font-size: 12.5px; color: var(--ink-3); }
+/* 진행 중은 핑크 굵은 글자, 기간은 회색 · 사이에 점 ("재직 중 · 8개월") */
+.row__when.is-now { color: var(--pink-text); font-weight: 700; }
+.row__when.is-now + .row__when::before { content: "· "; }
 .row__title { display: block; font-size: 16.5px; font-weight: 700; }
 .row__sub { display: block; font-size: 14.5px; color: var(--ink-2); }
 .row__desc { margin: 6px 0 0; font-size: 14.5px; color: var(--ink-3); white-space: pre-line; }
@@ -991,7 +997,8 @@ a.card:hover { border-color: var(--pink); }
   .idcard__dl div { grid-template-columns: 60px minmax(0, 1fr); font-size: 14px; }
   .row { grid-template-columns: minmax(0, 1fr) auto; }
   .row__go { grid-column: 1 / -1; justify-self: start; }
-  .row__date { grid-column: 1 / -1; padding: 0; }
+  .row__date { grid-column: 1 / -1; padding: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+  .row__meta { margin-top: 0; }
   .row__main { grid-column: 1; }
   .rows--table .trow { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .trow__org { text-align: left; }
