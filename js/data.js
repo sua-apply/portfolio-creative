@@ -62,6 +62,24 @@
     };
   }
 
+  /* SNS (DB sns_links) → 묶음별 목록. platform 값 → 화면 이름 · 아이콘 글자 · 색 */
+  const SNS_PLATFORMS = {
+    instagram: ["인스타그램", "IG", "ig"], youtube: ["유튜브", "YT", "yt"], tistory: ["티스토리", "T", "ts"],
+    naver_blog: ["네이버 블로그", "N", "nb"], facebook: ["페이스북", "f", "fb"], behance: ["비핸스", "Bē", "be"],
+    linkedin: ["링크드인", "in", "in"], github: ["깃허브", "GH", ""], velog: ["벨로그", "v", ""], x: ["X", "X", ""],
+    threads: ["스레드", "@", ""], brunch: ["브런치", "B", ""], notion: ["노션", "N", ""], etc: ["링크", "↗", ""],
+  };
+  function toSns(rows) {
+    const groups = [];
+    rows.forEach((s) => {
+      let g = groups.find((x) => x.title === s.group);
+      if (!g) groups.push((g = { title: s.group, items: [] }));
+      const [label, mark, cls] = SNS_PLATFORMS[s.platform] || SNS_PLATFORMS.etc;
+      g.items.push({ platform: label, mark, cls, name: s.name, url: s.url || "" });
+    });
+    return groups;
+  }
+
   /* 공통: 페이지 제목, 다른 페이지로 가는 링크에 같은 직무 코드 붙이기 */
   window.keepLink = (path) => {
     const [p, hash] = path.split("#");
@@ -140,6 +158,7 @@
   document.documentElement.classList.add("is-loading");
   window.PROJECTS = [];
   window.RESUME = null;
+  window.SNS = [];
   window.PROJECTS_READY = Promise.all([window.rpc("get_portfolio", { p_track: TRACK, p_code: code || null }), domReady])
     .then(([d]) => {
       if (!d || !d.role) throw new Error("empty");
@@ -148,6 +167,7 @@
       window.ROLE_DATA = R;
       window.PROJECTS = (d.projects || []).map(toProject).sort((a, b) => b.date.localeCompare(a.date));
       window.RESUME = toResume(d.resume || []);
+      window.SNS = toSns(d.sns || []);
       apply(R);
       adminBar(R.id);
     })
