@@ -28,12 +28,12 @@
       }));
       return {
         about: [...doc.querySelectorAll(".profile__text .prose p")].map((p) => p.innerHTML.trim()),
-        photo: doc.querySelector(".profile__photo")?.getAttribute("src") || "img/profile.svg",
+        photo: doc.querySelector(".profile__photo")?.getAttribute("src") || "img/profile.jpg",
         facts, mail: doc.querySelector(".contact__mail")?.textContent.trim() || "", sns: groups,
         contactTitle: doc.querySelector(".contact__title")?.textContent.trim() || "",
       };
     } catch (e) {
-      return { about: [], photo: "img/profile.svg", facts: [], mail: "", sns: [], contactTitle: "" };
+      return { about: [], photo: "img/profile.jpg", facts: [], mail: "", sns: [], contactTitle: "" };
     }
   }
 
