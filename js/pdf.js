@@ -135,34 +135,59 @@
     </section>`;
   }
 
-  /* 5. 프로젝트 첫 쪽: 큰 이미지 + 정보 */
+  /* 5. 프로젝트 첫 쪽: 결과물이 주인공 (레퍼런스: 왼쪽 짧은 글 + 오른쪽 큰 이미지, 프로젝트 색 배경)
+     - 배경색: DB detail.pdf_bg 가 있으면 그 색, 없으면 컬러 팔레트의 '바탕' 색이나 아주 밝은 색, 그것도 없으면 연회색
+     - 정보는 기간 · 참여 · 도구 세 가지만. 주최 · 역할은 둘째 쪽 위에 있어요 */
+  const lum = (hex) => {
+    let h = hex.replace("#", ""); if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+    const [r, g, b] = [0, 2, 4].map((k) => parseInt(h.slice(k, k + 2), 16) / 255);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  function pageColor(p) {
+    const d = p.detail || {};
+    if (HEX.test(d.pdf_bg || "")) return d.pdf_bg;
+    const pal = (d.sections || []).find((s) => s.type === "palette");
+    const colors = ((pal && pal.colors) || []).filter((c) => HEX.test(c.hex));
+    // 1) 이름에 '바탕 · 배경'이 들어간 색  2) 아주 밝은 색(종이 · 크림 같은) 중 가장 밝은 것  3) 연회색
+    const named = colors.find((c) => /바탕|배경|background/i.test(c.name || ""));
+    if (named) return named.hex;
+    const light = colors.map((c) => c.hex).filter((h) => lum(h) > 0.82 && lum(h) < 0.97);
+    return light.sort((a, b) => lum(b) - lum(a))[0] || "#EEEFF2";
+  }
+  // 도구 → 작은 아이콘 배지 (Adobe처럼 두 글자). 목록에 없는 도구는 글자 칩으로
+  const TOOL_BADGES = {
+    photoshop: ["Ps", "#001E36", "#31A8FF"], illustrator: ["Ai", "#330000", "#FF9A00"], indesign: ["Id", "#49021F", "#FF3366"],
+    "after effects": ["Ae", "#00005B", "#9999FF"], "premiere pro": ["Pr", "#00005B", "#9999FF"], lightroom: ["Lr", "#001E36", "#31A8FF"],
+    figma: ["Fg", "#1E1E1E", "#A259FF"], blender: ["Bl", "#1E1E1E", "#F5792A"],
+  };
+  const toolBadge = (t) => {
+    const key = String(t).toLowerCase().replace(/^adobe\s+/, "").trim();
+    const b = TOOL_BADGES[key];
+    return b ? `<span class="tb" style="background:${b[1]};color:${b[2]}" title="${esc(t)}">${b[0]}</span><span class="tb__name">${esc(t)}</span>`
+      : `<span class="tb tb--text">${esc(t)}</span>`;
+  };
   function projectA(p, i) {
-    // 웹 상세와 같은 묶음: 프로젝트(기간 · 구분 · 주최 · 발주) / 나의 참여(참여 · 역할 · 도구)
     const t = window.teamInfo(p);
-    const groups = [
-      ["프로젝트", [
-        ["기간", esc(p.period || p.date.replace("-", "."))],
-        ["구분", esc(window.kindLabel(p))],
-        ["주최 · 발주", p.client && esc(p.client)],
-      ]],
-      ["나의 참여", [
-        ["참여", esc(t.label) + (t.pct != null ? ` <span class="pct"><i><b style="width:${t.pct}%"></b></i>기여도 ${t.pct}%</span>` : "")],
-        ["역할", p.role && esc(p.role)],
-        ["도구", (p.tools || []).length && esc(p.tools.join(", "))],
-      ]],
-    ].map(([g, list]) => [g, list.filter(([, v]) => v)]).filter(([, list]) => list.length);
-    return `<section class="page" id="pj-${i + 1}">
+    const facts = [
+      ["기간", esc(p.period || p.date.replace("-", "."))],
+      ["참여", esc(t.label) + (t.pct != null ? ` <span class="pct"><i><b style="width:${t.pct}%"></b></i>기여도 ${t.pct}%</span>` : "")],
+      ["도구", (p.tools || []).length && `<span class="tools">${p.tools.map(toolBadge).join("")}</span>`],
+    ].filter(([, v]) => v);
+    const year = p.date ? p.date.slice(0, 4) : "";
+    return `<section class="page pj-page" id="pj-${i + 1}" style="--pj-bg:${pageColor(p)}">
+      <div class="pj-top"><span>${esc([year, p.categoryLabel].filter(Boolean).join("  |  "))}</span><span>PARK Younghee · PORTFOLIO</span></div>
       <div class="pj">
-        <figure class="pj__art"><img src="${esc(p.image || p.thumb)}" alt="" /></figure>
         <div class="pj__info">
           <p class="pj__no">PROJECT ${pad2(i + 1)}</p>
-          <p class="pj__meta">${esc(p.categoryLabel)}${p.date ? ` · ${esc(p.date.slice(0, 4))}` : ""}</p>
           <h2 class="pj__title">${esc(p.title)}</h2>
+          <p class="pj__kind">${esc([p.categoryLabel, window.kindLabel(p)].filter(Boolean).join(" · "))}</p>
           ${p.summary ? `<p class="pj__sum">${esc(p.summary)}</p>` : ""}
-          ${groups.map(([g, list]) => `<div class="pj__group"><p class="k">${g}</p><dl class="pj__facts">${list.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl></div>`).join("")}
+          <dl class="pj__facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
           <p class="pj__link">자세한 과정 → <a href="${SITE}project.html?id=${encodeURIComponent(p.id)}">웹에서 보기</a></p>
         </div>
-      </div>${foot(p.title)}
+        <figure class="pj__art"><img src="${esc(p.image || p.thumb)}" alt="" /></figure>
+      </div>
+      <div class="foot"><span></span><span class="pg"></span></div>
     </section>`;
   }
 
@@ -196,6 +221,8 @@
     return `<section class="page">
       <div class="page__in">
         ${head(pad2(i + 1), p.title, "At a glance")}
+        ${(() => { const m = [["구분", window.kindLabel(p)], ["주최 · 발주", p.client], ["역할", p.role]].filter(([, v]) => v);
+          return m.length ? `<dl class="pb-meta">${m.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""; })()}
         ${glance.length ? `<ol class="glance" style="grid-template-columns:repeat(${glance.length},minmax(0,1fr))">${glance.map(([k, v], n) => `<li><span class="glance__no">${pad2(n + 1)}</span><h3>${k}</h3>${v}</li>`).join("")}</ol>` : ""}
         ${boxes.length ? `<div class="hl">${boxes.map(([t, en, body]) => `<div class="hl__box"><h4>${esc(t)}<span class="k">${en}</span></h4>${body}</div>`).join("")}</div>` : ""}
       </div>${foot(p.title)}
