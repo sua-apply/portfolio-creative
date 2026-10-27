@@ -54,7 +54,7 @@ portfolio/
    - `resume_items`의 `kind`로 종류를 골라요: education · experience · training · activity · award · language · certificate
      - 활동(activity)은 `activity_type`을 external(대외) 또는 campus(교내)로, 맡은 역할은 `my_role`
      - 어학(language)은 `score`(점수)와 `expires_date`(유효기간, 비우면 '평생 유효')
-     - 자격증(certificate)도 유효기간이 있으면 `expires_date`에 넣어요. '유효 ~연.월'로 보이고, 지나면 자동으로 숨겨요
+     - 자격증(certificate)도 유효기간이 있으면 `expires_date`에 넣어요. 화면에 기간은 안 보이고, 지나면 자동으로 숨겨요
      - 날짜는 `start_date`(취득일·시작일)·`end_date`(종료일). 종료일이 아직 안 지났으면 '재직 중'·'수강 중'으로, 지나면 자동으로 끝난 것으로 보여요 (종료일을 모르면 비워 두면 '현재')
    - 순서 상관없이 **최신순 자동 정렬**, 자격증은 **연도별 자동 묶음**, 개수도 자동
    - 경력·교육·활동 4개, 자격증 6개를 넘으면 자동으로 **더보기**로 접힘 (`js/main.js` 맨 위 `LIMITS`에서 변경)
