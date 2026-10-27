@@ -78,7 +78,8 @@
 
   function renderResume(R) {
     if (!R) return;
-    fill("#eduList", null, [...(R.education || [])].sort(latestFirst("start")).map((e) =>
+    // 학력: 졸업일(없으면 입학일) 최신순. 날짜가 없는 학교는 맨 아래로
+    fill("#eduList", null, [...(R.education || [])].sort((a, b) => (b.end || b.start || "").localeCompare(a.end || a.start || "")).map((e) =>
       row({ date: e.end || e.start, title: e.school, sub: [e.major, e.status].filter(Boolean).join(" · ") })));
 
     fill("#expList", null, [...(R.experience || [])].sort(latestFirst("start")).map((x) =>
