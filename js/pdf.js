@@ -2,7 +2,7 @@
    포트폴리오 PDF 쪽 만들기 (portfolio-pdf.html)
    - 표지 → 프로필 → 이력 → 목차 → 대표 프로젝트(프로젝트마다 2쪽) → 마지막 쪽
    - 대표 프로젝트: 메인과 같은 규칙 (DB featured 켠 것, 없으면 최신순) 최대 4개
-   - About Me · 연락처 · SNS 는 index.html 에 적힌 내용을 그대로 가져와요
+   - About Me · 연락처는 index.html 에 적힌 내용을, SNS 는 DB(sns_links)에서 가져와요
    ========================================= */
 (function () {
   "use strict";
@@ -10,7 +10,6 @@
   const MAX_PROJECTS = 4;
   const esc = (s) => window.esc(s);
   const pad2 = (n) => String(n).padStart(2, "0");
-  const KINDS = { personal: "개인 프로젝트", team: "팀 프로젝트", contest: "공모전", school: "학교 과제", client: "외주" };
   const HEX = /^#[0-9a-f]{3,8}$/i;
   const NOW_YM = (() => { const d = new Date(); return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}`; })();
 
@@ -20,20 +19,14 @@
       const html = await fetch("index.html").then((r) => r.text());
       const doc = new DOMParser().parseFromString(html, "text/html");
       const facts = [...doc.querySelectorAll(".facts--profile > div")].map((d) => [d.querySelector("dt")?.textContent.trim(), d.querySelector("dd")?.textContent.trim()]);
-      const groups = [...doc.querySelectorAll(".contact__group")].map((g) => ({
-        title: g.querySelector(".contact__label")?.textContent.trim() || "",
-        items: [...g.querySelectorAll("a.sns__item")].map((a) => ({
-          href: a.getAttribute("href"), platform: a.querySelector(".sns__platform")?.textContent.trim(), name: a.querySelector(".sns__name")?.textContent.trim(),
-        })),
-      }));
       return {
         about: [...doc.querySelectorAll(".profile__text .prose p")].map((p) => p.innerHTML.trim()),
         photo: doc.querySelector(".profile__photo")?.getAttribute("src") || "img/profile.jpg",
-        facts, mail: doc.querySelector(".contact__mail")?.textContent.trim() || "", sns: groups,
+        facts, mail: doc.querySelector(".contact__mail")?.textContent.trim() || "", sns: window.SNS || [],
         contactTitle: doc.querySelector(".contact__title")?.textContent.trim() || "",
       };
     } catch (e) {
-      return { about: [], photo: "img/profile.jpg", facts: [], mail: "", sns: [], contactTitle: "" };
+      return { about: [], photo: "img/profile.jpg", facts: [], mail: "", sns: window.SNS || [], contactTitle: "" };
     }
   }
 
@@ -125,7 +118,7 @@
 
   /* 5. 프로젝트 첫 쪽: 큰 이미지 + 정보 */
   function projectA(p, i) {
-    const kind = KINDS[p.type] || (p.client ? "외주" : "개인 프로젝트");
+    const kind = window.kindLabel(p);
     const teamM = /(\d+)\s*인/.exec(p.team || "");
     const pct = p.contribution != null ? Math.max(0, Math.min(100, Math.round(p.contribution))) : null;
     const facts = [
@@ -189,7 +182,7 @@
 
   /* 7. 마지막 쪽 */
   function closing(info) {
-    const items = info.sns.flatMap((g) => g.items);
+    const items = info.sns.flatMap((g) => g.items).filter((s) => s.url);
     return `<section class="page page--navy">
       <div class="end">
         <div class="end__l">
@@ -199,7 +192,7 @@
         </div>
         <div class="end__r">
           <a class="end__web" href="${SITE}"><span>전체 프로젝트와 작업 과정은 웹 포트폴리오에서</span><strong>${SITE.replace(/^https:\/\//, "")}</strong></a>
-          ${items.length ? `<div class="end__sns"><h3>SNS</h3>${items.map((s) => `<a href="${esc(s.href)}"><span>${esc(s.platform)}</span>${esc(s.name)}</a>`).join("")}</div>` : ""}
+          ${items.length ? `<div class="end__sns"><h3>SNS</h3>${items.map((s) => `<a href="${esc(s.url)}"><span>${esc(s.platform)}</span>${esc(s.name)}</a>`).join("")}</div>` : ""}
         </div>
       </div>
     </section>`;

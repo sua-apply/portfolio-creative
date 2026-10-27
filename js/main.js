@@ -389,6 +389,28 @@
     update();
   }
 
+  /* Contact SNS: DB sns_links 내용으로 채워요. 주소가 비어 있으면 '곧 열려요', 하나도 없으면 칸째 숨겨요 */
+  function renderSns(groups) {
+    const box = $("#snsGroups");
+    if (!box) return;
+    box.innerHTML = groups.map((g) => `
+      <div class="contact__group">
+        <h3 class="contact__label">${esc(g.title)}</h3>
+        <ul class="sns">${g.items.map((s) => {
+          const inner = `
+            <span class="sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" aria-hidden="true">${esc(s.mark)}</span>
+            <span class="sns__text"><span class="sns__platform">${esc(s.platform)}</span><strong class="sns__name">${esc(s.name)}</strong></span>`;
+          return s.url
+            ? `<li><a class="sns__item" href="${esc(s.url)}" target="_blank" rel="noopener">${inner}
+            <span class="sns__go" aria-hidden="true">↗</span></a></li>`
+            : `<li><div class="sns__item sns__item--soon">${inner}
+            <span class="sns__soon">곧 열려요</span></div></li>`;
+        }).join("")}
+        </ul>
+      </div>`).join("");
+    box.hidden = !groups.length;
+  }
+
   function headerShadow() {
     const h = $("#header");
     const on = () => h.classList.toggle("is-scrolled", window.scrollY > 8);
@@ -402,6 +424,7 @@
     renderResume(window.RESUME);
     renderSlider(window.PROJECTS || []);
     renderFeatured(window.PROJECTS || []);
+    renderSns(window.SNS || []);
     hideEmpty();
     trackPosition();
     // 처음 들어오거나 새로고침하면 항상 맨 위(표지)에서 시작해요.
