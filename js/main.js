@@ -75,15 +75,15 @@
       row({ date: e.end || e.start, title: e.school, sub: [e.major, e.status].filter(Boolean).join(" · ") })));
 
     fill("#expList", null, [...(R.experience || [])].sort(latestFirst("start")).map((x) =>
-      row({ date: period(x.start, x.end), title: x.company, sub: x.role, desc: x.desc, tag: x.end ? duration(x.start, x.end) : "재직 중", now: !x.end })),
+      row({ date: period(x.start, x.end), title: x.company, sub: x.role, desc: x.desc, tag: x.ongoing ? "재직 중" : duration(x.start, x.end), now: x.ongoing })),
       LIMITS.experience, "경력");
 
     fill("#trainList", "#trainCount", [...(R.training || [])].sort(latestFirst("start")).map((x) =>
-      row({ date: period(x.start, x.end), title: x.title, sub: x.org, desc: x.desc, tag: x.end ? "" : "수강 중", now: !x.end })),
+      row({ date: period(x.start, x.end), title: x.title, sub: x.org, desc: x.desc, tag: x.ongoing ? "수강 중" : "", now: x.ongoing })),
       LIMITS.training, "교육");
 
     const acts = [...(R.activities || [])].sort(latestFirst("start"));
-    const act = (a) => row({ date: period(a.start, a.end), title: a.title, sub: a.org, desc: a.desc, tag: a.role });
+    const act = (a) => row({ date: period(a.start, a.end), title: a.title, sub: a.org, desc: a.desc, tag: a.role, now: a.ongoing });
     fill("#extList", "#extCount", acts.filter((a) => a.type === "external").map(act), LIMITS.activities, "대외활동");
     fill("#campList", "#campCount", acts.filter((a) => a.type === "campus").map(act), LIMITS.activities, "교내활동");
 

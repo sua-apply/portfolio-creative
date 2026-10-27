@@ -48,14 +48,17 @@
         : (p.detail && Number.isFinite(+p.detail.contribution) && p.detail.contribution !== null ? +p.detail.contribution : null),
     };
   }
+  /* 오늘 날짜(방문자 기준). 종료일이 오늘이거나 아직 안 지났으면 '진행 중'으로 봐요 */
+  const TODAY = (() => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`; })();
+  const ongoing = (r) => !r.end_date || r.end_date >= TODAY;
   function toResume(rows) {
     const k = (kind) => rows.filter((r) => r.kind === kind);
     const d = (x) => ym(x, ".");
     return {
       education: k("education").map((r) => ({ school: r.title, major: r.detail || "", status: r.status || "", start: d(r.start_date), end: d(r.end_date) })),
-      experience: k("experience").map((r) => ({ company: r.title, role: r.detail || "", desc: r.description || "", start: d(r.start_date), end: d(r.end_date) })),
-      training: k("training").map((r) => ({ title: r.title, org: r.org || "", desc: r.description || "", start: d(r.start_date), end: d(r.end_date) })),
-      activities: k("activity").map((r) => ({ type: r.activity_type, title: r.title, org: r.org || "", role: r.my_role || "", desc: r.description || "", start: d(r.start_date), end: d(r.end_date) })),
+      experience: k("experience").map((r) => ({ company: r.title, role: r.detail || "", desc: r.description || "", start: d(r.start_date), end: d(r.end_date), ongoing: ongoing(r) })),
+      training: k("training").map((r) => ({ title: r.title, org: r.org || "", desc: r.description || "", start: d(r.start_date), end: d(r.end_date), ongoing: ongoing(r) })),
+      activities: k("activity").map((r) => ({ type: r.activity_type, title: r.title, org: r.org || "", role: r.my_role || "", desc: r.description || "", start: d(r.start_date), end: d(r.end_date), ongoing: ongoing(r) })),
       awards: k("award").map((r) => ({ title: r.title, org: r.org || "", desc: r.description || "", date: d(r.start_date), project: r.project_id || "" })),
       languages: k("language").map((r) => ({ test: r.title, score: r.score, org: r.org || "", date: d(r.start_date), expires: d(r.expires_date) })),
       certificates: k("certificate").map((r) => ({ name: r.title, org: r.org || "", date: d(r.start_date) })),
