@@ -191,7 +191,7 @@ html::-webkit-scrollbar { display: none; }
 .rows { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--ink); }
 .row { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 6px 20px; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .row__date { font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums; padding-top: 2px; }
-/* 날짜 아래: 기간(회색 글자) / 진행 중(핑크 칩) */
+/* 날짜 아래: 진행 상태 + 기간 · 교육 시간 */
 .row__meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 5px; margin-top: 4px; }
 .row__when { font-size: 12.5px; color: var(--ink-3); }
 /* 진행 중은 핑크 굵은 글자, 기간은 회색 · 사이에 점 ("재직 중 · 8개월") */
