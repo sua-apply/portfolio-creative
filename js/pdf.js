@@ -84,7 +84,7 @@
       ["활동", (RS.activities || []).map((x) => [range(x.start, x.end), x.title, [x.org, x.role].filter(Boolean).join(" · ")])],
       ["수상", (RS.awards || []).map((x) => [x.date, x.title, x.org])],
       ["어학", (RS.languages || []).filter((x) => !(x.expires && x.expires < NOW_YM)).map((x) => [x.date, `${x.test}${x.score ? ` ${x.score}` : ""}`, x.org])],
-      ["자격증", (RS.certificates || []).map((x) => [x.date, x.name, x.org])],
+      ["자격증", (RS.certificates || []).filter((x) => !x.expired).map((x) => [x.date, x.name, [x.org, x.expires ? `유효 ~${x.expires}` : ""].filter(Boolean).join(" · ")])],
     ].filter(([, rows]) => rows.length);
     if (!blocks.length) return "";
     return `<section class="page">
