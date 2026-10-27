@@ -58,13 +58,13 @@
     mockup: (s, p) => (s.image
       ? `<figure class="fig fig--mockup">${img(s.image, s.caption || p.title)}</figure>`
       : `<figure class="fig is-empty"><span class="fig__ph fig__ph--wide"><span>목업 이미지 준비 중</span></span></figure>`),
-    gallery: (s) => `<div class="gallery">${(s.items || []).map((it) => `
+    gallery: (s) => `${paras(s.body)}<div class="gallery">${(s.items || []).map((it) => `
       <figure class="fig${it.image ? "" : " is-empty"}">${it.image ? img(it.image, it.title) : `<span class="fig__ph"><span>이미지 준비 중</span></span>`}
         <figcaption><strong>${esc(it.title)}</strong>${it.desc ? ` ${esc(it.desc)}` : ""}</figcaption></figure>`).join("")}</div>`,
     palette: (s) => `${paras(s.body)}
       ${(s.fonts || []).length ? `<h3 class="psub">컬러</h3>` : ""}
       <ul class="swatches">${(s.colors || []).filter((c) => HEX.test(c.hex)).map((c) => `
-        <li><i style="background:${c.hex}" aria-hidden="true"></i><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul>
+        <li><i style="background:${c.hex}" aria-hidden="true"></i><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code>${c.desc ? `<small>${esc(c.desc)}</small>` : ""}</li>`).join("")}</ul>
       ${(s.fonts || []).length ? `<h3 class="psub">서체</h3><ul class="fonts">${s.fonts.map((f) => `
         <li><span class="fonts__sample${f.style === "display" ? " is-display" : ""}">${esc(f.sample).replace(/\n/g, "<br />")}</span><small>${esc(f.note || "")}</small></li>`).join("")}</ul>` : ""}`,
     process: (s) => `${paras(s.body)}

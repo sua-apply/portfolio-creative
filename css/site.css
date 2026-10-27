@@ -724,10 +724,12 @@ a.card:hover { border-color: var(--ink-3); box-shadow: 0 12px 28px -18px rgba(0,
 /* 과정 아래 메모 (예: AI 활용 표기) */
 .note-box { margin: 14px 0 0 !important; padding: 12px 14px; border-radius: 10px; background: var(--cyan-soft); font-size: 13.5px; color: var(--ink-2); }
 .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+p + .gallery { margin-top: 14px; }
 .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin: 14px 0 0; padding: 0; list-style: none; }
 .swatches i { display: block; height: 64px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, .08); }
 .swatches strong { display: block; margin-top: 6px; font-size: 14px; }
 .swatches code { font-size: 12.5px; color: var(--ink-3); }
+.swatches small { display: block; margin-top: 4px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
 .fonts { margin: 20px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
 .fonts li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: center; }
 .fonts__sample { font-size: 16px; }
