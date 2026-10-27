@@ -96,7 +96,7 @@
     const acts = sorted(RS.activities, "start");
     const act = (x) => r(range(x.start, x.end), x.title, x.org, ongoing(x) ? "활동 중" : "", "");
     const blocks = [
-      ["학력", sorted(RS.education, "start").map((x) => r(x.end || x.start, x.school, [x.major, x.status].filter(Boolean).join(" · ")))],
+      ["학력", [...(RS.education || [])].sort((a, b) => (b.end || b.start || "").localeCompare(a.end || a.start || "")).map((x) => r([x.start, x.end].filter(Boolean).join(" – "), x.school, [x.major, x.status].filter(Boolean).join(" · ")))],
       ["경력", sorted(RS.experience, "start").map((x) => r(range(x.start, x.end), x.company, x.role, ongoing(x) ? "재직 중" : "", duration(x.start, ongoing(x) ? NOW_YM : x.end)))],
       ["교육", sorted(RS.training, "start").map((x) => r(range(x.start, x.end), x.title, x.org, ongoing(x) ? "수강 중" : "", hours(x.hours)))],
       ["대외활동", acts.filter((a) => a.type !== "campus").map(act)],
