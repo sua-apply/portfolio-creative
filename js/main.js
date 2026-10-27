@@ -129,6 +129,9 @@
   /* 표지 슬라이드: 수상작 · 본선작 등 DB projects.on_slide 를 켠 작업 (없으면 최신순), 최대 LIMITS.slides 장
      (아래 '대표 프로젝트'는 따로 — projects.featured 를 켠 작업)
      LIMITS.autoplay(ms)마다 자동으로 넘어가요. 마우스를 올리거나 만지는 동안, 화면을 보지 않을 때는 멈춰요. */
+  // 슬라이드 배지: 공모전(contest) 결과(수상 · 본선 등)만 보여줘요. 다른 작업의 숫자 성과('4종' 등)는 상세 페이지 '결과'에만 나와요
+  const isAward = (p) => p.type === "contest" && p.result && p.result.value;
+
   function renderSlider(list) {
     const track = $("#slideTrack");
     if (!track) return;
@@ -141,7 +144,7 @@
         <a class="slide__link" href="${esc(window.keepLink(`project.html?id=${encodeURIComponent(p.id)}`))}">
           <span class="slide__img"><img src="${esc(p.image || p.thumb)}" alt="" ${i ? 'loading="lazy"' : ""} /></span>
           <span class="slide__info">
-            <span class="slide__meta">${p.result && p.result.value ? `<b class="slide__award">${esc(p.result.value)}</b>` : ""}${esc(p.categoryLabel)}${p.date ? ` · ${esc(p.date.slice(0, 4))}` : ""}${p.type ? ` · ${esc(window.kindLabel(p))}` : ""}</span>
+            <span class="slide__meta">${isAward(p) ? `<b class="slide__award">${esc(p.result.value)}</b>` : ""}${esc(p.categoryLabel)}${p.date ? ` · ${esc(p.date.slice(0, 4))}` : ""}${p.type ? ` · ${esc(window.kindLabel(p))}` : ""}</span>
             <strong class="slide__title">${esc(p.title)}</strong>
             ${p.role ? `<span class="slide__role"><b>역할</b>${esc(p.role)}</span>` : ""}
           </span>
