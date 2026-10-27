@@ -191,6 +191,9 @@ html::-webkit-scrollbar { display: none; }
 .rows { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--ink); }
 .row { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 6px 20px; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .row__date { font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums; padding-top: 2px; }
+/* 날짜 아래: 기간(회색 글자) / 진행 중(핑크 칩) */
+.row__when { display: block; margin-top: 4px; font-size: 12.5px; color: var(--ink-3); }
+.row__when.is-now { display: table; padding: 2px 9px; border-radius: 999px; background: var(--pink-soft); color: var(--pink-text); font-weight: 700; }
 .row__title { display: block; font-size: 16.5px; font-weight: 700; }
 .row__sub { display: block; font-size: 14.5px; color: var(--ink-2); }
 .row__desc { margin: 6px 0 0; font-size: 14.5px; color: var(--ink-3); }
@@ -991,7 +994,8 @@ a.card:hover { border-color: var(--pink); }
   .idcard__dl div { grid-template-columns: 60px minmax(0, 1fr); font-size: 14px; }
   .row { grid-template-columns: minmax(0, 1fr) auto; }
   .row__go { grid-column: 1 / -1; justify-self: start; }
-  .row__date { grid-column: 1 / -1; padding: 0; }
+  .row__date { grid-column: 1 / -1; padding: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+  .row__when, .row__when.is-now { display: inline-block; margin-top: 0; }
   .row__main { grid-column: 1; }
   .rows--table .trow { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .trow__org { text-align: left; }
