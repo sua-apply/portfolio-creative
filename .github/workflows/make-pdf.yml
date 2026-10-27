@@ -1,0 +1,34 @@
+# 포트폴리오 PDF 다시 만들기 (files/portfolio.pdf)
+# GitHub → Actions → "포트폴리오 PDF 만들기" → Run workflow 를 누르면
+# 지금 DB 내용으로 PDF를 새로 만들어 main 에 올려요. DB 내용을 바꾼 뒤에 눌러 주세요.
+name: 포트폴리오 PDF 만들기
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: make-pdf
+  cancel-in-progress: false
+jobs:
+  pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 준비 (Playwright · 한글 글꼴)
+        run: |
+          pip install playwright==1.47.0
+          python -m playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: PDF 만들기
+        run: python tools/make-pdf.py
+      - name: 바뀌었으면 올리기
+        run: |
+          if git diff --quiet -- files/portfolio.pdf; then echo "바뀐 것 없음"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add files/portfolio.pdf
+          git commit -m "포트폴리오 PDF 다시 만들기 (DB 내용 기준)"
+          git push

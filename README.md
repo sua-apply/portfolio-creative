@@ -86,9 +86,12 @@ portfolio/
 위 메뉴의 "포트폴리오 PDF"는 `files/portfolio.pdf` 파일이에요. 사이트처럼 저절로 바뀌지 않으니,
 DB 내용이나 index.html(About Me · 연락처)을 바꾼 뒤에는 다시 만들어 올려야 해요.
 
-- 내용: 표지 → 프로필·스킬 → 이력 → 목차 → 대표 프로젝트(최대 4개, 하나당 2쪽) → 연락처 (A4 가로)
+- 내용: 표지 → 프로필·스킬 → 이력 → 대표 프로젝트(최대 4개) → 연락처 (A4 가로)
+  - 프로젝트 하나 = 프로젝트 표지 1장 → 정리 1~3장(내용 양에 따라 자동) → 목업 1장 이상(상세의 mockup · gallery 이미지)
 - 모양 · 구성: `portfolio-pdf.html`, `css/pdf.css`, `js/pdf.js`
-- 만드는 법 (컴퓨터에서 한 번만 준비):
+- **가장 쉬운 방법:** GitHub → Actions → "포트폴리오 PDF 만들기" → Run workflow
+  → 지금 DB 내용으로 PDF를 만들어 자동으로 올려요 (1~2분)
+- 컴퓨터에서 만들기 (한 번만 준비):
   ```bash
   pip install playwright && python -m playwright install chromium
   python tools/make-pdf.py        # → files/portfolio.pdf
