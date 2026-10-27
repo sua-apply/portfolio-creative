@@ -71,7 +71,7 @@ portfolio/
    - `detail`: 상세 페이지의 섹션들이에요. 순서대로 01, 02… 번호가 붙어요. 비워두면(`{}`) `description`·`problem`·`action`·`did`로 섹션을 만들어요
    - 상세 페이지 위쪽 정보 칸에는 `my_role`·`period_label`·`kind`·`client`·`team`·`tools`가, 맨 아래에는 `result`·`tags`가 들어가요
      - 모양: `{"sections": [ {"type": "...", "label": "Overview", "title": "...", "body": ["문단", ...]}, ... ]}`
-     - `type` 종류: `text`(글) · `target`(persona, decisions) · `cards`(items) · `cast`(items: name, sound, color, note) · `scenario`(arc, scenes) · `mockup`(태블릿 목업, image 없으면 대표 이미지) · `gallery`(items: title, desc, image) · `palette`(colors: name, hex / fonts: style, sample, note) · `process`(steps, note) · `notes`(items: title, desc)
+     - `type` 종류: `text`(글) · `target`(persona, decisions) · `cards`(items) · `cast`(items: name, sound, color, note) · `scenario`(arc, scenes) · `mockup`(태블릿 목업, image 없으면 대표 이미지) · `gallery`(items: title, desc, image) · `palette`(colors: name, hex, desc(설명, 선택) / fonts: style, sample, note) · `process`(steps, note) · `notes`(items: title, desc)
      - 섹션 번호는 순서대로 자동으로 붙어요. 예시는 `recycling-band` 프로젝트를 참고하세요
    - `featured` 켜기 → 메인 '대표 프로젝트'에 보여요 (최신 3개까지, 하나도 없으면 최신순 3개). 아카이브에는 '대표' 표시가 붙어요. `published` 끄기 → 숨기기
    - `category` · `kind` → 아카이브의 분야 · 구분 필터가 이 값으로 자동 생성돼요 (한 가지뿐이면 그 필터는 숨겨요)
