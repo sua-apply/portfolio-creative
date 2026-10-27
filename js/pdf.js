@@ -1,6 +1,6 @@
 /* =========================================
    포트폴리오 PDF 쪽 만들기 (portfolio-pdf.html)
-   - 표지 → 프로필 → 이력 → 목차 → 대표 프로젝트(프로젝트마다 2쪽) → 마지막 쪽
+   - 표지 → 프로필 → 이력 → 대표 프로젝트(프로젝트마다 2쪽) → 마지막 쪽
    - 대표 프로젝트: 메인과 같은 규칙 (DB featured 켠 것, 없으면 최신순) 최대 4개
    - About Me · 연락처는 index.html 에 적힌 내용을, SNS 는 DB(sns_links)에서 가져와요
    - 이력 · 프로젝트 정보는 웹과 같은 규칙으로 보여줘요 (진행 상태·기간·교육 시간, '프로젝트 / 나의 참여' 묶음)
@@ -238,8 +238,7 @@
     const num = () => pad2(++n);
     const pages = [cover(R, pick[0], info), profile(R, info, num())];
     const rs = resume(window.RESUME, pad2(n + 1)); if (rs) { n += 1; pages.push(rs); }
-    const before = pages.length + 1;            // 목차 다음 쪽 번호
-    if (pick.length) pages.push(toc(pick, before + 1, num()));
+    // 목차(Selected Work) 쪽 없이 이력 다음에 바로 프로젝트로 넘어가요. 다시 넣으려면: pages.push(toc(pick, pages.length + 2, num()))
     pick.forEach((p, i) => { pages.push(projectA(p, i)); const b = projectB(p, i); if (b) pages.push(b); });
     pages.push(closing(info));
     const book = document.getElementById("book");
