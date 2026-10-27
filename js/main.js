@@ -79,7 +79,8 @@
   function renderResume(R) {
     if (!R) return;
     fill("#eduList", null, [...(R.education || [])].sort(latestFirst("start")).map((e) =>
-      row({ date: e.end || e.start, title: e.school, sub: [e.major, e.status].filter(Boolean).join(" · ") })));
+      // 학력: 입학 – 졸업 둘 다 (DB start_date = 입학, end_date = 졸업)
+      row({ date: [e.start, e.end].filter(Boolean).join(" – "), title: e.school, sub: [e.major, e.status].filter(Boolean).join(" · ") })));
 
     fill("#expList", null, [...(R.experience || [])].sort(latestFirst("start")).map((x) =>
       row({ date: period(x.start, x.end), title: x.company, sub: x.role, desc: x.desc, status: ongoing(x) ? "재직 중" : "", len: duration(x.start, ongoing(x) ? NOW : x.end), now: ongoing(x) })),
