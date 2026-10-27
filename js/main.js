@@ -87,7 +87,7 @@
       LIMITS.training, "교육");
 
     const acts = [...(R.activities || [])].sort(latestFirst("start"));
-    const act = (a) => row({ date: period(a.start, a.end), title: a.title, sub: a.org, desc: a.desc, tag: a.role, when: ongoing(a) ? "활동 중" : "", now: ongoing(a) });
+    const act = (a) => row({ date: period(a.start, a.end), title: a.title, sub: a.org, desc: a.desc, when: ongoing(a) ? "활동 중" : "", now: ongoing(a) });
     fill("#extList", "#extCount", acts.filter((a) => a.type === "external").map(act), LIMITS.activities, "대외활동");
     fill("#campList", "#campCount", acts.filter((a) => a.type === "campus").map(act), LIMITS.activities, "교내활동");
 
