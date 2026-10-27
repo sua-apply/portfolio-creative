@@ -222,3 +222,35 @@ ul, ol { padding: 0; list-style: none; }
 .mk figcaption { font-size: 8pt; color: var(--ink-3); }
 .mk--empty { place-items: center; border: 1pt dashed var(--line); border-radius: 3mm; background: var(--bg); }
 .mk--empty p { font-size: 11pt; font-weight: 700; color: var(--ink-3); }
+
+/* 정리 쪽: 두 단에 블록을 차례로 채워요 */
+.ov { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12mm; }
+.ov__col { min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 7mm; }
+.blk__k { font-size: 7.5pt; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--pink-text); }
+.blk__t { margin: 1mm 0 2.5mm; padding-bottom: 2mm; border-bottom: 1pt solid var(--navy); font-size: 11.5pt; font-weight: 800; letter-spacing: -0.02em; }
+.blk__k + :not(.blk__t) { margin-top: 2.5mm; border-top: 1pt solid var(--navy); padding-top: 2.5mm; }
+.blk__p { font-size: 9.2pt; line-height: 1.75; color: var(--ink-2); }
+.blk__p + .blk__p { margin-top: 1.5mm; }
+.blk .pb-meta { margin: 3mm 0 0; }
+.gl div { display: grid; grid-template-columns: 17mm minmax(0, 1fr); gap: 3mm; padding: 2.2mm 0; border-bottom: 0.5pt solid var(--line); }
+.gl dt { font-size: 9pt; font-weight: 800; }
+.gl dd { font-size: 9pt; line-height: 1.7; color: var(--ink-2); }
+.pal { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pal--1 { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: minmax(0, 1fr); }
+.pal li { height: 24mm; padding: 2.5mm 3mm; display: flex; flex-direction: column; justify-content: flex-end; font-size: 7.5pt; }
+.pal--2 li { height: 17mm; }
+.pal li strong { font-size: 8.4pt; font-weight: 800; }
+.pal li code { font-family: var(--font); opacity: .8; }
+.pal li[style*="#F"], .pal li[style*="#f"] { box-shadow: inset 0 0 0 0.5pt rgba(0, 0, 0, .06); }
+.fonts { margin-top: 3mm; display: grid; gap: 2mm; }
+.fonts li { display: grid; grid-template-columns: 40mm minmax(0, 1fr); gap: 3mm; align-items: baseline; padding: 2mm 0; border-bottom: 0.5pt solid var(--line); }
+.fonts strong { font-size: 13pt; font-weight: 800; white-space: pre-line; line-height: 1.3; }
+.fonts span { font-size: 8.4pt; color: var(--ink-3); }
+.ov .minis li { padding: 2.5mm; }
+/* 한 블록 때문에 쪽이 하나 더 생길 때: 조금 촘촘하게 */
+.ov-tight .ov { gap: 10mm; }
+.ov-tight .ov__col { gap: 5mm; }
+.ov-tight .blk__p, .ov-tight .gl dd, .ov-tight .gl dt, .ov-tight .did li, .ov-tight .steps li, .ov-tight .notes li, .ov-tight .cast li, .ov-tight .decide li { font-size: 8.4pt; line-height: 1.6; }
+.ov-tight .gl div, .ov-tight .did li, .ov-tight .steps li, .ov-tight .decide li, .ov-tight .cast li { padding-top: 1.3mm; padding-bottom: 1.3mm; }
+.ov-tight .blk__t { font-size: 10.5pt; margin-bottom: 2mm; }
+.ov-tight .pal li { height: 15mm; }

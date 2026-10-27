@@ -193,29 +193,73 @@
   const page = (p, i, en, body) => `<section class="page">
       <div class="page__in">${head(pad2(i + 1), p.title, en)}${body}</div>${foot(p.title)}
     </section>`;
-  function overviewPages(p, i) {
+  /* 정리 쪽은 '블록'을 두 단에 차례로 채워요. 한 단이 차면 오른쪽 단 → 다음 쪽 (내용이 적으면 1~2장, 많아도 최대 3장)
+     레퍼런스처럼 쪽마다 빈 곳 없이: 개요 · 문제/한 일/결과 · 작업 범위 · 콘셉트 · 타깃 · 캐릭터 · 컬러 · 과정 · 돌아보며 */
+  const MAX_OVERVIEW = 3;
+  const lum = (hex) => {
+    let h = hex.replace("#", ""); if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+    const [r, g, b] = [0, 2, 4].map((k) => parseInt(h.slice(k, k + 2), 16) / 255);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const blk = (label, title, body) => `<div class="blk"><p class="blk__k">${esc(label)}</p>${title ? `<h4 class="blk__t">${esc(title)}</h4>` : ""}${body}</div>`;
+  function overviewBlocks(p) {
     const secs = sectionsOf(p);
-    const pages = [];
-    // 1) 개요: 구분 · 주최 · 역할 + 소개 글 + 문제 / 내가 한 일 / 결과
+    const out = [];
     const meta = [["구분", window.kindLabel(p)], ["주최 · 발주", p.client], ["역할", p.role]].filter(([, v]) => v);
     const intro = secs.find((s) => s.type === "text");
-    const did = (p.did || []).slice(0, 4);
-    const glance = [
-      ["문제", p.problem ? `<p>${esc(p.problem)}</p>` : ""],
-      ["내가 한 일", p.action ? `<p>${esc(p.action)}</p>` : did.length ? `<ul>${did.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>` : ""],
-      ["결과", `${p.result ? `<p><strong>${esc(p.result.value)}</strong> ${esc(p.result.label)}</p>` : ""}${p.resultText ? `<p>${esc(p.resultText)}</p>` : ""}`],
-    ].filter(([, v]) => v);
-    if (meta.length || intro || glance.length) pages.push(page(p, i, "Overview", `
-        ${meta.length ? `<dl class="pb-meta">${meta.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""}
-        ${intro ? `<div class="intro">${intro.title ? `<h3>${esc(intro.title)}</h3>` : ""}${(intro.body || []).slice(0, 2).map((b) => `<p>${esc(b)}</p>`).join("")}</div>` : ""}
-        ${glance.length ? `<ol class="glance" style="grid-template-columns:repeat(${glance.length},minmax(0,1fr))">${glance.map(([k, v], n) => `<li><span class="glance__no">${pad2(n + 1)}</span><h3>${k}</h3>${v}</li>`).join("")}</ol>` : ""}`));
-    // 2) 기획: 콘셉트 · 타깃 · 캐릭터 · 시나리오 중 앞의 두 개
-    const plan = secs.filter((s) => ["cards", "target", "cast", "scenario"].includes(s.type)).slice(0, 2).map((s) => BOX[s.type](s));
-    if (plan.length) pages.push(page(p, i, "Concept", boxes(plan)));
-    // 3) 과정 · 비주얼: 컬러 · 과정 · 돌아보며
-    const make = ["palette", "process", "notes"].map((t) => secs.find((s) => s.type === t)).filter(Boolean).map((s) => BOX[s.type](s));
-    if (make.length) pages.push(page(p, i, "Process · Visual", boxes(make)));
-    return pages.slice(0, 3);
+    if (meta.length || intro) out.push(blk(intro ? intro.label || "Overview" : "Overview", intro && intro.title, `
+      ${intro ? (intro.body || []).slice(0, 2).map((b) => `<p class="blk__p">${esc(b)}</p>`).join("") : ""}
+      ${meta.length ? `<dl class="pb-meta">${meta.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""}`));
+    const glance = [["문제", p.problem], ["내가 한 일", p.action], ["결과", [p.result && `${p.result.value} ${p.result.label || ""}`.trim(), p.resultText].filter(Boolean).join(" — ")]].filter(([, v]) => v);
+    if (glance.length) out.push(blk("At a glance", "", `<dl class="gl">${glance.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`));
+    if ((p.did || []).length) out.push(blk("What I did", "작업 범위", `<ol class="did">${p.did.slice(0, 6).map((d, n) => `<li><b>${pad2(n + 1)}</b>${esc(d)}</li>`).join("")}</ol>`));
+    secs.forEach((s) => {
+      if (s.type === "palette" && (s.colors || []).length) {
+        const cs = s.colors.filter((c) => HEX.test(c.hex)).slice(0, 8);
+        out.push(blk(s.label || "Color", s.title, `<ul class="pal pal--${cs.length > 4 ? "2" : "1"}">${cs.map((c) => `<li style="background:${c.hex};color:${lum(c.hex) > 0.6 ? "#252A34" : "#fff"}"><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul>
+          ${(s.fonts || []).length ? `<ul class="fonts">${s.fonts.map((f) => `<li><strong>${esc(f.sample || "")}</strong><span>${esc(f.note || "")}</span></li>`).join("")}</ul>` : ""}`));
+      } else if (BOX[s.type] && s.type !== "palette") {
+        const [t, en, body] = BOX[s.type](s);
+        out.push(blk(en, t, body));
+      }
+    });
+    return out;
+  }
+  // 실제 높이를 재면서 쪽에 채워 넣기 (브라우저에서 글꼴을 불러온 뒤 실행)
+  function flowOverview(p, i, marker, tight) {
+    const blocks = overviewBlocks(p);
+    let after = marker, cols = [], made = 0;
+    const made_ = [];
+    const newPage = () => {
+      const sec = document.createElement("section");
+      sec.className = `page${tight === true ? " ov-tight" : ""}`;
+      made_.push(sec);
+      sec.innerHTML = `<div class="page__in">${head(pad2(i + 1), p.title, "Overview")}<div class="ov"><div class="ov__col"></div><div class="ov__col"></div></div></div>${foot(p.title)}`;
+      after.after(sec); after = sec; made += 1;
+      cols = [...sec.querySelectorAll(".ov__col")];
+    };
+    const fits = (col, el) => { col.appendChild(el); if (col.scrollHeight <= col.clientHeight + 1) return true; el.remove(); return false; };
+    for (const html of blocks) {
+      const tmp = document.createElement("div"); tmp.innerHTML = html.trim();
+      const el = tmp.firstElementChild;
+      // 지금 쪽의 단 중 들어가는 첫 자리에 (왼쪽 단에 남은 공간도 채워요). 없으면 다음 쪽
+      if (cols.length && cols.some((c) => fits(c, el))) continue;
+      if (made >= MAX_OVERVIEW) break;
+      newPage();
+      cols[0].appendChild(el);   // 빈 단에는 길어도 넣어요
+    }
+    // 마지막 쪽에 블록이 1개뿐이면(빈 곳이 많은 쪽) 글자 · 간격을 조금 줄여서 한 번 더 채워 봐요
+    const last = made_[made_.length - 1];
+    if (tight === undefined && made_.length > 1 && last && last.querySelectorAll(".blk").length <= 1) {
+      const before = made_.length;
+      made_.forEach((pg) => pg.remove());
+      const again = flowOverview(p, i, marker, true);
+      if (again.length < before) { marker.remove(); return again; }
+      again.forEach((pg) => pg.remove());
+      return flowOverview(p, i, marker, "keep");
+    }
+    if (tight !== true) marker.remove();
+    return made_;
   }
 
   /* 7. 목업 쪽 (1장 이상) — 상세의 mockup · gallery 이미지. 섹션 하나 = 한 쪽 */
@@ -271,10 +315,13 @@
     const rs = resume(window.RESUME, pad2(n + 1)); if (rs) { n += 1; pages.push(rs); }
     // 목차(Selected Work) 쪽 없이 이력 다음에 바로 프로젝트로 넘어가요. 다시 넣으려면: pages.push(toc(pick, pages.length + 2, num()))
     // 프로젝트 하나: 표지 → 정리(최대 3장) → 목업(1장 이상)
-    pick.forEach((p, i) => { pages.push(projectA(p, i), ...overviewPages(p, i), ...mockupPages(p, i)); });
+    pick.forEach((p, i) => { pages.push(projectA(p, i), `<div class="ov-marker" data-i="${i}"></div>`, ...mockupPages(p, i)); });
     pages.push(closing(info));
     const book = document.getElementById("book");
     book.innerHTML = pages.join("");
+    // 정리 쪽: 글꼴을 불러온 뒤 실제 높이로 채워요
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    book.querySelectorAll(".ov-marker").forEach((m) => flowOverview(pick[+m.dataset.i], +m.dataset.i, m));
     // 쪽 번호
     const all = [...book.querySelectorAll(".page")];
     all.forEach((pg, i) => { const el = pg.querySelector(".pg"); if (el) el.textContent = `${pad2(i + 1)} / ${pad2(all.length)}`; });
