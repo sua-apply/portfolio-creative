@@ -147,7 +147,7 @@
           <span class="slide__info">
             <span class="slide__meta">${isAward(p) ? `<b class="slide__award">${esc(p.result.value)}</b>` : ""}${esc(p.categoryLabel)}${p.date ? ` · ${esc(p.date.slice(0, 4))}` : ""}${p.type ? ` · ${esc(window.kindLabel(p))}` : ""}</span>
             <strong class="slide__title">${esc(p.title)}</strong>
-            ${p.role ? `<span class="slide__role"><b>역할</b>${esc(p.role)}</span>` : ""}
+            ${p.role ? `<span class="slide__role"><b>역할</b>${window.listHTML(p.role)}</span>` : ""}
           </span>
         </a>
       </article>`).join("")
