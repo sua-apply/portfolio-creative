@@ -209,23 +209,24 @@
     };
     const byCat = by((p) => p.categoryLabel).sort((a, b) => b[1].length - a[1].length);   // 많은 순
     const byYear = by(yearOf).sort((a, b) => b[0] - a[0]);                                // 최신 연도 순
-    // 종류별: 위에서 카테고리를 고르고 아래에서 봐요
-    //  - 전체: 종류별 줄(옆으로 넘기기) / 하나 고르면: 그 종류 카드만 바둑판
+    // 종류별 · 연도별 모두: 탭 한 줄 아래 바로 카드 (묶음 제목 없이 최신순 바둑판)
+    //  - 카드 위 작은 글씨에 "분류 · 연.월" 이 있어서 묶음 제목이 없어도 알 수 있어요
+    const ym = (p) => `${yearOf(p)}.${p.date.slice(5, 7)}`;
+    const metaFull = (p) => `${p.categoryLabel || "기타"} · ${ym(p)}`;
+    const grid = (list, metaOf) => `<ul class="ym__grid cgrid">${[...list].sort((a, b) => b.date.localeCompare(a.date)).map((p) => card(p, metaOf(p))).join("")}</ul>`;
+    const cls = CAT_FILTER === "chips" ? "cbar cbar--chips" : "ybar cbar";
+    const btn = CAT_FILTER === "chips" ? "cbar__btn" : "cbar__btn ybar__btn";
     const cp = $("#panelCat");
-    const catMeta = (p) => `${yearOf(p)}.${p.date.slice(5, 7)}`;
     cp.innerHTML = `
-      <div class="${CAT_FILTER === "chips" ? "cbar cbar--chips" : "ybar cbar"}" role="tablist" aria-label="카테고리 선택">
-        <button type="button" role="tab" class="cbar__btn${CAT_FILTER === "chips" ? "" : " ybar__btn"}" data-c="" aria-selected="true">전체<sup>${ALL.length}</sup></button>
-        ${byCat.map(([c, items]) => `<button type="button" role="tab" class="cbar__btn${CAT_FILTER === "chips" ? "" : " ybar__btn"}" data-c="${esc(c)}" aria-selected="false">${esc(c)}<sup>${items.length}</sup></button>`).join("")}
+      <div class="${cls}" role="tablist" aria-label="카테고리 선택">
+        <button type="button" role="tab" class="${btn}" data-c="" aria-selected="true">전체<sup>${ALL.length}</sup></button>
+        ${byCat.map(([c, items]) => `<button type="button" role="tab" class="${btn}" data-c="${esc(c)}" aria-selected="false">${esc(c)}<sup>${items.length}</sup></button>`).join("")}
       </div>
       <div class="cview" id="cView" role="tabpanel" aria-live="polite"></div>`;
     const showCat = (c) => {
       $$(".cbar__btn", cp).forEach((b) => b.setAttribute("aria-selected", String(b.dataset.c === c)));
       const g = byCat.find((x) => x[0] === c);
-      $("#cView").innerHTML = g
-        ? `<ul class="ym__grid cgrid">${[...g[1]].sort((a, b) => b.date.localeCompare(a.date)).map((p) => card(p, catMeta(p))).join("")}</ul>`
-        : groupsHTML(byCat, catMeta, "gc");
-      if (typeof arrows === "function") arrows();
+      $("#cView").innerHTML = g ? grid(g[1], ym) : grid(ALL, metaFull);
       if (typeof fit === "function") fit();
     };
     cp.addEventListener("click", (e) => { const b = e.target.closest(".cbar__btn"); if (b) showCat(b.dataset.c); });
@@ -236,30 +237,23 @@
       li.addEventListener("click", go);
       li.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
     });
-    // 연도별: 위에서 연도를 고르고, 아래에 그 해를 월별로 정리
+    // 연도별: 전체 · 2026 · 2025 … (월 묶음 없이, 카드에 날짜가 있어요)
     const yp = $("#panelYear");
+    const ybtn = CAT_FILTER === "chips" ? "ybar__btn cbar__btn" : "ybar__btn";
     yp.innerHTML = `
       <div class="ybar ${CAT_FILTER === "chips" ? "cbar cbar--chips ybar--chips" : ""}" role="tablist" aria-label="연도 선택">
-        ${byYear.map(([y, items], i) => `<button type="button" role="tab" class="ybar__btn${CAT_FILTER === "chips" ? " cbar__btn" : ""}" data-y="${esc(y)}" aria-selected="${i === 0}">${esc(y)}<sup>${items.length}</sup></button>`).join("")}
+        <button type="button" role="tab" class="${ybtn}" data-y="" aria-selected="true">전체<sup>${ALL.length}</sup></button>
+        ${byYear.map(([y, items]) => `<button type="button" role="tab" class="${ybtn}" data-y="${esc(y)}" aria-selected="false">${esc(y)}<sup>${items.length}</sup></button>`).join("")}
       </div>
       <div class="ymonths" id="yMonths" role="tabpanel" aria-live="polite"></div>`;
     const showYear = (y) => {
       $$(".ybar__btn", yp).forEach((b) => b.setAttribute("aria-selected", String(b.dataset.y === y)));
-      const items = (byYear.find((g) => g[0] === y) || [, []])[1];
-      const months = new Map();
-      [...items].sort((a, b) => b.date.localeCompare(a.date)).forEach((p) => {
-        const m = Number(p.date.slice(5, 7)) || 0;
-        if (!months.has(m)) months.set(m, []); months.get(m).push(p);
-      });
-      $("#yMonths").innerHTML = [...months].map(([m, list]) => `
-        <section class="ym" aria-label="${esc(y)}년 ${m ? `${m}월` : "월 미정"}">
-          <h4 class="ym__month"><b>${m || "–"}</b><strong>${m ? "월" : "월 미정"}</strong><span>${list.length}개</span></h4>
-          <ul class="ym__grid">${list.map((p) => card(p, p.categoryLabel)).join("")}</ul>
-        </section>`).join("");
+      const items = y ? (byYear.find((g) => g[0] === y) || [, []])[1] : ALL;
+      $("#yMonths").innerHTML = grid(items, metaFull);
       if (typeof fit === "function") fit();
     };
     yp.addEventListener("click", (e) => { const b = e.target.closest(".ybar__btn"); if (b) showYear(b.dataset.y); });
-    if (byYear.length) showYear(byYear[0][0]);
+    showYear("");
 
     // 넘칠 때만 화살표
     var arrows = () => $$(".sw-group").forEach((g) => {
@@ -309,7 +303,7 @@
       const ids = [...new Set($$(".sw-card a", panel).map((x) => new URL(x.href, location.href).searchParams.get("id")))];
       const cb = $("#panelCat .cbar__btn[aria-selected=true]");
       const cat = cb ? cb.dataset.c : "";
-      const label = cur === 0 ? (cat || "전체") : `${curYear()}년`;
+      const label = cur === 0 ? (cat || "전체") : (curYear() ? `${curYear()}년` : "전체");
       try { sessionStorage.setItem(KEY, JSON.stringify({ ids, label, tab: cur, year: curYear(), cat, y: window.scrollY })); } catch (err) { /* 저장이 안 돼도 이동은 돼요 */ }
     });
     // '목록'으로 돌아왔을 때 보던 탭 · 카테고리 · 연도 · 위치 그대로
