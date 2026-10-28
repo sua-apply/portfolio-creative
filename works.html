@@ -43,18 +43,19 @@
       <!-- 1. 요약: DB projects 로 자동 계산 -->
       <section class="summary" id="summary" aria-label="요약"></section>
 
-      <!-- 2. 보기: 종류별 · 연도별 (탭을 누르거나 옆으로 밀기) -->
+      <!-- 2. 보기 기준(종류별 · 연도별): 아래 분류 탭과 같은 줄 오른쪽에 작게 (모바일은 탭 줄 바로 위) -->
+      <div class="wbox">
       <div class="vtabs" id="viewTabs" role="tablist" aria-label="보기 기준">
         <button type="button" role="tab" id="tabCat" aria-controls="panelCat" aria-selected="true">종류별</button>
         <button type="button" role="tab" id="tabYear" aria-controls="panelYear" aria-selected="false" tabindex="-1">연도별</button>
         <span class="vtabs__pill" aria-hidden="true"></span>
       </div>
-      <p class="vtabs__hint">옆으로 밀어도 바뀌어요</p>
 
       <!-- 3. 묶음마다 카드 한 줄 -->
       <div class="views" id="views">
         <div class="views__panel" id="panelCat" role="tabpanel" aria-labelledby="tabCat"></div>
         <div class="views__panel" id="panelYear" role="tabpanel" aria-labelledby="tabYear"></div>
+      </div>
       </div>
     </div>
   </main>
