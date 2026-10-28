@@ -11,7 +11,7 @@
   const esc = window.esc;
   const pad2 = (n) => String(n).padStart(2, "0");
 
-  const LIMITS = { experience: 4, training: 4, activities: 4, certificates: 6, slides: 5, featured: 4, autoplay: 4500 };
+  const LIMITS = { experience: 4, training: 4, activities: 4, certificates: 6, slides: 3, featured: 4, autoplay: 4500 };
 
   const NOW = (() => { const d = new Date(); return `${d.getFullYear()}.${pad2(d.getMonth() + 1)}`; })();
   const latestFirst = (k) => (a, b) => (b[k] || NOW).localeCompare(a[k] || NOW);
