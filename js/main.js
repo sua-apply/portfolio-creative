@@ -11,7 +11,7 @@
   const esc = window.esc;
   const pad2 = (n) => String(n).padStart(2, "0");
 
-  const LIMITS = { experience: 4, training: 4, activities: 4, certificates: 6, slides: 5, featured: 4, autoplay: 4500 };
+  const LIMITS = { experience: 4, training: 4, activities: 4, certificates: 6, slides: 3, featured: 4, autoplay: 4500 };
 
   const NOW = (() => { const d = new Date(); return `${d.getFullYear()}.${pad2(d.getMonth() + 1)}`; })();
   const latestFirst = (k) => (a, b) => (b[k] || NOW).localeCompare(a[k] || NOW);
@@ -204,16 +204,18 @@
     track.addEventListener("pointerdown", (e) => {
       if (e.pointerType !== "mouse" || e.button !== 0) return;
       dragX = e.clientX; dragLeft = track.scrollLeft; moved = false;
-      track.style.scrollSnapType = "none"; track.classList.add("is-drag");
     });
+    // 실제로 끌기 시작했을 때만(4px 넘게) 끌기 모드로 바꿔요. 누르자마자 바꾸면 링크가 눌리지 않아 클릭이 안 돼요
     window.addEventListener("pointermove", (e) => {
       if (dragX === null) return;
-      const dx = e.clientX - dragX; if (Math.abs(dx) > 4) moved = true;
-      track.scrollLeft = dragLeft - dx;
+      const dx = e.clientX - dragX;
+      if (!moved && Math.abs(dx) > 4) { moved = true; track.style.scrollSnapType = "none"; track.classList.add("is-drag"); }
+      if (moved) track.scrollLeft = dragLeft - dx;
     });
     window.addEventListener("pointerup", (e) => {
       if (dragX === null) return;
       const dx = e.clientX - dragX; dragX = null;
+      if (!moved) return;   // 그냥 누른 거면 링크로 이동
       track.style.scrollSnapType = ""; track.classList.remove("is-drag");
       const step = Math.abs(dx) > track.clientWidth * 0.15 ? (dx < 0 ? 1 : -1) : 0;
       go(Math.max(0, Math.min(n - 1, Math.round(dragLeft / Math.max(1, track.clientWidth)) + step)));
