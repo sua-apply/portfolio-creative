@@ -1075,3 +1075,6 @@ body.is-viewing { overflow: hidden; }
   .wbox .ybar { margin-right: 0; }
   .wbox .ybar__btn { font-size: 16px; padding: 12px 0; }
 }
+
+/* 나열한 항목(역할 · 도구)은 항목 안에서 줄이 끊기지 않게 */
+.nobr { white-space: nowrap; }

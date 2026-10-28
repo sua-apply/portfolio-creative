@@ -102,6 +102,10 @@
     const pct = team && p.contribution != null ? Math.max(0, Math.min(100, Math.round(p.contribution))) : null;
     return { team, size, pct, label: team ? `팀${size ? ` ${size}인` : ""}` : "개인" };
   };
+  /* 역할 · 도구처럼 '·' 나 ',' 로 나열한 글: 항목 하나는 줄이 바뀌어도 쪼개지지 않게 (줄은 항목 사이에서만 바뀌어요)
+     예) "기획 · 곡 디렉션 · 싱크 조정" → '싱크 / 조정' 처럼 끊기지 않아요 */
+  window.listHTML = (text, sep = " · ") => String(text ?? "").split(/\s*[·,]\s*/).filter(Boolean)
+    .map((t) => `<span class="nobr">${window.esc(t)}</span>`).join(`<span class="list-sep">${sep}</span>`);
   window.esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   /* 프로젝트 카드: 메인 미리보기 · 프로젝트 목록에서 같이 써요 */
   window.projectCard = (p) => `
@@ -110,7 +114,7 @@
       <span class="card__meta">${window.esc(p.categoryLabel)}${p.date ? ` · ${window.esc(p.date.replace("-", "."))}` : ""}</span>
       <strong class="card__title">${window.esc(p.title)}</strong>
       ${p.summary ? `<span class="card__sum">${window.esc(p.summary)}</span>` : ""}
-      ${p.role ? `<span class="card__role"><b>역할</b>${window.esc(p.role)}</span>` : ""}
+      ${p.role ? `<span class="card__role"><b>역할</b>${window.listHTML(p.role)}</span>` : ""}
       ${cardType(p)}
     </a>`;
   /* 카드 아래 '구분 · 참여 (· 기여도)' 줄 — 프로젝트 페이지 카드와 같은 모양 */

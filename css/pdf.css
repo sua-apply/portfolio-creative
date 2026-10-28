@@ -254,3 +254,5 @@ ul, ol { padding: 0; list-style: none; }
 .ov-tight .gl div, .ov-tight .did li, .ov-tight .steps li, .ov-tight .decide li, .ov-tight .cast li { padding-top: 1.3mm; padding-bottom: 1.3mm; }
 .ov-tight .blk__t { font-size: 10.5pt; margin-bottom: 2mm; }
 .ov-tight .pal li { height: 15mm; }
+
+.nobr { white-space: nowrap; }

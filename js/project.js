@@ -135,7 +135,7 @@
             <div class="phero__group"><p class="phero__gk">${g}</p>
               <dl>${list.map(([k, v]) => `<div><dt>${k}</dt><dd>${typeof v === "object"
                 ? `${esc(v.label)}${v.pct != null ? `<span class="phero__pct" aria-label="기여도 ${v.pct}%"><i><b style="width:${v.pct}%"></b></i>기여도 ${v.pct}%</span>` : ""}`
-                : esc(v)}</dd></div>`).join("")}</dl></div>`).join("")}</div>
+                : k === "역할" ? window.listHTML(v) : k === "도구" ? window.listHTML(v, ", ") : esc(v)}</dd></div>`).join("")}</dl></div>`).join("")}</div>
           ${p.link ? `<a class="btn" href="${esc(p.link)}" target="_blank" rel="noopener">작품 보러 가기 ↗</a>` : ""}
         </div>
       </section>

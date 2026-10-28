@@ -209,7 +209,7 @@
     const intro = secs.find((s) => s.type === "text");
     if (meta.length || intro) out.push(blk(intro ? intro.label || "Overview" : "Overview", intro && intro.title, `
       ${intro ? (intro.body || []).slice(0, 2).map((b) => `<p class="blk__p">${esc(b)}</p>`).join("") : ""}
-      ${meta.length ? `<dl class="pb-meta">${meta.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""}`));
+      ${meta.length ? `<dl class="pb-meta">${meta.map(([k, v]) => `<div><dt>${k}</dt><dd>${k === "역할" ? window.listHTML(v) : esc(v)}</dd></div>`).join("")}</dl>` : ""}`));
     const glance = [["문제", p.problem], ["내가 한 일", p.action], ["결과", [p.result && `${p.result.value} ${p.result.label || ""}`.trim(), p.resultText].filter(Boolean).join(" — ")]].filter(([, v]) => v);
     if (glance.length) out.push(blk("At a glance", "", `<dl class="gl">${glance.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`));
     if ((p.did || []).length) out.push(blk("What I did", "작업 범위", `<ol class="did">${p.did.slice(0, 6).map((d, n) => `<li><b>${pad2(n + 1)}</b>${esc(d)}</li>`).join("")}</ol>`));

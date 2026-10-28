@@ -177,7 +177,7 @@
       <span class="sw-card__img"><img src="${esc(p.thumb)}" alt="" loading="lazy" />${p.featured ? '<span class="badge badge--img">대표</span>' : ""}</span>
       <span class="sw-card__meta">${esc(meta)}</span>
       <strong class="sw-card__title">${esc(p.title)}</strong>
-      ${p.role ? `<span class="sw-card__role">${esc(p.role)}</span>` : ""}
+      ${p.role ? `<span class="sw-card__role">${window.listHTML(p.role)}</span>` : ""}
       <span class="sw-card__foot">${typeRow(p)}${toolsRow(p)}</span>
     </a></li>`;
 
