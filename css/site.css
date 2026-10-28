@@ -353,10 +353,14 @@ a.card:hover { border-color: var(--ink-3); box-shadow: 0 12px 28px -18px rgba(0,
 .sns__item { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 12px 10px; margin: 0 -10px; border-radius: 10px; color: #fff; text-decoration: none; transition: background .2s; }
 .sns__item:hover { background: rgba(255, 255, 255, .07); }
 .sns__mark { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; font-size: 14px; font-weight: 800; letter-spacing: -0.02em; background: rgba(255, 255, 255, .1); color: #fff; }
-.sns__mark--yt { background: var(--pink); }
-.sns__mark--ig { background: #fff; color: var(--navy); }
-.sns__mark--nb { background: var(--cyan); color: var(--navy); }
-.sns__mark--be, .sns__mark--in, .sns__mark--fb, .sns__mark--ts { background: rgba(255, 255, 255, .12); }
+/* SNS 아이콘: 각 서비스의 대표 색 (한눈에 어떤 채널인지 알아보게) */
+.sns__mark--ig { background: radial-gradient(circle at 30% 107%, #FDF497 0%, #FDF497 5%, #FD5949 45%, #D6249F 60%, #285AEB 90%); }
+.sns__mark--yt { background: #FF0000; }
+.sns__mark--nb { background: #03C75A; }
+.sns__mark--fb { background: #1877F2; }
+.sns__mark--ts { background: #EB531F; }
+.sns__mark--be { background: #1769FF; }
+.sns__mark--in { background: #0A66C2; }
 .sns__mark--fb { font-size: 20px; font-family: Georgia, serif; font-weight: 700; }
 /* 아직 만들기 전 계정: 흐리게 + '곧 열려요' */
 .sns__item--soon { cursor: default; }
