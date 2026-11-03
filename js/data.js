@@ -51,6 +51,14 @@
   /* 오늘 날짜(방문자 기준). 종료일이 오늘이거나 아직 안 지났으면 '진행 중'으로 봐요 */
   const TODAY = (() => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`; })();
   const ongoing = (r) => !r.end_date || r.end_date >= TODAY;
+  /* 자격증: 같은 자격증의 더 높은 급수가 있으면 낮은 급수는 빼요 (예: GTQ 1급이 있으면 GTQ 2급은 안 보여요)
+     이름 끝의 'N급'으로 판단하고, 띄어쓰기는 무시해요. DB에는 그대로 남아 있어요 */
+  function topGrades(list) {
+    const grade = (n) => { const m = /^(.*?)\s*(\d+)\s*급$/.exec(n || ""); return m ? { base: m[1].replace(/\s+/g, ""), g: Number(m[2]) } : null; };
+    const best = {};
+    list.forEach((c) => { const x = grade(c.name); if (x && (best[x.base] == null || x.g < best[x.base])) best[x.base] = x.g; });
+    return list.filter((c) => { const x = grade(c.name); return !x || x.g === best[x.base]; });
+  }
   function toResume(rows) {
     const k = (kind) => rows.filter((r) => r.kind === kind);
     const d = (x) => ym(x, ".");
@@ -61,7 +69,7 @@
       activities: k("activity").map((r) => ({ type: r.activity_type, title: r.title, org: r.org || "", role: r.my_role || "", desc: r.description || "", start: d(r.start_date), end: d(r.end_date), ongoing: ongoing(r) })),
       awards: k("award").map((r) => ({ title: r.title, org: r.org || "", desc: r.description || "", date: d(r.start_date), project: r.project_id || "" })),
       languages: k("language").map((r) => ({ test: r.title, score: r.score, org: r.org || "", date: d(r.start_date), expires: d(r.expires_date) })),
-      certificates: k("certificate").map((r) => ({ name: r.title, org: r.org || "", date: d(r.start_date), expires: d(r.expires_date), expired: !!r.expires_date && r.expires_date < TODAY })),
+      certificates: topGrades(k("certificate").map((r) => ({ name: r.title, org: r.org || "", date: d(r.start_date), expires: d(r.expires_date), expired: !!r.expires_date && r.expires_date < TODAY }))),
     };
   }
 
