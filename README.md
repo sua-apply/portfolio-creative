@@ -54,6 +54,7 @@ portfolio/
    - `resume_items`의 `kind`로 종류를 골라요: education · experience · training · activity · award · language · certificate
      - 활동(activity)은 `activity_type`을 external(대외) 또는 campus(교내)로, 맡은 역할은 `my_role`
      - 어학(language)은 `score`(점수)와 `expires_date`(유효기간, 비우면 '평생 유효')
+     - 자격증은 같은 이름의 더 높은 급수가 있으면 낮은 급수를 자동으로 숨겨요 (예: GTQ 1급이 있으면 2급은 안 보임. 이름 끝을 'N급'으로 써야 해요)
      - 자격증(certificate)도 유효기간이 있으면 `expires_date`에 넣어요. 화면에 기간은 안 보이고, 지나면 자동으로 숨겨요
      - 교육(training)은 `hours`(교육 시간, 숫자만)를 적으면 날짜 아래에 "수강 중 · 1,252시간"처럼 보여요
      - 날짜는 `start_date`(취득일·시작일)·`end_date`(종료일). 종료일이 아직 안 지났으면 '재직 중'·'수강 중'으로, 지나면 자동으로 끝난 것으로 보여요 (종료일을 모르면 비워 두면 '현재')
