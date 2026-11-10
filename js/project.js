@@ -37,6 +37,8 @@
       </div>`;
   }
   const paras = (b) => (Array.isArray(b) ? b : b ? [b] : []).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join("");
+  const minis = (items) => `<ul class="minis">${(items || []).map((it) => `
+      <li>${it.kicker ? `<span class="minis__k">${esc(it.kicker)}</span>` : ""}<strong>${esc(it.title)}</strong>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}</li>`).join("")}</ul>`;
   const ytId = (u) => {
     const s = String(u).trim();
     const m = /(?:youtu\.be\/|[?&]v=|\/(?:embed|shorts|live)\/)([\w-]{11})(?![\w-])/.exec(s) || /^([\w-]{11})$/.exec(s);
@@ -63,8 +65,10 @@
       return paras(s.body) + persona + dec;
     },
     // 브랜드 전략(Vision · Mission · Essence 카드)은 위계를 나눠서: 비전은 크게, 미션은 소제목처럼, 핵심 가치는 동그라미 한 줄
-    cards: (s) => strategy(s) || `${paras(s.body)}<ul class="minis">${(s.items || []).map((it) => `
-      <li>${it.kicker ? `<span class="minis__k">${esc(it.kicker)}</span>` : ""}<strong>${esc(it.title)}</strong>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}</li>`).join("")}</ul>`,
+    // sub: { title, items } 를 주면 카드 아래에 작은 제목과 함께 두 번째 묶음(예: 연출 원칙)이, note 를 주면 맺음 상자(예: 리서치 결과)가 붙어요
+    cards: (s) => strategy(s) || `${paras(s.body)}${minis(s.items)}${s.sub && (s.sub.items || []).length
+      ? `<h3 class="psub">${esc(s.sub.title || "")}</h3>${minis(s.sub.items)}` : ""}${s.note
+      ? `<p class="note-box">${s.noteTitle ? `<strong>${esc(s.noteTitle)}</strong> ` : ""}${esc(s.note)}</p>` : ""}`,
     // 돌아보며: 아쉬운 점 · 배운 점 · 개선 방향 … desc 가 목록(배열)이면 짧은 항목으로 나열
     notes: (s) => `${paras(s.body)}<ul class="minis minis--notes${(s.items || []).length >= 3 ? " minis--3" : " minis--2"}">${(s.items || []).map((it) => `
       <li><strong>${esc(it.title)}</strong>${Array.isArray(it.desc)
@@ -109,7 +113,7 @@
     },
     process: (s) => `${paras(s.body)}
       <ol class="steps">${(s.steps || []).map((st, i) => `<li><span class="steps__no">${pad2(i + 1)}</span><strong>${esc(st.title)}</strong>${st.desc ? `<span>${esc(st.desc)}</span>` : ""}</li>`).join("")}</ol>
-      ${s.note ? `<p class="note-box">${esc(s.note)}</p>` : ""}`,
+      ${s.note ? `<p class="note-box">${s.noteTitle ? `<strong>${esc(s.noteTitle)}</strong> ` : ""}${esc(s.note)}</p>` : ""}`,
   };
 
   function sectionsOf(p) {
