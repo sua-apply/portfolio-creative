@@ -73,7 +73,8 @@
     notes: (s) => `${paras(s.body)}<ul class="minis minis--notes${(s.items || []).length >= 3 ? " minis--3" : " minis--2"}">${(s.items || []).map((it) => `
       <li><strong>${esc(it.title)}</strong>${Array.isArray(it.desc)
         ? `<ul class="pts">${it.desc.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>`
-        : it.desc ? `<p>${esc(it.desc)}</p>` : ""}</li>`).join("")}</ul>`,
+        : it.desc ? `<p>${esc(it.desc)}</p>` : ""}</li>`).join("")}</ul>${s.note
+      ? `<p class="note-box">${s.noteTitle ? `<strong>${esc(s.noteTitle)}</strong> ` : ""}${esc(s.note)}</p>` : ""}`,
     cast: (s) => `${paras(s.body)}<ul class="cast">${(s.items || []).map((it) => `
       <li><i style="background:${HEX.test(it.color) ? it.color : "var(--line)"}" aria-hidden="true"></i>
         <span><strong>${esc(it.name)}</strong>${it.sound ? ` <em>${esc(it.sound)}</em>` : ""}
