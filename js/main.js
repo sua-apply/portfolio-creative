@@ -404,30 +404,26 @@
   }
 
   /* Contact SNS: DB sns_links 내용으로 채워요. 주소가 비어 있으면 '곧 열려요', 하나도 없으면 칸째 숨겨요 */
+  /* SNS: 묶음 제목 아래 로고 버튼만 한 줄로 (채널 이름은 마우스를 올리면 · 화면 읽기 프로그램에서 읽혀요) */
+  const SNS_GLYPH = {
+    ig: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg>',
+    yt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5v11l9-5.5z" fill="currentColor"/></svg>',
+    fb: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H7.9v3h2.6V21z" fill="currentColor"/></svg>',
+  };
   function renderSns(groups) {
     const box = $("#snsGroups");
     if (!box) return;
-    // 한 묶음의 계정 이름이 모두 같으면(예: Skylar | 작업 노트) 이름은 빼고 채널 이름만 보여줘요 (묶음 제목이 용도를 말해 줘요)
-    box.innerHTML = groups.map((g) => {
-      const names = [...new Set(g.items.map((s) => s.name).filter(Boolean))];
-      const shared = names.length === 1 && g.items.length > 1 ? names[0] : "";
-      return `
+    box.innerHTML = groups.map((g) => `
       <div class="contact__group">
         <h3 class="contact__label">${esc(g.title)}</h3>
-        <ul class="sns${shared ? " sns--plain" : ""}">${g.items.map((s) => {
-          const inner = `
-            <span class="sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" aria-hidden="true">${esc(s.mark)}</span>
-            ${shared ? `<strong class="sns__text sns__title">${esc(s.platform)}</strong>`
-              : `<span class="sns__text"><span class="sns__platform">${esc(s.platform)}</span><strong class="sns__name">${esc(s.name)}</strong></span>`}`;
+        <ul class="sns-icons">${g.items.map((s) => {
+          const label = `${s.platform}${s.name ? ` · ${s.name}` : ""}`;
+          const face = SNS_GLYPH[s.cls] || `<b>${esc(s.mark)}</b>`;
           return s.url
-            ? `<li><a class="sns__item" href="${esc(s.url)}" target="_blank" rel="noopener">${inner}
-            <span class="sns__go" aria-hidden="true">↗</span></a></li>`
-            : `<li><div class="sns__item sns__item--soon">${inner}
-            <span class="sns__soon">곧 열려요</span></div></li>`;
-        }).join("")}
-        </ul>
-      </div>`;
-    }).join("");
+            ? `<li><a class="sns-icon sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(label)} (새 창)" title="${esc(s.platform)}">${face}</a></li>`
+            : `<li><span class="sns-icon sns__mark is-soon${s.cls ? ` sns__mark--${s.cls}` : ""}" role="img" aria-label="${esc(s.platform)} (곧 열려요)" title="${esc(s.platform)} · 곧 열려요">${face}</span></li>`;
+        }).join("")}</ul>
+      </div>`).join("");
     box.hidden = !groups.length;
   }
 

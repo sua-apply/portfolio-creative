@@ -1082,3 +1082,11 @@ body.is-viewing { overflow: hidden; }
 /* SNS: 묶음의 계정 이름은 제목 아래 한 번 → 줄에는 채널 이름만 */
 .contact__account { display: block; margin-top: 6px; font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.01em; text-transform: none; }
 .sns__title { font-size: 16px; font-weight: 700; color: #fff; }
+
+/* SNS 로고 버튼 줄 */
+.sns-icons { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 0; padding: 0; list-style: none; }
+.sns-icon { width: 52px; height: 52px; border-radius: 14px; font-size: 17px; text-decoration: none; transition: transform .2s, box-shadow .2s; }
+.sns-icon svg { width: 26px; height: 26px; }
+.sns-icon.sns__mark--yt svg { width: 30px; height: 30px; }
+a.sns-icon:hover, a.sns-icon:focus-visible { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(0, 0, 0, .35); }
+.sns-icon.is-soon { opacity: .4; }
