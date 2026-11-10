@@ -717,7 +717,8 @@ a.card:hover { border-color: var(--ink-3); box-shadow: 0 12px 28px -18px rgba(0,
 .scenes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
 .scenes li { display: flex; flex-direction: column; gap: 2px; padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font-size: 13.5px; color: var(--ink-3); }
 .scenes li.is-key { border: 2px solid var(--accent); padding: 11px; }
-.scenes img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; margin-bottom: 6px; }
+.scenes img { width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: var(--bg); border-radius: 4px; margin-bottom: 6px; }   /* 영상 장면은 16:9 그대로 (자르지 않게) */
+.scenes:has(img) { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }   /* 장면 이미지가 있으면 칸을 넓게 */
 .scenes__no { font-size: 12px; font-weight: 700; color: var(--accent); }
 .scenes strong { color: var(--ink); font-size: 14.5px; }
 .fig { margin: 0; }
