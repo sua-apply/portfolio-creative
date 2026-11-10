@@ -267,16 +267,21 @@
   /* 7. 목업 쪽 (1장 이상) — 상세의 mockup · gallery 이미지. 섹션 하나 = 한 쪽 */
   function mockupPages(p, i) {
     const pages = sectionsOf(p).flatMap((s) => {
+      // 시나리오 · 스토리보드 장면도 이미지가 있으면 목업 쪽으로 (연출 포인트 장면 먼저)
+      const scenes = s.type === "scenario" ? (s.scenes || []).filter((sc) => sc.image) : [];
       const imgs = s.type === "mockup" ? (s.image ? [{ image: s.image, title: s.caption }] : [])
-        : s.type === "gallery" ? (s.items || []).filter((it) => it.image) : [];
+        : s.type === "gallery" ? (s.items || []).filter((it) => it.image)
+        : [...scenes.filter((sc) => sc.key), ...scenes.filter((sc) => !sc.key)].map((sc) => ({ image: sc.image, title: sc.title }));
       if (!imgs.length) return [];
       const n = Math.min(imgs.length, 4);
       return [page(p, i, s.label || "Mockup", `
         ${s.title || s.caption ? `<p class="mk__title">${esc(s.title || s.caption)}</p>` : ""}
         <div class="mk mk--${n}">${imgs.slice(0, 4).map((it) => `<figure><img src="${esc(it.image)}" alt="" />${it.title ? `<figcaption>${esc(it.title)}${it.desc ? ` · ${esc(it.desc)}` : ""}</figcaption>` : ""}</figure>`).join("")}</div>`)];
     });
-    // 목업 이미지가 하나도 없으면 '준비 중' 한 장 (DB 상세 mockup · gallery 에 이미지를 넣으면 바뀌어요)
-    return pages.length ? pages : [page(p, i, "Mockup", `<div class="mk mk--empty"><p>목업 이미지 준비 중</p></div>`)];
+    // 목업 이미지가 하나도 없으면: 대표 이미지를 한 장 크게 (일러스트처럼 결과물이 한 장인 작업), 그것도 없으면 '준비 중'
+    if (pages.length) return pages;
+    if (p.image) return [page(p, i, "Final Work", `<div class="mk mk--1"><figure><img src="${esc(p.image)}" alt="" /></figure></div>`)];
+    return [page(p, i, "Mockup", `<div class="mk mk--empty"><p>목업 이미지 준비 중</p></div>`)];
   }
 
   /* 8. 마지막 쪽 */
