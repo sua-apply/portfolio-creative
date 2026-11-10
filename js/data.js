@@ -39,7 +39,7 @@
       did: p.did || [], tools: p.tools || [], tags: p.tags || [],
       result: p.result_value ? { value: p.result_value, label: p.result_label || "" } : null,
       thumb: p.thumb, image: p.image || p.thumb,
-      link: (p.links && (p.links.detail || p.links.behance || p.links.demo)) || "",
+      link: (p.links && (p.links.detail || p.links.behance || p.links.youtube || p.links.demo)) || "",
       // 유튜브 영상: 상세 페이지 대표 이미지 자리에서 바로 재생 (youtu.be / watch?v= / shorts 주소 모두)
       youtube: (() => { const u = (p.links && p.links.youtube) || ""; const m = /(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/.exec(u); return m ? m[1] : ""; })(),
       period: p.period_label || "",
