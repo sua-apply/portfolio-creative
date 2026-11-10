@@ -173,7 +173,7 @@ html::-webkit-scrollbar { display: none; }
 .profile__photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
 .profile__text .block__title { margin-bottom: 10px; }
 .facts.facts--profile { margin: 24px 0 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.facts .facts__wide { grid-column: 1 / -1; }   /* 이름 · 이메일은 한 줄 전체 (길어도 잘리지 않게), 생일 · 거주지는 나란히 */
+.facts .facts__wide { grid-column: 1 / -1; }   /* 이메일은 한 줄 전체 (길어도 잘리지 않게) */
 
 /* ===== 섹션 공통: 왼쪽 제목 | 오른쪽 내용 ===== */
 .sec { padding: clamp(48px, 7vw, 80px) 0; border-bottom: 1px solid var(--line); }
