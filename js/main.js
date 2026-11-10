@@ -410,13 +410,16 @@
     yt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5v11l9-5.5z" fill="currentColor"/></svg>',
     fb: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H7.9v3h2.6V21z" fill="currentColor"/></svg>',
   };
+  // 묶음마다 같은 순서로: 인스타그램 → 유튜브 → 블로그(네이버 · 티스토리) → 그 밖 (위아래 줄의 같은 로고가 같은 자리에 와요)
+  const SNS_ORDER = ["ig", "yt", "nb", "ts", "fb", "be", "in"];
+  const snsRank = (s) => { const i = SNS_ORDER.indexOf(s.cls); return i < 0 ? SNS_ORDER.length : i; };
   function renderSns(groups) {
     const box = $("#snsGroups");
     if (!box) return;
     box.innerHTML = groups.map((g) => `
       <div class="contact__group">
         <h3 class="contact__label">${esc(g.title)}</h3>
-        <ul class="sns-icons">${g.items.map((s) => {
+        <ul class="sns-icons">${[...g.items].sort((a, b) => snsRank(a) - snsRank(b)).map((s) => {
           const label = `${s.platform}${s.name ? ` · ${s.name}` : ""}`;
           const face = SNS_GLYPH[s.cls] || `<b>${esc(s.mark)}</b>`;
           return s.url
