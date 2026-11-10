@@ -29,15 +29,11 @@
     }) : [];
     return `${paras(s.body)}
       <div class="strat">
-        <div class="strat__block">
-          <p class="strat__k">Vision<span>지향점</span></p>
-          <p class="strat__vision">“${esc(vis.title)}”</p>
+        <div class="strat__head"><p class="strat__k">Vision<span>지향점</span></p><p class="strat__vision">“${esc(vis.title)}”</p></div>
+        <div class="strat__cards">
+          <div class="strat__card"><p class="strat__k">Mission<span>하는 일</span></p><p class="strat__mission">${esc(mis.title)}</p></div>
+          ${vals.length ? `<div class="strat__card"><p class="strat__k">Essence<span>핵심 가치</span></p><ul class="strat__ess">${vals.map(([ko, en]) => `<li><b>${esc(ko)}</b>${en ? `<small>${esc(en)}</small>` : ""}</li>`).join("")}</ul></div>` : ""}
         </div>
-        <div class="strat__block">
-          <p class="strat__k">Mission<span>하는 일</span></p>
-          <p class="strat__mission">${esc(mis.title)}</p>
-        </div>
-        ${vals.length ? `<div class="strat__block"><p class="strat__k">Essence<span>핵심 가치</span></p><ul class="strat__ess">${vals.map(([ko, en]) => `<li><b>${esc(ko)}</b>${en ? `<small>${esc(en)}</small>` : ""}</li>`).join("")}</ul></div>` : ""}
       </div>`;
   }
   const paras = (b) => (Array.isArray(b) ? b : b ? [b] : []).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join("");
