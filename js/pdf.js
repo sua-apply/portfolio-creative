@@ -19,7 +19,9 @@
     try {
       const html = await fetch("index.html").then((r) => r.text());
       const doc = new DOMParser().parseFromString(html, "text/html");
-      const facts = [...doc.querySelectorAll(".facts--profile > div")].map((d) => [d.querySelector("dt")?.textContent.trim(), d.querySelector("dd")?.textContent.trim()]);
+      // 프로필 정보: 새 모양(.pf-meta li[data-k]) 또는 예전 정보표(.facts--profile)
+      const facts = [...doc.querySelectorAll(".pf-meta li[data-k]")].map((li) => [li.dataset.k, li.textContent.replace(li.dataset.k, "").trim()])
+        .concat([...doc.querySelectorAll(".facts--profile > div")].map((d) => [d.querySelector("dt")?.textContent.trim(), d.querySelector("dd")?.textContent.trim()]));
       return {
         about: [...doc.querySelectorAll(".profile__text .prose p")].map((p) => p.innerHTML.trim()),
         photo: doc.querySelector(".profile__photo")?.getAttribute("src") || "img/profile.jpg",
