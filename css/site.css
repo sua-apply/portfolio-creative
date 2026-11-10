@@ -1078,3 +1078,7 @@ body.is-viewing { overflow: hidden; }
 
 /* 나열한 항목(역할 · 도구)은 항목 안에서 줄이 끊기지 않게 */
 .nobr { white-space: nowrap; }
+
+/* SNS: 묶음의 계정 이름은 제목 아래 한 번 → 줄에는 채널 이름만 */
+.contact__account { display: block; margin-top: 6px; font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.01em; text-transform: none; }
+.sns__title { font-size: 16px; font-weight: 700; color: #fff; }
