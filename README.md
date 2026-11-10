@@ -1,6 +1,6 @@
 # portfolio-creative
 
-박영희(PARK Younghee)의 CREATIVE 포트폴리오입니다. Design · Marketing · PR
+박수아(PARK Sua)의 CREATIVE 포트폴리오입니다. Design · Marketing · PR
 
 ## 직무별로 따로 보이기
 

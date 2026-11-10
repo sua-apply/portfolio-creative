@@ -32,7 +32,7 @@
     }
   }
 
-  const foot = (label) => `<div class="foot"><span><b>PARK Younghee</b> · Portfolio · ${esc(label)}</span><span class="pg"></span></div>`;
+  const foot = (label) => `<div class="foot"><span><b>PARK Sua</b> · Portfolio · ${esc(label)}</span><span class="pg"></span></div>`;
   const head = (num, title, en) => `<header class="ph"><span class="ph__num">${num}</span><h2 class="ph__title">${esc(title)}</h2>${en ? `<span class="ph__en">${esc(en)}</span>` : ""}</header>`;
 
   /* 1. 표지: 글자만 (특정 프로젝트 이미지를 쓰지 않아요) */
@@ -44,7 +44,7 @@
           <p class="cover__tag"><i></i>PORTFOLIO ${new Date().getFullYear()}</p>
           <h1 class="cover__title">${R.title || "생각을 <em>형태</em>로,<br />형태를 <em>경험</em>으로."}</h1>
           ${R.eyebrow ? `<p class="cover__eyebrow">${esc(R.eyebrow)}</p>` : ""}
-          <div class="cover__name"><strong>박영희</strong><span>PARK Younghee</span></div>
+          <div class="cover__name"><strong>박수아</strong><span>PARK Sua</span></div>
           <p class="cover__meta">${mail ? `<a href="mailto:${esc(mail)}">${esc(mail)}</a>` : ""}<a href="${SITE}">${SITE.replace(/^https:\/\//, "").replace(/\/$/, "")}</a></p>
         </div>
         <p class="cover__big" aria-hidden="true">PORT<br />FOLIO</p>
@@ -61,7 +61,7 @@
         <div class="profile">
           <aside class="profile__side">
             <img class="profile__photo" src="${esc(info.photo)}" alt="" />
-            <div class="profile__name"><strong>박영희</strong><span>PARK Younghee</span></div>
+            <div class="profile__name"><strong>박수아</strong><span>PARK Sua</span></div>
             <dl class="facts">${info.facts.filter(([k]) => k && k !== "이름").map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
           </aside>
           <div class="profile__main">
@@ -159,7 +159,7 @@
     ].filter(([, v]) => v);
     const year = p.date ? p.date.slice(0, 4) : "";
     return `<section class="page pj-page" id="pj-${i + 1}">
-      <div class="pj-top"><span>${esc([year, p.categoryLabel].filter(Boolean).join("  |  "))}</span><span>PARK Younghee · PORTFOLIO</span></div>
+      <div class="pj-top"><span>${esc([year, p.categoryLabel].filter(Boolean).join("  |  "))}</span><span>PARK Sua · PORTFOLIO</span></div>
       <div class="pj">
         <div class="pj__info">
           <p class="pj__no">PROJECT ${pad2(i + 1)}</p>

@@ -94,7 +94,7 @@
   const team = (p) => window.teamInfo(p);
 
   function render(p, prev, next, seq) {
-    document.title = `${p.title} | 박영희 Portfolio`;
+    document.title = `${p.title} | 박수아 Portfolio`;
     // 위쪽 정보: 비슷한 것끼리 두 줄로 — 프로젝트 정보 / 나의 참여
     const has = ([, v]) => (typeof v === "object" ? v.label || v.pct != null : v);
     const factGroups = [
@@ -329,7 +329,7 @@
   }
 
   function notFound() {
-    document.title = "프로젝트를 찾을 수 없어요 | 박영희 Portfolio";
+    document.title = "프로젝트를 찾을 수 없어요 | 박수아 Portfolio";
     $("#project").innerHTML = `<div class="wrap page">
       <a class="back" href="${esc(window.keepLink("works.html"))}">← 프로젝트 목록</a>
       <div class="phead"><h1 class="phead__title">프로젝트를 찾을 수 없어요</h1>
