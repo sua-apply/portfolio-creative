@@ -1133,7 +1133,7 @@ a.sns-icon:hover, a.sns-icon:focus-visible { background: var(--brand) !important
 .strat__card { padding: 18px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
 .strat__mission { margin: 0 !important; font-size: 16px; font-weight: 700; line-height: 1.6; color: var(--ink); text-wrap: balance; }
 .strat__ess { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 2px 0 0; padding: 0; list-style: none; }
-.strat__ess li { width: 84px; height: 84px; border-radius: 50%; display: grid; place-content: center; gap: 1px; background: var(--pink-soft); text-align: center; }
+.strat__ess li { width: 76px; height: 76px; border-radius: 50%; display: grid; place-content: center; gap: 1px; background: var(--pink-soft); text-align: center; }
 .strat__ess b { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
 .strat__ess small { font-size: 11px; color: var(--pink-text); }
 @media (max-width: 640px) { .strat__cards { grid-template-columns: minmax(0, 1fr); } }
