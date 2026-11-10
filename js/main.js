@@ -407,13 +407,13 @@
   function renderSns(groups) {
     const box = $("#snsGroups");
     if (!box) return;
-    // 한 묶음의 계정 이름이 모두 같으면(예: Skylar | 작업 노트) 묶음 제목 아래 한 번만 쓰고, 줄에는 채널 이름만
+    // 한 묶음의 계정 이름이 모두 같으면(예: Skylar | 작업 노트) 이름은 빼고 채널 이름만 보여줘요 (묶음 제목이 용도를 말해 줘요)
     box.innerHTML = groups.map((g) => {
       const names = [...new Set(g.items.map((s) => s.name).filter(Boolean))];
       const shared = names.length === 1 && g.items.length > 1 ? names[0] : "";
       return `
       <div class="contact__group">
-        <h3 class="contact__label">${esc(g.title)}${shared ? `<span class="contact__account">${esc(shared)}</span>` : ""}</h3>
+        <h3 class="contact__label">${esc(g.title)}</h3>
         <ul class="sns${shared ? " sns--plain" : ""}">${g.items.map((s) => {
           const inner = `
             <span class="sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" aria-hidden="true">${esc(s.mark)}</span>
