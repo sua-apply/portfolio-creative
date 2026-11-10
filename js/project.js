@@ -161,11 +161,12 @@
               <dl>${list.map(([k, v]) => `<div><dt>${k}</dt><dd>${typeof v === "object"
                 ? `${esc(v.label)}${v.pct != null ? `<span class="phero__pct" aria-label="기여도 ${v.pct}%"><i><b style="width:${v.pct}%"></b></i>기여도 ${v.pct}%</span>` : ""}`
                 : k === "역할" ? window.listHTML(v) : k === "도구" ? window.listHTML(v, ", ") : esc(v)}</dd></div>`).join("")}</dl></div>`).join("")}</div>
-          ${p.link ? `<a class="btn" href="${esc(p.link)}" target="_blank" rel="noopener">작품 보러 가기 ↗</a>` : ""}
+          ${p.link && !p.youtube ? `<a class="btn" href="${esc(p.link)}" target="_blank" rel="noopener">작품 보러 가기 ↗</a>` : ""}
         </div>
       </section>
       <div class="wrap">
-        ${p.image ? `<figure class="pcover">${img(p.image, p.title)}</figure>` : ""}
+        ${p.image ? `<figure class="pcover${p.youtube ? " pcover--video" : ""}">${img(p.image, p.title)}${p.youtube
+          ? `<button type="button" class="pcover__play" data-yt="${esc(p.youtube)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5v11l9-5.5z" fill="currentColor"/></svg>영상 보기</button>` : ""}</figure>` : ""}
         ${glance.length ? `<section class="glance" aria-labelledby="glanceTitle">
           <h2 class="glance__title" id="glanceTitle">한눈에 보기</h2>
           <ol class="glance__list">${glance.map(([k, v], i) => `<li><span class="glance__no">${pad2(i + 1)}</span><h3>${k}</h3>${v}</li>`).join("")}</ol>
@@ -192,6 +193,13 @@
       </nav>`;
     tocSpy();
     quickNav(prev, next);
+    // 영상 보기: 누르면 대표 이미지 자리에서 유튜브 영상이 바로 재생돼요 (페이지를 떠나지 않아요)
+    const play = document.querySelector(".pcover__play");
+    if (play) play.addEventListener("click", () => {
+      const fig = play.closest(".pcover");
+      fig.classList.add("is-playing");
+      fig.innerHTML = `<div class="pcover__video"><iframe src="https://www.youtube-nocookie.com/embed/${play.dataset.yt}?autoplay=1&rel=0&playsinline=1" title="${esc(p.title)} 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+    });
     viewer();
   }
 
