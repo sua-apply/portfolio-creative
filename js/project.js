@@ -182,7 +182,7 @@
       </section>
       <div class="wrap">
         ${p.image ? `<figure class="pcover${p.youtube ? " pcover--video" : ""}">${img(p.image, p.title)}${p.youtube
-          ? `<button type="button" class="pcover__play" data-yt="${esc(p.youtube)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5v11l9-5.5z" fill="currentColor"/></svg>영상 재생</button>` : ""}</figure>` : ""}
+          ? `<button type="button" class="pcover__play" data-yt="${esc(p.youtube)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5v11l9-5.5z" fill="currentColor"/></svg><span class="sr-only">영상 재생</span></button>` : ""}</figure>` : ""}
         ${glance.length ? `<section class="glance" aria-labelledby="glanceTitle">
           <h2 class="glance__title" id="glanceTitle">한눈에 보기</h2>
           <ol class="glance__list">${glance.map(([k, v], i) => `<li><span class="glance__no">${pad2(i + 1)}</span><h3>${k}</h3>${v}</li>`).join("")}</ol>
