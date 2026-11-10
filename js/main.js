@@ -394,6 +394,8 @@
       side.classList.toggle("is-visible", window.scrollY > cover.offsetHeight * 0.6 && items.length > 0);
       let active = -1;
       items.forEach((x, i) => { if (x.sec.offsetTop <= probe) active = i; });
+      // 맨 아래까지 내리면 Contact (Contact는 짧아서 기준선까지 올라오지 못해요)
+      if (atBottom && items.length) active = items.length - 1;
       items.forEach((x, i) => { set(x.a, i === active); x.a.classList.toggle("is-passed", i < active); });
       if (fill && items.length > 1) fill.style.height = `${Math.max(0, active) / (items.length - 1) * 100}%`;
     }
