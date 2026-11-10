@@ -1122,16 +1122,16 @@ body.is-viewing { overflow: hidden; }
 a.sns-icon:hover, a.sns-icon:focus-visible { background: var(--brand) !important; box-shadow: none; transform: translateY(-2px); }
 .sns-icon.is-soon { opacity: .4; }
 
-/* 브랜드 전략: 비전 크게 · 미션 소제목 · 핵심 가치 동그라미 한 줄 */
-.strat { margin-top: 18px; }
-.strat__k { margin: 22px 0 6px !important; font-size: 12.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--pink-text); }
-.strat__k:first-child { margin-top: 0 !important; }
-.strat__vision { margin: 0 !important; font-size: clamp(24px, 3vw, 34px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.3; color: var(--ink); }
-.strat__mission { position: relative; margin: 16px 0 0 !important; padding-left: 16px; font-size: clamp(16px, 1.6vw, 19px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.55; color: var(--ink); }
-.strat__mission::before { content: ""; position: absolute; left: 0; top: .72em; width: 6px; height: 6px; border-radius: 50%; background: var(--pink); }
-.strat__ess { display: flex; flex-wrap: wrap; gap: 14px; margin: 24px 0 0; padding: 0; list-style: none; }
-.strat__ess li { width: 112px; height: 112px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--navy); text-align: center; }
+/* 브랜드 전략: 가운데 정렬 · Vision / Mission / Essence 를 라벨과 짧은 선으로 구분 */
+.strat { margin-top: 26px; padding: clamp(28px, 4vw, 44px) clamp(18px, 3vw, 36px); border-radius: 16px; background: var(--surface); border: 1px solid var(--line); text-align: center; }
+.strat__block + .strat__block { margin-top: 26px; padding-top: 26px; position: relative; }
+.strat__block + .strat__block::before { content: ""; position: absolute; top: 0; left: 50%; width: 40px; height: 1.5px; margin-left: -20px; background: var(--line); }
+.strat__k { margin: 0 0 10px !important; font-size: 12.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--pink-text); }
+.strat__k span { margin-left: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0; color: var(--ink-3); text-transform: none; }
+.strat__vision { margin: 0 !important; font-size: clamp(24px, 3vw, 34px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.3; color: var(--ink); text-wrap: balance; }
+.strat__mission { margin: 0 auto !important; max-width: 34em; font-size: clamp(15.5px, 1.5vw, 18px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.6; color: var(--ink-2); text-wrap: balance; }
+.strat__ess { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin: 4px 0 0; padding: 0; list-style: none; }
+.strat__ess li { width: 108px; height: 108px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: var(--bg); box-shadow: inset 0 0 0 1.5px var(--navy); }
 .strat__ess b { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
 .strat__ess small { font-size: 12px; color: var(--ink-3); letter-spacing: .02em; }
-@media (max-width: 640px) { .strat__ess { gap: 10px; } .strat__ess li { width: 96px; height: 96px; } .strat__ess b { font-size: 15.5px; } }
+@media (max-width: 640px) { .strat__ess { gap: 8px; } .strat__ess li { width: 92px; height: 92px; } .strat__ess b { font-size: 15px; } }

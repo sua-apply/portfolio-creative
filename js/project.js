@@ -29,9 +29,15 @@
     }) : [];
     return `${paras(s.body)}
       <div class="strat">
-        <p class="strat__vision" aria-label="Vision">“${esc(vis.title)}”</p>
-        <p class="strat__mission"><span class="sr-only">Mission </span>${esc(mis.title)}</p>
-        ${vals.length ? `<ul class="strat__ess" aria-label="Essence · 핵심 가치">${vals.map(([ko, en]) => `<li><b>${esc(ko)}</b>${en ? `<small>${esc(en)}</small>` : ""}</li>`).join("")}</ul>` : ""}
+        <div class="strat__block">
+          <p class="strat__k">Vision<span>지향점</span></p>
+          <p class="strat__vision">“${esc(vis.title)}”</p>
+        </div>
+        <div class="strat__block">
+          <p class="strat__k">Mission<span>하는 일</span></p>
+          <p class="strat__mission">${esc(mis.title)}</p>
+        </div>
+        ${vals.length ? `<div class="strat__block"><p class="strat__k">Essence<span>핵심 가치</span></p><ul class="strat__ess">${vals.map(([ko, en]) => `<li><b>${esc(ko)}</b>${en ? `<small>${esc(en)}</small>` : ""}</li>`).join("")}</ul></div>` : ""}
       </div>`;
   }
   const paras = (b) => (Array.isArray(b) ? b : b ? [b] : []).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join("");
