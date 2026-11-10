@@ -142,7 +142,7 @@
 
   function apply(R) {
     document.documentElement.dataset.role = R.id;
-    if (!document.body.dataset.keepTitle) document.title = `박영희 | ${R.label} Portfolio`;
+    if (!document.body.dataset.keepTitle) document.title = `박수아 | ${R.label} Portfolio`;
     document.querySelectorAll("a[data-keep]").forEach((a) => { a.href = window.keepLink(a.getAttribute("data-keep")); });
   }
 
