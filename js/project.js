@@ -16,6 +16,26 @@
   const HEX = /^#[0-9a-f]{3,8}$/i;
   const kindLabel = (p) => window.kindLabel(p);
 
+  // Vision · Mission · Essence 가 있는 카드 묶음 → 브랜드 전략 모양 (없으면 null → 보통 카드)
+  function strategy(s) {
+    const items = s.items || [];
+    const find = (k) => items.find((it) => new RegExp(`^${k}$`, "i").test((it.kicker || "").trim()));
+    const vis = find("vision"), mis = find("mission"), ess = find("essence");
+    if (!vis || !mis) return null;
+    // "Elegant 우아하게 · Magical 신비롭게" → [["Elegant","우아하게"], …] (영문이 없으면 그대로)
+    const vals = ess ? String(ess.title || "").split(/\s*[·,|]\s*/).filter(Boolean).map((v) => {
+      const m = /^([A-Za-z][A-Za-z\s-]*?)\s+(.+)$/.exec(v.trim());
+      return m ? [m[2], m[1]] : [v.trim(), ""];
+    }) : [];
+    return `${paras(s.body)}
+      <div class="strat">
+        <div class="strat__head"><p class="strat__k">Vision<span>비전</span></p><p class="strat__vision">“${esc(vis.title)}”</p></div>
+        <div class="strat__cards">
+          <div class="strat__card"><p class="strat__k">Mission<span>미션</span></p><p class="strat__mission">${esc(mis.title)}</p></div>
+          ${vals.length ? `<div class="strat__card"><p class="strat__k">Essence<span>핵심 가치</span></p><ul class="strat__ess">${vals.map(([ko, en]) => `<li${en ? ` title="${esc(en)}"` : ""}><b>${esc(ko)}</b></li>`).join("")}</ul></div>` : ""}
+        </div>
+      </div>`;
+  }
   const paras = (b) => (Array.isArray(b) ? b : b ? [b] : []).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join("");
   const img = (src, alt) => (src ? `<img src="${esc(src)}" alt="${esc(alt || "")}" loading="lazy" />` : "");
 
@@ -37,7 +57,8 @@
         </table>` : "";
       return paras(s.body) + persona + dec;
     },
-    cards: (s) => `${paras(s.body)}<ul class="minis">${(s.items || []).map((it) => `
+    // 브랜드 전략(Vision · Mission · Essence 카드)은 위계를 나눠서: 비전은 크게, 미션은 소제목처럼, 핵심 가치는 동그라미 한 줄
+    cards: (s) => strategy(s) || `${paras(s.body)}<ul class="minis">${(s.items || []).map((it) => `
       <li>${it.kicker ? `<span class="minis__k">${esc(it.kicker)}</span>` : ""}<strong>${esc(it.title)}</strong>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}</li>`).join("")}</ul>`,
     // 돌아보며: 아쉬운 점 · 배운 점 · 개선 방향 … desc 가 목록(배열)이면 짧은 항목으로 나열
     notes: (s) => `${paras(s.body)}<ul class="minis minis--notes${(s.items || []).length >= 3 ? " minis--3" : " minis--2"}">${(s.items || []).map((it) => `
