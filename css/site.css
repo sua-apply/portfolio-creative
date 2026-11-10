@@ -728,12 +728,6 @@ a.card:hover { border-color: var(--ink-3); box-shadow: 0 12px 28px -18px rgba(0,
 .fig__ph span { padding: 4px 10px; border-radius: 999px; background: var(--surface); font-size: 12.5px; font-weight: 600; color: var(--ink-3); }
 .fig__ph--wide { aspect-ratio: 16 / 9; }
 .fig--mockup img { max-height: 70vh; object-fit: contain; }
-/* 영상 (유튜브): 16:9 로 꽉 차게 */
-.video { position: relative; aspect-ratio: 16 / 9; margin-top: 14px; border-radius: 10px; overflow: hidden; background: #000; }
-.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.video__link { margin: 8px 0 0; font-size: 13px; }
-.video__link a { color: var(--ink-3); text-decoration: underline; text-underline-offset: 3px; }
-.video__link a:hover { color: var(--ink); }
 /* 섹션 안 작은 제목 (예: 컬러 · 서체) */
 .psub { margin: 22px 0 0; font-size: 13px; font-weight: 700; letter-spacing: .06em; color: var(--ink-3); }
 .psub + .swatches, .psub + .fonts { margin-top: 10px; }
@@ -1152,3 +1146,14 @@ a.sns-icon:hover, a.sns-icon:focus-visible { background: var(--brand) !important
 .pf-meta svg { flex: none; width: 17px; height: 17px; color: var(--pink); }
 .pf-meta a { color: inherit; text-decoration: none; overflow-wrap: anywhere; }
 .pf-meta a:hover { color: var(--pink-text); text-decoration: underline; }
+
+/* 상세 대표 이미지: 유튜브 영상이 있으면 왼쪽 아래 '영상 보기' → 누르면 그 자리에서 재생 */
+.pcover__play { position: absolute; left: 14px; bottom: 14px; z-index: 2; display: inline-flex; align-items: center; gap: 6px; padding: 11px 18px 11px 14px; border: 0; border-radius: 999px;
+  background: var(--pink); color: #fff; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(37, 42, 52, .3); transition: transform .2s; }
+.pcover__play svg { width: 20px; height: 20px; }
+.pcover__play:hover { transform: translateY(-2px); }
+.pcover__play:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+.pcover.is-playing::after { display: none; }
+.pcover__video { position: relative; aspect-ratio: 16 / 9; background: #000; }
+.pcover__video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+@media (max-width: 640px) { .pcover__play { left: 10px; bottom: 10px; padding: 9px 14px 9px 11px; font-size: 14px; } }

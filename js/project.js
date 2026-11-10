@@ -2,7 +2,7 @@
    프로젝트 상세(project.html?id=프로젝트id)
    - 위: 분야 · 제목 · 한 줄 요약 · 역할/기간/구분/도구 · 대표 이미지
    - 가운데: DB projects.detail.sections 를 순서대로 (번호는 자동)
-       type: text · target · cards · cast · scenario · mockup · gallery · palette · process · notes · video
+       type: text · target · cards · cast · scenario · mockup · gallery · palette · process · notes
      detail 이 비어 있으면 description · problem · action · did 로 대신 채워요
    - 아래: 결과 · 태그 · 작품 링크 · 이전/다음 프로젝트
    ========================================= */
@@ -37,12 +37,7 @@
       </div>`;
   }
   const paras = (b) => (Array.isArray(b) ? b : b ? [b] : []).filter(Boolean).map((t) => `<p>${esc(t)}</p>`).join("");
-  const ytId = (u) => {
-    const s = String(u).trim();
-    const m = /(?:youtu\.be\/|[?&]v=|\/(?:embed|shorts|live)\/)([\w-]{11})(?![\w-])/.exec(s) || /^([\w-]{11})$/.exec(s);
-    return m ? m[1] : "";
-  };
-  const img = (src, alt) =>(src ? `<img src="${esc(src)}" alt="${esc(alt || "")}" loading="lazy" />` : "");
+  const img = (src, alt) => (src ? `<img src="${esc(src)}" alt="${esc(alt || "")}" loading="lazy" />` : "");
 
   /* 섹션 종류별 모양 */
   const SECTION = {
@@ -97,24 +92,13 @@
         <li><i style="background:${c.hex}" aria-hidden="true"></i><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code>${c.desc ? `<small>${esc(c.desc)}</small>` : ""}</li>`).join("")}</ul>
       ${(s.fonts || []).length ? `<h3 class="psub">서체</h3><ul class="fonts">${s.fonts.map((f) => `
         <li><span class="fonts__sample${f.style === "display" ? " is-display" : ""}">${esc(f.sample).replace(/\n/g, "<br />")}</span><small>${esc(f.note || "")}</small></li>`).join("")}</ul>` : ""}`,
-    // 영상: 유튜브 주소(youtu.be/… · watch?v=… · shorts/…)나 영상 ID 만 받아요. 다른 주소는 링크로만 보여요
-    video: (s, p) => {
-      const id = ytId(s.youtube || s.url || "");
-      const box = id
-        ? `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${id}?rel=0" title="${esc(s.caption || p.title)} 영상" loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
-          <p class="video__link"><a href="https://youtu.be/${id}" target="_blank" rel="noopener">YouTube에서 보기 ↗</a></p>`
-        : `<figure class="fig is-empty"><span class="fig__ph fig__ph--wide"><span>영상 준비 중</span></span></figure>`;
-      return `${paras(s.body)}${box}${s.caption ? `<p class="hint">${esc(s.caption)}</p>` : ""}`;
-    },
     process: (s) => `${paras(s.body)}
       <ol class="steps">${(s.steps || []).map((st, i) => `<li><span class="steps__no">${pad2(i + 1)}</span><strong>${esc(st.title)}</strong>${st.desc ? `<span>${esc(st.desc)}</span>` : ""}</li>`).join("")}</ol>
       ${s.note ? `<p class="note-box">${esc(s.note)}</p>` : ""}`,
   };
 
   function sectionsOf(p) {
-    // draft: true 인 섹션은 준비만 해 두고 화면에는 안 보여요 (예: 아직 비공개인 영상)
-    let secs = ((p.detail && p.detail.sections) || []).filter((s) => SECTION[s.type] && !s.draft);
+    let secs = ((p.detail && p.detail.sections) || []).filter((s) => SECTION[s.type]);
     if (!secs.length) {
       secs = [
         { type: "text", label: "Overview", title: "개요", body: [p.desc] },
@@ -177,11 +161,12 @@
               <dl>${list.map(([k, v]) => `<div><dt>${k}</dt><dd>${typeof v === "object"
                 ? `${esc(v.label)}${v.pct != null ? `<span class="phero__pct" aria-label="기여도 ${v.pct}%"><i><b style="width:${v.pct}%"></b></i>기여도 ${v.pct}%</span>` : ""}`
                 : k === "역할" ? window.listHTML(v) : k === "도구" ? window.listHTML(v, ", ") : esc(v)}</dd></div>`).join("")}</dl></div>`).join("")}</div>
-          ${p.link ? `<a class="btn" href="${esc(p.link)}" target="_blank" rel="noopener">작품 보러 가기 ↗</a>` : ""}
+          ${p.link && !p.youtube ? `<a class="btn" href="${esc(p.link)}" target="_blank" rel="noopener">작품 보러 가기 ↗</a>` : ""}
         </div>
       </section>
       <div class="wrap">
-        ${p.image ? `<figure class="pcover">${img(p.image, p.title)}</figure>` : ""}
+        ${p.image ? `<figure class="pcover${p.youtube ? " pcover--video" : ""}">${img(p.image, p.title)}${p.youtube
+          ? `<button type="button" class="pcover__play" data-yt="${esc(p.youtube)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5v11l9-5.5z" fill="currentColor"/></svg>영상 보기</button>` : ""}</figure>` : ""}
         ${glance.length ? `<section class="glance" aria-labelledby="glanceTitle">
           <h2 class="glance__title" id="glanceTitle">한눈에 보기</h2>
           <ol class="glance__list">${glance.map(([k, v], i) => `<li><span class="glance__no">${pad2(i + 1)}</span><h3>${k}</h3>${v}</li>`).join("")}</ol>
@@ -208,6 +193,13 @@
       </nav>`;
     tocSpy();
     quickNav(prev, next);
+    // 영상 보기: 누르면 대표 이미지 자리에서 유튜브 영상이 바로 재생돼요 (페이지를 떠나지 않아요)
+    const play = document.querySelector(".pcover__play");
+    if (play) play.addEventListener("click", () => {
+      const fig = play.closest(".pcover");
+      fig.classList.add("is-playing");
+      fig.innerHTML = `<div class="pcover__video"><iframe src="https://www.youtube-nocookie.com/embed/${play.dataset.yt}?autoplay=1&rel=0&playsinline=1" title="${esc(p.title)} 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+    });
     viewer();
   }
 
