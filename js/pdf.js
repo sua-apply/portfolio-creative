@@ -179,7 +179,7 @@
 
   /* 6. 프로젝트 정리 쪽 (최대 3장) — 1) 개요  2) 기획  3) 과정 · 비주얼
      프로젝트 한 개 = 표지 1장 → 정리 최대 3장 → 목업 1장 이상 */
-  const sectionsOf = (p) => (p.detail && p.detail.sections) || [];
+  const sectionsOf = (p) => ((p.detail && p.detail.sections) || []).filter((s) => !s.draft);
   const BOX = {
     cards: (s) => [s.title || "콘셉트", s.label || "Concept", `<ul class="minis">${(s.items || []).slice(0, 3).map((it) => `<li>${it.kicker ? `<span>${esc(it.kicker)}</span>` : ""}<strong>${esc(it.title)}</strong>${esc(it.desc || "")}</li>`).join("")}</ul>`],
     target: (s) => { const pe = s.persona || {}; return [s.title || "타깃", s.label || "Target", `

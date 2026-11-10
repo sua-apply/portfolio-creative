@@ -728,6 +728,12 @@ a.card:hover { border-color: var(--ink-3); box-shadow: 0 12px 28px -18px rgba(0,
 .fig__ph span { padding: 4px 10px; border-radius: 999px; background: var(--surface); font-size: 12.5px; font-weight: 600; color: var(--ink-3); }
 .fig__ph--wide { aspect-ratio: 16 / 9; }
 .fig--mockup img { max-height: 70vh; object-fit: contain; }
+/* 영상 (유튜브): 16:9 로 꽉 차게 */
+.video { position: relative; aspect-ratio: 16 / 9; margin-top: 14px; border-radius: 10px; overflow: hidden; background: #000; }
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video__link { margin: 8px 0 0; font-size: 13px; }
+.video__link a { color: var(--ink-3); text-decoration: underline; text-underline-offset: 3px; }
+.video__link a:hover { color: var(--ink); }
 /* 섹션 안 작은 제목 (예: 컬러 · 서체) */
 .psub { margin: 22px 0 0; font-size: 13px; font-weight: 700; letter-spacing: .06em; color: var(--ink-3); }
 .psub + .swatches, .psub + .fonts { margin-top: 10px; }
