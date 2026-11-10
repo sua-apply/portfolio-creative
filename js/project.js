@@ -39,8 +39,11 @@
     },
     cards: (s) => `${paras(s.body)}<ul class="minis">${(s.items || []).map((it) => `
       <li>${it.kicker ? `<span class="minis__k">${esc(it.kicker)}</span>` : ""}<strong>${esc(it.title)}</strong>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}</li>`).join("")}</ul>`,
-    notes: (s) => `${paras(s.body)}<ul class="minis minis--2">${(s.items || []).map((it) => `
-      <li><strong>${esc(it.title)}</strong>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}</li>`).join("")}</ul>`,
+    // 돌아보며: 아쉬운 점 · 배운 점 · 개선 방향 … desc 가 목록(배열)이면 짧은 항목으로 나열
+    notes: (s) => `${paras(s.body)}<ul class="minis minis--notes${(s.items || []).length >= 3 ? " minis--3" : " minis--2"}">${(s.items || []).map((it) => `
+      <li><strong>${esc(it.title)}</strong>${Array.isArray(it.desc)
+        ? `<ul class="pts">${it.desc.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>`
+        : it.desc ? `<p>${esc(it.desc)}</p>` : ""}</li>`).join("")}</ul>`,
     cast: (s) => `${paras(s.body)}<ul class="cast">${(s.items || []).map((it) => `
       <li><i style="background:${HEX.test(it.color) ? it.color : "var(--line)"}" aria-hidden="true"></i>
         <span><strong>${esc(it.name)}</strong>${it.sound ? ` <em>${esc(it.sound)}</em>` : ""}
@@ -58,7 +61,8 @@
     mockup: (s, p) => (s.image
       ? `<figure class="fig fig--mockup">${img(s.image, s.caption || p.title)}</figure>`
       : `<figure class="fig is-empty"><span class="fig__ph fig__ph--wide"><span>목업 이미지 준비 중</span></span></figure>`),
-    gallery: (s) => `${paras(s.body)}<div class="gallery">${(s.items || []).map((it) => `
+    // 이미지 묶음: 장 수에 맞춰 배치 (1장 크게 · 2장 나란히 · 3장 위 1 + 아래 2 · 4장 벤토 · 5장 이상 2열 바둑판)
+    gallery: (s) => `${paras(s.body)}<div class="gallery gallery--${Math.min((s.items || []).length, 5)}">${(s.items || []).map((it) => `
       <figure class="fig${it.image ? "" : " is-empty"}">${it.image ? img(it.image, it.title) : `<span class="fig__ph"><span>이미지 준비 중</span></span>`}
         <figcaption><strong>${esc(it.title)}</strong>${it.desc ? ` ${esc(it.desc)}` : ""}</figcaption></figure>`).join("")}</div>`,
     palette: (s) => `${paras(s.body)}

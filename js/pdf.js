@@ -187,7 +187,7 @@
     scenario: (s) => [s.title || "시나리오", s.label || "Scenario", `<ol class="did">${(s.scenes || []).filter((sc) => sc.key).slice(0, 6).map((sc, n) => `<li><b>${pad2(n + 1)}</b>${esc(sc.title)}${sc.desc ? ` — ${esc(sc.desc)}` : ""}</li>`).join("")}</ol>`],
     palette: (s) => [s.title || "컬러", s.label || "Visual", `<ul class="sw">${(s.colors || []).filter((c) => HEX.test(c.hex)).slice(0, 8).map((c) => `<li><i style="background:${c.hex}"></i><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul>`],
     process: (s) => [s.title || "과정", s.label || "Process", `<ol class="steps">${(s.steps || []).slice(0, 5).map((st, n) => `<li><span>${pad2(n + 1)}</span><strong>${esc(st.title)}</strong><span>${esc(st.desc || "")}</span></li>`).join("")}</ol>`],
-    notes: (s) => [s.title || "돌아보며", s.label || "Retrospective", `<ul class="notes">${(s.items || []).slice(0, 2).map((it) => `<li><strong>${esc(it.title)}</strong>${esc(it.desc || "")}</li>`).join("")}</ul>`],
+    notes: (s) => [s.title || "돌아보며", s.label || "Retrospective", `<ul class="notes">${(s.items || []).slice(0, 3).map((it) => `<li><strong>${esc(it.title)}</strong>${Array.isArray(it.desc) ? `<ul class="pts">${it.desc.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>` : esc(it.desc || "")}</li>`).join("")}</ul>`],
   };
   const boxes = (list) => `<div class="hl" style="grid-template-columns:repeat(${list.length},minmax(0,1fr))">${list.map(([t, en, body]) => `<div class="hl__box"><h4>${esc(t)}<span class="k">${esc(en)}</span></h4>${body}</div>`).join("")}</div>`;
   const page = (p, i, en, body) => `<section class="page">
