@@ -394,6 +394,8 @@
       side.classList.toggle("is-visible", window.scrollY > cover.offsetHeight * 0.6 && items.length > 0);
       let active = -1;
       items.forEach((x, i) => { if (x.sec.offsetTop <= probe) active = i; });
+      // 맨 아래까지 내리면 Contact (Contact는 짧아서 기준선까지 올라오지 못해요)
+      if (atBottom && items.length) active = items.length - 1;
       items.forEach((x, i) => { set(x.a, i === active); x.a.classList.toggle("is-passed", i < active); });
       if (fill && items.length > 1) fill.style.height = `${Math.max(0, active) / (items.length - 1) * 100}%`;
     }
@@ -404,23 +406,28 @@
   }
 
   /* Contact SNS: DB sns_links 내용으로 채워요. 주소가 비어 있으면 '곧 열려요', 하나도 없으면 칸째 숨겨요 */
+  /* SNS: 묶음 제목 아래 로고 버튼만 한 줄로 (채널 이름은 마우스를 올리면 · 화면 읽기 프로그램에서 읽혀요) */
+  const SNS_GLYPH = {
+    ig: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg>',
+    yt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5v11l9-5.5z" fill="currentColor"/></svg>',
+    fb: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H7.9v3h2.6V21z" fill="currentColor"/></svg>',
+  };
+  // 묶음마다 같은 순서로: 인스타그램 → 유튜브 → 블로그(네이버 · 티스토리) → 그 밖 (위아래 줄의 같은 로고가 같은 자리에 와요)
+  const SNS_ORDER = ["ig", "yt", "nb", "ts", "fb", "be", "in"];
+  const snsRank = (s) => { const i = SNS_ORDER.indexOf(s.cls); return i < 0 ? SNS_ORDER.length : i; };
   function renderSns(groups) {
     const box = $("#snsGroups");
     if (!box) return;
     box.innerHTML = groups.map((g) => `
       <div class="contact__group">
         <h3 class="contact__label">${esc(g.title)}</h3>
-        <ul class="sns">${g.items.map((s) => {
-          const inner = `
-            <span class="sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" aria-hidden="true">${esc(s.mark)}</span>
-            <span class="sns__text"><span class="sns__platform">${esc(s.platform)}</span><strong class="sns__name">${esc(s.name)}</strong></span>`;
+        <ul class="sns-icons">${[...g.items].sort((a, b) => snsRank(a) - snsRank(b)).map((s) => {
+          const label = `${s.platform}${s.name ? ` · ${s.name}` : ""}`;
+          const face = SNS_GLYPH[s.cls] || `<b>${esc(s.mark)}</b>`;
           return s.url
-            ? `<li><a class="sns__item" href="${esc(s.url)}" target="_blank" rel="noopener">${inner}
-            <span class="sns__go" aria-hidden="true">↗</span></a></li>`
-            : `<li><div class="sns__item sns__item--soon">${inner}
-            <span class="sns__soon">곧 열려요</span></div></li>`;
-        }).join("")}
-        </ul>
+            ? `<li><a class="sns-icon sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(label)} (새 창)" title="${esc(s.platform)}">${face}</a></li>`
+            : `<li><span class="sns-icon sns__mark is-soon${s.cls ? ` sns__mark--${s.cls}` : ""}" role="img" aria-label="${esc(s.platform)} (곧 열려요)" title="${esc(s.platform)} · 곧 열려요">${face}</span></li>`;
+        }).join("")}</ul>
       </div>`).join("");
     box.hidden = !groups.length;
   }
