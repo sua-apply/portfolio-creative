@@ -182,7 +182,7 @@
       </section>
       <div class="wrap">
         ${p.image ? `<figure class="pcover${p.youtube ? " pcover--video" : ""}">${img(p.image, p.title)}${p.youtube
-          ? `<button type="button" class="pcover__play" data-yt="${esc(p.youtube)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5v11l9-5.5z" fill="currentColor"/></svg>영상 보기</button>` : ""}</figure>` : ""}
+          ? `<button type="button" class="pcover__play" data-yt="${esc(p.youtube)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5v11l9-5.5z" fill="currentColor"/></svg><span class="sr-only">영상 재생</span></button>` : ""}</figure>` : ""}
         ${glance.length ? `<section class="glance" aria-labelledby="glanceTitle">
           <h2 class="glance__title" id="glanceTitle">한눈에 보기</h2>
           <ol class="glance__list">${glance.map(([k, v], i) => `<li><span class="glance__no">${pad2(i + 1)}</span><h3>${k}</h3>${v}</li>`).join("")}</ol>
@@ -210,7 +210,10 @@
     tocSpy();
     quickNav(prev, next);
     // 영상 보기: 누르면 대표 이미지 자리에서 유튜브 영상이 바로 재생돼요 (페이지를 떠나지 않아요)
+    // 영상이 있는 대표 이미지는 '크게 보기' 대신 어디를 눌러도 영상 재생 (Enter · Space 도)
     const play = document.querySelector(".pcover__play");
+    const vfig = play && play.closest(".pcover");
+    if (vfig) vfig.addEventListener("click", (e) => { if (e.target !== play && !play.contains(e.target)) play.click(); });
     if (play) play.addEventListener("click", () => {
       const fig = play.closest(".pcover");
       fig.classList.add("is-playing");
@@ -278,7 +281,7 @@
      - 이미지를 누르면 화면 가득 보여요. 여러 장이면 ‹ › (또는 키보드 ← →, 휴대폰은 옆으로 밀기)로 넘겨요
      - 닫기: ✕, 바깥 누르기, Esc */
   function viewer() {
-    const imgs = [...document.querySelectorAll(".pcover img, .psec .fig img, .psec .scenes img")];
+    const imgs = [...document.querySelectorAll(".pcover:not(.pcover--video) img, .psec .fig img, .psec .scenes img")];
     if (!imgs.length) return;
     const box = document.createElement("div");
     box.className = "lbox"; box.hidden = true;
