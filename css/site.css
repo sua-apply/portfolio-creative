@@ -1083,10 +1083,23 @@ body.is-viewing { overflow: hidden; }
 .contact__account { display: block; margin-top: 6px; font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.01em; text-transform: none; }
 .sns__title { font-size: 16px; font-weight: 700; color: #fff; }
 
-/* SNS 로고 버튼 줄 */
-.sns-icons { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 0; padding: 0; list-style: none; }
-.sns-icon { width: 52px; height: 52px; border-radius: 14px; font-size: 17px; text-decoration: none; transition: transform .2s, box-shadow .2s; }
-.sns-icon svg { width: 26px; height: 26px; }
-.sns-icon.sns__mark--yt svg { width: 30px; height: 30px; }
-a.sns-icon:hover, a.sns-icon:focus-visible { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(0, 0, 0, .35); }
+/* ===== Contact (G안): 왼쪽 인사말 · 이메일 / 오른쪽 채널 — 흰 선 동그라미, 마우스를 올리면 브랜드 색 ===== */
+@media (min-width: 900px) {
+  .contact__in { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 48px; }
+}
+.contact__groups { display: flex; flex-direction: column; gap: 22px; }
+.contact__groups .contact__label { margin: 0 0 12px; padding: 0; border: 0; font-size: 12.5px; }
+.sns-icons { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.sns-icon { --brand: rgba(255, 255, 255, .15); width: 48px; height: 48px; border-radius: 50%; font-size: 16px; color: #fff; text-decoration: none;
+  background: transparent !important; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .35); transition: background .25s, box-shadow .25s, transform .25s; }
+.sns-icon svg { width: 22px; height: 22px; }
+.sns-icon.sns__mark--yt svg { width: 26px; height: 26px; }
+.sns-icon.sns__mark--ig { --brand: radial-gradient(circle at 30% 107%, #FDF497 0%, #FDF497 5%, #FD5949 45%, #D6249F 60%, #285AEB 90%); }
+.sns-icon.sns__mark--yt { --brand: #FF0000; }
+.sns-icon.sns__mark--nb { --brand: #03C75A; }
+.sns-icon.sns__mark--fb { --brand: #1877F2; }
+.sns-icon.sns__mark--ts { --brand: #EB531F; }
+.sns-icon.sns__mark--be { --brand: #1769FF; }
+.sns-icon.sns__mark--in { --brand: #0A66C2; }
+a.sns-icon:hover, a.sns-icon:focus-visible { background: var(--brand) !important; box-shadow: none; transform: translateY(-2px); }
 .sns-icon.is-soon { opacity: .4; }
