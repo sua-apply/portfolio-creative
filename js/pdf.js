@@ -92,6 +92,18 @@
   }
   const hours = (h) => (h == null || h === "" ? "" : /^\d+(\.\d+)?$/.test(String(h).trim()) ? `${Number(h).toLocaleString("ko-KR")}시간` : String(h));
   const latest = (k) => (a, b) => (b[k] || NOW_YM).localeCompare(a[k] || NOW_YM);
+  /* 이력 배치: 짧은 묶음(4줄 이하)은 위에 가로로 나란히, 긴 묶음(자격증 등)은 아래 전체 폭에 3단으로 흘려요
+     → 한쪽 단만 길게 늘어지고 나머지가 비는 일이 없게 */
+  const rrowHTML = (x) => `<div class="rrow"><div class="rrow__d"><time>${esc(x.date)}</time>${x.status || x.len ? `<span class="rrow__m">${x.status ? `<b>${esc(x.status)}</b>` : ""}${x.status && x.len ? " · " : ""}${x.len ? esc(x.len) : ""}</span>` : ""}</div><div><strong>${esc(x.title)}</strong>${x.sub ? `<span>${esc(x.sub)}</span>` : ""}</div></div>`;
+  function resumeLayout(blocks) {
+    const short = blocks.filter(([, rows]) => rows.length <= 4), long = blocks.filter(([, rows]) => rows.length > 4);
+    const block = ([t, rows], wide) => `<div class="rblock${wide ? " rblock--wide" : ""}"><h3>${t} <small>${rows.length}</small></h3><div class="rblock__rows">${rows.map(rrowHTML).join("")}</div></div>`;
+    return `<div class="resume2">
+      ${short.length ? `<div class="resume2__top" style="--n:${Math.min(short.length, 4)}">${short.map((b) => block(b)).join("")}</div>` : ""}
+      ${long.map((b) => block(b, true)).join("")}
+    </div>`;
+  }
+
   function resume(RS, num) {
     if (!RS) return "";
     const range = (s, e) => (!s ? e || "" : `${s} – ${e && !(e > NOW_YM) ? e : e || "현재"}`);
@@ -113,10 +125,7 @@
     return `<section class="page">
       <div class="page__in">
         ${head(num, "Resume", blocks.map(([t]) => t).join(" · "))}
-        <div class="resume resume--${Math.min(blocks.length, 3)}">${blocks.map(([t, rows]) => `
-          <div class="rblock"><h3>${t} <small>${rows.length}</small></h3>
-            ${rows.map((x) => `<div class="rrow"><div class="rrow__d"><time>${esc(x.date)}</time>${x.status || x.len ? `<span class="rrow__m">${x.status ? `<b>${esc(x.status)}</b>` : ""}${x.status && x.len ? " · " : ""}${x.len ? esc(x.len) : ""}</span>` : ""}</div><div><strong>${esc(x.title)}</strong>${x.sub ? `<span>${esc(x.sub)}</span>` : ""}</div></div>`).join("")}
-          </div>`).join("")}</div>
+        ${resumeLayout(blocks)}
       </div>${foot("Resume")}
     </section>`;
   }
@@ -331,8 +340,8 @@
     const roles = String(p.role || "").split(/\s+·\s+|,\s*/).filter(Boolean).slice(0, 5);
     const r = p.result;
     let pics = boardPicks(groups);
-    // 이미지가 대표 한 장뿐이면 표지와 겹치지 않게 '디테일' 확대 컷으로
-    if (!pics.length && p.image) pics = [{ image: p.image, title: "Detail", detail: true }];
+    // 이미지가 대표 한 장뿐이면 보드에 그 한 장을 통째로
+    if (!pics.length && p.image) pics = [{ image: p.image }];
     // 키워드: DB detail.pdf_keywords 가 있으면 그것을, 없으면 콘셉트 카드의 kicker (제목이 짧으면 아래에 작게)
     const own = p.detail && Array.isArray(p.detail.pdf_keywords) ? p.detail.pdf_keywords : null;
     const kw = own ? own.slice(0, 3).map((k) => (typeof k === "string" ? { k } : { k: k.k, sub: k.sub }))
@@ -369,12 +378,7 @@
     });
     const pick = [...cands].sort((a, b) => b.imgs.length - a.imgs.length || b.gi - a.gi).slice(0, MAX_RESULT_PAGES)
       .sort((a, b) => cands.indexOf(a) - cands.indexOf(b));
-    // 이미지 묶음이 없는 작업(결과물이 한 장): 대표 이미지를 한 쪽 가득 — 보드는 디테일, 여기는 전체
-    if (!pick.length && p.image) return [`<section class="page">
-      <div class="page__in">${head(pad2(i + 1), p.title, "Final Work")}
-        <div class="rs rs--1">${fig({ image: p.image })}</div>
-      </div>${foot(p.title)}
-    </section>`];
+    // 이미지 묶음이 없는 작업(결과물이 한 장)은 표지 + 보드로 끝나요 (같은 그림을 또 싣지 않게)
     return pick.map(({ g, imgs }) => `<section class="page">
       <div class="page__in">${head(pad2(i + 1), p.title, g.label || "Final Work")}
         ${g.title ? `<p class="rs__title">${esc(g.title)}</p>` : ""}
@@ -456,6 +460,19 @@
     });
     // 이미지를 다 불러온 뒤 '준비 완료' 표시 (PDF 만드는 스크립트가 기다려요)
     await Promise.all([...book.querySelectorAll("img")].map((im) => (im.complete ? 0 : new Promise((ok) => { im.onload = im.onerror = ok; }))));
+    // 이미지 2장 배치: 좌우(같은 높이, 비율대로 폭) / 위아래 중 이미지가 더 크게 보이는 쪽으로 (자르지 않음)
+    book.querySelectorAll(".bd2__imgs--2, .rs--2").forEach((box) => {
+      const ims = [...box.querySelectorAll("img")];
+      if (ims.length !== 2 || ims.some((im) => !im.naturalWidth)) return;
+      const a = ims.map((im) => im.naturalWidth / im.naturalHeight);
+      const W = box.clientWidth, H = box.clientHeight, gap = 16, cap = 14;   // px (대략), cap = 캡션 줄
+      const hRow = Math.min(H - cap, (W - gap) / (a[0] + a[1]));
+      const rowArea = hRow * hRow * (a[0] + a[1]);
+      const cellH = (H - gap) / 2 - cap;
+      const colArea = a.reduce((sum, ai) => { const w = Math.min(W, cellH * ai); return sum + w * (w / ai); }, 0);
+      if (rowArea >= colArea) { box.style.gridTemplateRows = "minmax(0, 1fr)"; box.style.gridTemplateColumns = `${a[0]}fr ${a[1]}fr`; }
+      else { box.style.gridTemplateColumns = "minmax(0, 1fr)"; box.style.gridTemplateRows = "repeat(2, minmax(0, 1fr))"; }
+    });
     // 보드 · 결과물 칸: 이미지와 칸의 비율이 크게 다르면(세로 포스터를 가로 칸에) 자르지 않고 통째로
     book.querySelectorAll(".bd2__imgs figure, .rs figure").forEach((f) => {
       const im = f.querySelector("img"); if (!im || !im.naturalWidth || f.classList.contains("detail")) return;
