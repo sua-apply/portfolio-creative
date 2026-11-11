@@ -390,3 +390,70 @@ ul, ol { padding: 0; list-style: none; }
 .pf2__tools .tb__name { display: inline; font-size: 8pt; color: var(--ink-2); font-weight: 600; }
 .pf2__tools .tb { min-width: 6.4mm; width: auto; padding: 0 1mm; }
 .pf2__tools .tb[style*="#FFFFFF;color:#111111"] { border: .6pt solid var(--line); }
+
+/* 프로필 v3 — 레퍼런스처럼: 칸 사이 줄 없이 여백, 왼쪽 날짜 · 오른쪽 이름, 작은 섹션 제목에 짧은 밑줄 */
+.pf3 { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: 52mm minmax(0, 1.15fr) minmax(0, 1fr) 62mm; column-gap: 10mm; padding-top: 2mm; }
+.pf3__side { display: flex; flex-direction: column; gap: 4.5mm; }
+.pf3__photo { width: 46mm; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 2mm; background: var(--gray); }
+.pf3__name strong { font-size: 15pt; font-weight: 800; letter-spacing: -0.02em; margin-right: 2mm; }
+.pf3__name span { font-size: 8.5pt; font-weight: 700; letter-spacing: .08em; color: var(--ink-3); }
+.pf3__facts { display: grid; gap: 1.8mm; font-size: 8.4pt; }
+.pf3__facts div { display: grid; grid-template-columns: 13mm minmax(0, 1fr); }
+.pf3__facts dt { color: var(--ink-3); font-weight: 700; }
+.pf3__facts dd { overflow-wrap: anywhere; }
+.pf3__col { min-width: 0; display: flex; flex-direction: column; gap: 9mm; }
+.pf3__sec h3 { display: inline-flex; align-items: baseline; gap: 2mm; margin-bottom: 4.5mm; padding-bottom: 1.2mm; border-bottom: 1.4pt solid var(--ink);
+  font-size: 9pt; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.pf3__sec h3 span { font-size: 7.6pt; font-weight: 600; letter-spacing: 0; color: var(--ink-3); }
+.pf3__sec > ul { display: grid; gap: 4mm; }
+.pf3__sec li { display: grid; grid-template-columns: 27mm minmax(0, 1fr); column-gap: 3mm; align-items: baseline; }
+.pf3__date time { display: block; font-size: 8pt; color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pf3__date b, .pf3__date i { display: block; margin-top: .6mm; font-size: 7.4pt; font-style: normal; }
+.pf3__date b { color: var(--pink-text); font-weight: 700; }
+.pf3__date i { color: var(--ink-3); }
+.pf3__sec li strong { display: block; font-size: 9.2pt; font-weight: 700; line-height: 1.4; }
+.pf3__sec li span { display: block; margin-top: .6mm; font-size: 7.8pt; line-height: 1.45; color: var(--ink-3); }
+.pf3__sec--cert > ul { gap: 2.6mm; }
+.pf3__sec--cert li { grid-template-columns: 15mm minmax(0, 1fr); }
+.pf3__sec--cert time { font-size: 7.8pt; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.pf3__sec--cert strong { font-size: 8.6pt !important; font-weight: 600 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf3__tools { display: flex !important; flex-wrap: wrap; gap: 2.6mm 2.2mm; }
+.pf3__tools li { display: flex; flex-direction: column; align-items: center; gap: 1mm; width: 12mm; }
+.pf3__tools b { display: grid; place-items: center; width: 8.4mm; height: 8.4mm; border: 1pt solid var(--ink); border-radius: 1.6mm; font-size: 8pt; font-weight: 800; }
+.pf3__tools span { font-size: 6pt !important; margin: 0 !important; color: var(--ink-3); text-align: center; line-height: 1.2; white-space: nowrap; }
+.pf3__skills { font-size: 8pt; line-height: 1.6; color: var(--ink-2); }
+.pf3 { grid-template-columns: 56mm minmax(0, 1fr) minmax(0, 1fr) 72mm; column-gap: 9mm; }
+.pf3__sec li { grid-template-columns: 15mm minmax(0, 1fr); }
+.pf3__date time { line-height: 1.4; }
+.pf3__sec li strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf3__side-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 5mm; }
+.pf3__side-bottom .pf3__sec h3 { margin-bottom: 3mm; }
+.pf3__tools { gap: 2mm 1.2mm; }
+.pf3__tools li { width: 12.6mm; }
+.pf3__tools b { width: 7.6mm; height: 7.6mm; font-size: 7.4pt; }
+.pf3__sec--cert li { grid-template-columns: 14mm minmax(0, 1fr); }
+.pf3__sec--cert > ul { gap: 3.2mm; }
+/* 프로필 v3 배치: [사진 칸 | 학력·교육 | 경력·활동] 위, 자격증은 아래 전체 폭 두 단 */
+.pf3 { grid-template-columns: 56mm minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); column-gap: 11mm; row-gap: 10mm; }
+.pf3__side { grid-row: 1 / 3; min-height: 0; overflow: hidden; gap: 3.6mm; }
+.pf3__photo { width: 40mm; }
+.pf3__sec--cert { grid-column: 2 / 4; align-self: start; }
+.pf3__sec--cert > ul { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 11mm; row-gap: 3mm; }
+.pf3__sec--cert li { grid-template-columns: 15mm minmax(0, 1fr); }
+.pf3__side-bottom { gap: 4mm; }
+.pf3__tools { gap: 1.8mm 1mm; }
+.pf3__tools li { width: 13mm; }
+/* 도구 · 스킬: 자격증 아래 한 줄 (사진 칸은 사진 · 이름 · 연락처만) */
+.pf3 { grid-template-rows: auto auto minmax(0, 1fr); }
+.pf3__side { grid-row: 1 / 4; }
+.pf3__sec--cert { grid-row: 2; }
+.pf3__bottom { grid-column: 2 / 4; grid-row: 3; align-self: end; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14mm; align-items: start; }
+.pf3__bottom .pf3__tools { flex-wrap: nowrap; gap: 1.6mm; }
+.pf3__bottom .pf3__tools li { width: 14mm; }
+.pf3__bottom .pf3__skills { margin-top: 1mm; }
+.pf3 { row-gap: 7mm; }
+.pf3__col { gap: 7mm; }
+.pf3__sec > ul { gap: 3.4mm; }
+.pf3__sec--cert > ul { row-gap: 2.2mm; }
+.pf3__sec h3 { margin-bottom: 3.6mm; }
+.pf3__bottom { padding-top: 6mm; }

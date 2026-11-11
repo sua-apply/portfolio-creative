@@ -57,32 +57,40 @@
   }
 
   /* 2. 프로필 + 스킬 */
+  /* 2. 프로필 (한 쪽): 레퍼런스처럼 줄 없이 여백으로 — 왼쪽 날짜, 오른쪽 이름(+ 아랫줄 세부), 도구는 작은 테두리 칸 */
+  const EN = { 학력: "Education", 경력: "Experience", 교육: "Training", 대외활동: "Activity", 교내활동: "Campus", 수상: "Award", 어학: "Language", 자격증: "Certificate" };
+  const TOOL_ABBR = { photoshop: "Ps", illustrator: "Ai", indesign: "Id", "after effects": "Ae", "premiere pro": "Pr", figma: "Fg", blender: "Bl", notion: "N", "html / css": "&lt;/&gt;", "html/css": "&lt;/&gt;" };
   function profile(R, info, num) {
     const skills = (R.skills || []).filter((g) => g.items.length);
     const blocks = resumeBlocks(window.RESUME);
-    const certs = blocks.find(([t]) => t === "자격증");
-    const main = blocks.filter((b) => b !== certs);
-    // 'A - B' 처럼 긴 이름은 앞부분만 제목으로, 뒷부분은 아랫줄로 (한 줄에 깔끔하게)
+    const get = (t) => blocks.find(([k]) => k === t);
+    const left = ["학력", "교육"].map(get).filter(Boolean);
+    const right = ["경력", "대외활동", "교내활동", "수상", "어학"].map(get).filter(Boolean);
+    const certs = get("자격증");
+    // 'A - B' 처럼 긴 이름은 앞부분만 이름으로, 뒷부분은 아랫줄 세부로
     const split = (x) => { const m = /^(.+?)\s+-\s+(.+)$/.exec(x.title || ""); return m ? { ...x, title: m[1], sub: [m[2], x.sub].filter(Boolean).join(" · ") } : x; };
-    // 한 항목 = 이름 / 기간 (+ 상태 · 기간 길이) / 세부 — 모든 항목이 같은 모양
-    const item = (x) => `<li><strong>${esc(x.title)}</strong><span class="pf2__d"><time>${esc(x.date)}</time>${x.status ? `<b>${esc(x.status)}</b>` : ""}${x.len ? `<i>${esc(x.len)}</i>` : ""}</span>${x.sub ? `<span>${esc(x.sub)}</span>` : ""}</li>`;
-    const tools = skills.flatMap((g) => g.items.map(([label]) => label));
-    const isTool = (t) => TOOL_BADGES[normTool(t)] || /notion|html|css/i.test(t);
+    const sec = ([t, rows]) => `<div class="pf3__sec"><h3>${esc(EN[t] || t)}<span>${esc(t)}</span></h3><ul>${rows.map(split).map((x) => `
+      <li><div class="pf3__date"><time>${String(x.date).split(/\s+–\s+/).map(esc).join(" –<br />")}</time>${x.status ? `<b>${esc(x.status)}</b>` : x.len ? `<i>${esc(x.len)}</i>` : ""}</div>
+        <div><strong>${esc(x.title)}</strong>${x.sub ? `<span>${esc(x.sub)}${x.status && x.len ? ` · ${esc(x.len)}` : ""}</span>` : ""}</div></li>`).join("")}</ul></div>`;
+    const labels = skills.flatMap((g) => g.items.map(([label]) => label));
+    const abbr = (t) => TOOL_ABBR[normTool(t)];
+    const tools = labels.filter(abbr), others = labels.filter((t) => !abbr(t));
     return `<section class="page">
       <div class="page__in">
-        ${head(num, "Profile", "Education · Career · Certificate")}
-        <div class="pf2">
-          <aside class="pf2__side">
-            <img class="pf2__photo" src="${esc(info.photo)}" alt="" />
-            <div class="profile__name"><strong>박수아</strong><span>PARK Sua</span></div>
-            <dl class="facts">${info.facts.filter(([k]) => k && k !== "이름").map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+        ${head(num, "Profile", R.eyebrow || "")}
+        <div class="pf3">
+          <aside class="pf3__side">
+            <img class="pf3__photo" src="${esc(info.photo)}" alt="" />
+            <p class="pf3__name"><strong>박수아</strong><span>PARK Sua</span></p>
+            <dl class="pf3__facts">${info.facts.filter(([k]) => k && k !== "이름").map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
           </aside>
-          <div class="pf2__cv">${main.map(([t, rows]) => `<div class="pf2__b"><h3>${esc(t)}</h3><ul>${rows.map(split).map(item).join("")}</ul></div>`).join("")}</div>
-          ${certs ? `<div class="pf2__cert"><div class="pf2__b"><h3>${esc(certs[0])} <small>${certs[1].length}</small></h3><ul>${certs[1].map((x) => `<li><strong>${esc(x.title)}</strong><time>${esc(x.date)}</time></li>`).join("")}</ul></div></div>` : ""}
-          ${tools.length ? `<div class="pf2__tools">
-            ${tools.some((t) => !isTool(t)) ? `<div><p class="k">Skills</p><ul>${tools.filter((t) => !isTool(t)).map((t) => `<li><span class="tb tb--text">${esc(t)}</span></li>`).join("")}</ul></div>` : ""}
-            ${tools.some(isTool) ? `<div><p class="k">Tools</p><ul>${tools.filter(isTool).map((t) => `<li>${toolBadge(t)}</li>`).join("")}</ul></div>` : ""}
-          </div>` : ""}
+          <div class="pf3__col">${left.map(sec).join("")}</div>
+          <div class="pf3__col">${right.map(sec).join("")}</div>
+          <div class="pf3__bottom">
+              ${tools.length ? `<div class="pf3__sec"><h3>Tools</h3><ul class="pf3__tools">${tools.map((t) => `<li><b>${abbr(t)}</b><span>${esc(t.replace(/^Adobe\s+/i, "").replace(/\s*\(.*?\)/, ""))}</span></li>`).join("")}</ul></div>` : ""}
+              ${others.length ? `<div class="pf3__sec"><h3>Skills</h3><p class="pf3__skills">${others.map(esc).join(" · ")}</p></div>` : ""}
+            </div>
+          ${certs ? `<div class="pf3__sec pf3__sec--cert"><h3>${esc(EN[certs[0]])}<span>${esc(certs[0])}</span></h3><ul>${certs[1].map((x) => `<li><time>${esc(x.date)}</time><strong>${esc(x.title)}</strong></li>`).join("")}</ul></div>` : ""}
         </div>
       </div>${foot("Profile")}
     </section>`;
