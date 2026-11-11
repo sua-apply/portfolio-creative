@@ -121,7 +121,7 @@
     photoshop: "photoshop.svg", illustrator: "illustrator.svg", indesign: "indesign.svg", "after effects": "after-effects.svg",
     "premiere pro": "premiere-pro.svg", premiere: "premiere-pro.svg", figma: "figma.svg", notion: "notion.svg", github: "github.svg",
     chatgpt: "chatgpt.svg", openai: "chatgpt.svg", claude: "claude.svg", suno: "suno.png",
-    instagram: "instagram.png", youtube: "youtube.svg", facebook: "facebook.svg", naver_blog: "naver-blog.svg", "naver blog": "naver-blog.svg",
+    instagram: "instagram.png", tistory: "tistory.svg", youtube: "youtube.svg", facebook: "facebook.svg", naver_blog: "naver-blog.svg", "naver blog": "naver-blog.svg",
   };
   window.brandIcon = (name) => {
     const k = String(name ?? "").toLowerCase().replace(/^adobe\s+/, "").replace(/\s*\(.*\)\s*$/, "").trim();

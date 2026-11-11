@@ -411,6 +411,8 @@
     ig: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg>',
     yt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6.5v11l9-5.5z" fill="currentColor"/></svg>',
     fb: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H7.9v3h2.6V21z" fill="currentColor"/></svg>',
+    // 티스토리: 공식 로고의 점 다섯 개 (T 모양)
+    ts: '<svg viewBox="0 0 50 50" aria-hidden="true"><g fill="currentColor"><circle cx="16.8" cy="17.4" r="3.3"/><circle cx="25.5" cy="17.4" r="3.3"/><circle cx="34.2" cy="17.4" r="3.3"/><circle cx="25.5" cy="26.1" r="3.3"/><circle cx="25.5" cy="34.8" r="3.3"/></g></svg>',
   };
   // 묶음마다 같은 순서로: 인스타그램 → 유튜브 → 블로그(네이버 · 티스토리) → 그 밖 (위아래 줄의 같은 로고가 같은 자리에 와요)
   const SNS_ORDER = ["ig", "yt", "nb", "ts", "fb", "be", "in"];
@@ -426,7 +428,7 @@
           const logo = window.brandIcon(s.key);
           // 평소에는 흰 선 글자(흑백), 마우스를 올리면 공식 로고(색)로 바뀌어요
           const mono = `<span class="sns-icon__mono">${SNS_GLYPH[s.cls] || `<b>${esc(s.mark)}</b>`}</span>`;
-          const color = logo ? `<img class="sns-icon__color" src="${logo}" alt="" />` : s.cls === "ts" ? `<b class="sns-icon__color sns-icon__ts">T</b>` : "";
+          const color = logo ? `<img class="sns-icon__color" src="${logo}" alt="" />` : "";
           const face = mono + color;
           return s.url
             ? `<li><a class="sns-icon sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(label)} (새 창)" title="${esc(s.platform)}">${face}</a></li>`
