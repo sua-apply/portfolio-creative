@@ -148,6 +148,8 @@
   };
   const toolBadge = (t) => {
     const key = String(t).toLowerCase().replace(/^adobe\s+/, "").trim();
+    const src = window.brandIcon(t);
+    if (src) return `<span class="tb tb--logo" title="${esc(t)}"><img src="${src}" alt="" /></span><span class="tb__name">${esc(t)}</span>`;
     const b = TOOL_BADGES[key];
     return b ? `<span class="tb" style="background:${b[1]};color:${b[2]}" title="${esc(t)}">${b[0]}</span><span class="tb__name">${esc(t)}</span>`
       : `<span class="tb tb--text">${esc(t)}</span>`;

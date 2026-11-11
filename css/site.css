@@ -1176,3 +1176,19 @@ a.sns-icon:hover, a.sns-icon:focus-visible { background: var(--brand) !important
 @media (max-width: 640px) { .pcover--video .pcover__play { left: 50%; bottom: auto; width: 56px; height: 56px; padding: 0; } .pcover--video .pcover__play svg { width: 26px; height: 26px; } }
 .pcover--video img { transition: filter .25s; }
 .pcover--video:hover img { filter: brightness(.94); }
+
+/* 공식 로고: 도구 이름 앞 · Skills · SNS (img/brand) */
+.tool-i { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; vertical-align: middle; }
+.tool-i img { flex: none; object-fit: contain; }
+.phero__facts .tool-i { margin: 2px 12px 2px 0; }
+.bars__name .tool-i { gap: 7px; }
+.skills__list img { object-fit: contain; }
+.sns-icon.has-logo { background: #fff !important; box-shadow: none; }
+.sns-icon.has-logo img { width: 24px; height: 24px; object-fit: contain; }
+.sns-icon.has-logo.sns__mark--yt img { width: 26px; }
+a.sns-icon.has-logo:hover, a.sns-icon.has-logo:focus-visible { background: #fff !important; box-shadow: 0 6px 16px rgba(0, 0, 0, .25); }
+.phero__facts .tool-i img[src$="chatgpt.svg"], .phero__facts .tool-i img[src$="github.svg"] { filter: invert(1); }
+/* 티스토리: 받은 로고가 없어서 같은 흰 동그라미 안에 브랜드 색 네모 + T (다른 로고와 크기 · 모양을 맞춰요) */
+.sns-icon.sns__mark--ts { background: #fff !important; box-shadow: none; }
+.sns-icon.sns__mark--ts b { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: #EB531F; color: #fff; font-size: 14px; font-weight: 900; }
+a.sns-icon.sns__mark--ts:hover { background: #fff !important; box-shadow: 0 6px 16px rgba(0, 0, 0, .25); }

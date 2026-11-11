@@ -123,7 +123,7 @@
     $("#skillsList").innerHTML = (role.skills || []).filter((g) => g.items.length).map((g) => `
       <div class="skills__col">
         <dt>${esc(g.title)} <span class="count">${g.items.length}</span></dt>
-        <dd><ul class="skills__list">${g.items.map(([label, icon]) => `<li>${icon ? `<img src="img/icons/${esc(icon)}.svg" alt="" width="20" height="20" />` : `<span class="skills__dot" aria-hidden="true"></span>`}${esc(label)}</li>`).join("")}</ul></dd>
+        <dd><ul class="skills__list">${g.items.map(([label, icon]) => { const src = window.brandIcon(label) || (icon ? `img/icons/${esc(icon)}.svg` : ""); return `<li>${src ? `<img src="${src}" alt="" width="20" height="20"${src.includes("/brand/") ? ' class="is-brand"' : ""} />` : `<span class="skills__dot" aria-hidden="true"></span>`}${esc(label)}</li>`; }).join("")}</ul></dd>
       </div>`).join("");
   }
 
@@ -423,9 +423,10 @@
         <h3 class="contact__label">${esc(g.title)}</h3>
         <ul class="sns-icons">${[...g.items].sort((a, b) => snsRank(a) - snsRank(b)).map((s) => {
           const label = `${s.platform}${s.name ? ` · ${s.name}` : ""}`;
-          const face = SNS_GLYPH[s.cls] || `<b>${esc(s.mark)}</b>`;
+          const logo = window.brandIcon(s.key);
+          const face = logo ? `<img src="${logo}" alt="" />` : SNS_GLYPH[s.cls] || `<b>${esc(s.mark)}</b>`;
           return s.url
-            ? `<li><a class="sns-icon sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(label)} (새 창)" title="${esc(s.platform)}">${face}</a></li>`
+            ? `<li><a class="sns-icon${logo ? " has-logo" : ""} sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(label)} (새 창)" title="${esc(s.platform)}">${face}</a></li>`
             : `<li><span class="sns-icon sns__mark is-soon${s.cls ? ` sns__mark--${s.cls}` : ""}" role="img" aria-label="${esc(s.platform)} (곧 열려요)" title="${esc(s.platform)} · 곧 열려요">${face}</span></li>`;
         }).join("")}</ul>
       </div>`).join("");
