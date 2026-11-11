@@ -70,8 +70,8 @@
     // 'A - B' 처럼 긴 이름은 앞부분만 이름으로, 뒷부분은 아랫줄 세부로
     const split = (x) => { const m = /^(.+?)\s+-\s+(.+)$/.exec(x.title || ""); return m ? { ...x, title: m[1], sub: [m[2], x.sub].filter(Boolean).join(" · ") } : x; };
     const sec = ([t, rows]) => `<div class="pf3__sec"><h3>${esc(EN[t] || t)}<span>${esc(t)}</span></h3><ul>${rows.map(split).map((x) => `
-      <li><div class="pf3__date"><time>${String(x.date).split(/\s+–\s+/).map(esc).join(" –<br />")}</time>${x.status ? `<b>${esc(x.status)}</b>` : x.len ? `<i>${esc(x.len)}</i>` : ""}</div>
-        <div><strong>${esc(x.title)}</strong>${x.sub ? `<span>${esc(x.sub)}${x.status && x.len ? ` · ${esc(x.len)}` : ""}</span>` : ""}</div></li>`).join("")}</ul></div>`;
+      <li><div class="pf3__date"><time>${String(x.date).split(/\s+–\s+/).map(esc).join(" –<br />")}</time></div>
+        <div><strong>${esc(x.title)}${x.status ? `<em class="pf3__st">${esc(x.status)}</em>` : ""}</strong>${x.sub || x.len ? `<span>${[x.sub, x.len].filter(Boolean).map(esc).join(" · ")}</span>` : ""}</div></li>`).join("")}</ul></div>`;
     const labels = skills.flatMap((g) => g.items.map(([label]) => label));
     const abbr = (t) => TOOL_ABBR[normTool(t)];
     const tools = labels.filter(abbr), others = labels.filter((t) => !abbr(t));

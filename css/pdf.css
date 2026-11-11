@@ -457,3 +457,6 @@ ul, ol { padding: 0; list-style: none; }
 .pf3__sec--cert > ul { row-gap: 2.2mm; }
 .pf3__sec h3 { margin-bottom: 3.6mm; }
 .pf3__bottom { padding-top: 6mm; }
+/* 진행 중 표시: 이름 옆 작은 태그 */
+.pf3__st { display: inline-block; margin-left: 2mm; padding: .3mm 1.8mm; border-radius: 6mm; background: var(--pink-soft); color: var(--pink-text);
+  font-size: 6.8pt; font-weight: 700; font-style: normal; vertical-align: .3mm; }
