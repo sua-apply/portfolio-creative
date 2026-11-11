@@ -293,59 +293,94 @@
      프로젝트 하나 = 표지 1 → 보드 1 → 결과물 1~2  (3~4쪽). 자세한 과정 · 회고는 웹 상세 페이지로 */
   const LAYOUT = "board";          // "board"(요약 보드) · "flow"(예전: 정리 최대 3장 + 섹션별 목업)
   const MAX_RESULT_PAGES = 2;
-  function imagesOf(p) {
-    const seen = new Set(), out = [];
-    const add = (image, title, desc) => { if (image && !seen.has(image)) { seen.add(image); out.push({ image, title, desc }); } };
-    sectionsOf(p).forEach((s) => {
-      if (s.type === "mockup") add(s.image, s.caption);
-      if (s.type === "gallery") (s.items || []).forEach((it) => add(it.image, it.title, it.desc));
+  // 이미지 묶음: 상세의 섹션 하나 = 한 묶음 (목업 · 갤러리 · 스토리보드 장면)
+  function imageGroups(p) {
+    const seen = new Set();
+    return sectionsOf(p).map((s) => {
+      let list = [];
+      if (s.type === "mockup" && s.image) list = [{ image: s.image, title: s.caption }];
+      if (s.type === "gallery") list = (s.items || []).filter((it) => it.image).map((it) => ({ image: it.image, title: it.title, desc: it.desc }));
       if (s.type === "scenario") {
         const sc = (s.scenes || []).filter((x) => x.image);
-        [...sc.filter((x) => x.key), ...sc.filter((x) => !x.key)].forEach((x) => { add(x.image, x.title); if (out.length) out[out.length - 1].wide = true; });
+        list = [...sc.filter((x) => x.key), ...sc.filter((x) => !x.key)].map((x) => ({ image: x.image, title: x.title, wide: true }));
       }
-    });
-    return out;
+      list = list.filter((it) => !seen.has(it.image) && seen.add(it.image));
+      return { label: s.label || "", title: s.title || "", list };
+    }).filter((g) => g.list.length);
   }
+  const imagesOf = (p) => imageGroups(p).flatMap((g) => g.list);
   const clip = (t, n) => { t = String(t || "").trim(); return t.length > n ? `${t.slice(0, n - 1).replace(/[\s,·]+$/, "")}…` : t; };
-  // 첫 문장만 (보드는 요약이라 한 문장씩). 첫 문장이 아주 길면 그때만 줄여요
+  // 첫 문장만. 첫 문장이 아주 길면 그때만 줄여요
   const first = (t, n) => { const m = /^[\s\S]*?[다요]\.(?=\s|$)/.exec(String(t || "").trim()); return clip(m ? m[0] : t, n); };
-  function boardPage(p, i, imgs) {
+  const fig = (it, cap = true) => `<figure${it.wide ? ' class="fit"' : it.detail ? ' class="detail"' : ""}><img src="${esc(it.image)}" alt="" />${cap && it.title ? `<figcaption>${esc(it.title)}${it.desc ? ` · ${esc(it.desc)}` : ""}</figcaption>` : ""}</figure>`;
+
+  // 보드에 쓸 이미지 2장: 첫 묶음의 첫 장 + 둘째 묶음의 첫 장 (묶음이 하나면 그 묶음의 1·2번째)
+  function boardPicks(groups) {
+    if (!groups.length) return [];
+    if (groups.length === 1) return groups[0].list.slice(0, 2);
+    return [groups[0].list[0], groups[1].list[0]];
+  }
+
+  /* 프로젝트 보드 (v2): 글은 최소로 — 핵심 한 문장 · 역할 태그 · 결과 숫자 · 키워드 3개 · 컬러 · 큰 이미지 */
+  function boardPage(p, i) {
     const secs = sectionsOf(p);
+    const groups = imageGroups(p);
     const cards = secs.filter((s) => s.type === "cards" && (s.items || []).length);
     const concept = cards.find((s) => /concept/i.test(s.label || "")) || cards[0];
     const pal = secs.find((s) => s.type === "palette" && (s.colors || []).some((c) => HEX.test(c.hex)));
-    const brief = [["Problem", p.problem], ["Solution", p.action], ["Result", p.resultText]].filter(([, v]) => v);
-    const pics = imgs.slice(0, 2);
-    const tiles = [];
-    tiles.push(`<div class="bd__t bd__brief"><p class="bd__k">Brief</p>
-      ${brief.map(([k, v]) => `<div class="bd__row"><span>${k}</span><p>${esc(first(v, 140))}</p></div>`).join("")}
-      ${p.role ? `<div class="bd__row bd__row--role"><span>Role</span><p>${esc(p.role)}</p></div>` : ""}</div>`);
-    if (concept) tiles.push(`<div class="bd__t bd__concept${(p.did || []).length ? "" : " bd--tall"}"><p class="bd__k">${esc((concept.label || "Concept").split("&")[0].trim())}</p>
-      <h4 class="bd__h">${esc(concept.title || "")}</h4>
-      <ul class="bd__kw">${concept.items.slice(0, 3).map((it) => `<li><strong>${esc(it.kicker || it.title)}</strong>${it.kicker ? `<span>${esc(clip(it.title, 22))}</span>` : ""}</li>`).join("")}</ul></div>`);
-    if ((p.did || []).length) tiles.push(`<div class="bd__t bd__did${concept ? "" : " bd--tall"}"><p class="bd__k">What I did</p>
-      <ol>${p.did.slice(0, 4).map((d, n) => `<li><b>${pad2(n + 1)}</b>${esc(clip(d, 48))}</li>`).join("")}</ol></div>`);
-    if (pal) {
-      const cs = pal.colors.filter((c) => HEX.test(c.hex)).slice(0, 8);
-      tiles.push(`<div class="bd__t bd__pal"><p class="bd__k">Color</p><ul>${cs.map((c) => `<li style="background:${c.hex};color:${lum(c.hex) > 0.6 ? "#252A34" : "#fff"}"><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul></div>`);
-    }
-    const shown = pics.length ? pics : (p.image ? [{ image: p.image }] : []);
-    tiles.push(`<div class="bd__imgs bd__imgs--${shown.length}${pal ? "" : " bd__imgs--wide"}">${shown.map((it) => `<figure${it.wide ? ' class="fit"' : ""}><img src="${esc(it.image)}" alt="" />${it.title ? `<figcaption>${esc(it.title)}${it.desc ? ` · ${esc(it.desc)}` : ""}</figcaption>` : ""}</figure>`).join("")}</div>`);
-    const web = `${SITE}project.html?id=${encodeURIComponent(p.id)}`;
+    const roles = String(p.role || "").split(/\s+·\s+|,\s*/).filter(Boolean).slice(0, 5);
+    const r = p.result;
+    let pics = boardPicks(groups);
+    // 이미지가 대표 한 장뿐이면 표지와 겹치지 않게 '디테일' 확대 컷으로
+    if (!pics.length && p.image) pics = [{ image: p.image, title: "Detail", detail: true }];
+    // 키워드: DB detail.pdf_keywords 가 있으면 그것을, 없으면 콘셉트 카드의 kicker (제목이 짧으면 아래에 작게)
+    const own = p.detail && Array.isArray(p.detail.pdf_keywords) ? p.detail.pdf_keywords : null;
+    const kw = own ? own.slice(0, 3).map((k) => (typeof k === "string" ? { k } : { k: k.k, sub: k.sub }))
+      : concept ? concept.items.slice(0, 3).map((it) => ({ k: it.kicker || it.title, sub: it.kicker && String(it.title).length <= 16 ? it.title : "" })) : [];
+    const cs = pal ? pal.colors.filter((c) => HEX.test(c.hex)).slice(0, 6) : [];
     return `<section class="page bd-page">
       <div class="page__in">${head(pad2(i + 1), p.title, "Project Board")}
-        <div class="bd${pal ? "" : " bd--nopal"}">${tiles.join("")}</div>
-        <p class="bd__more">리서치 · 과정 · 회고 전체 → <a href="${web}">웹에서 보기</a>${p.youtube ? `<span>·</span>완성 영상 → <a href="https://youtu.be/${esc(p.youtube)}">영상 보러가기</a>` : ""}</p>
+        <div class="bd2${cs.length ? "" : " bd2--nopal"}${kw.length ? "" : " bd2--nokw"}">
+          <div class="bd2__key">
+            <p class="bd2__k">Key Idea</p>
+            <p class="bd2__idea">${esc(first(p.action || p.desc || p.summary, 110))}</p>
+            ${r && r.value ? `<div class="bd2__num"><strong>${esc(r.value)}</strong><span>${esc(r.label || "")}</span></div>`
+              : p.resultText ? `<div class="bd2__res"><p class="bd2__k">Result</p><p>${esc(first(p.resultText, 150))}</p></div>` : ""}
+            ${roles.length ? `<div class="bd2__roles"><p class="bd2__k">Role</p><ul>${roles.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+          </div>
+          ${kw.length ? `<div class="bd2__kw"><p class="bd2__k">${esc(own ? "Keyword" : (concept.label || "Concept").split("&")[0].trim())}</p><ol>${kw.map((k, n) => `<li><span>${pad2(n + 1)}</span><div><strong>${esc(k.k)}</strong>${k.sub ? `<em>${esc(k.sub)}</em>` : ""}</div></li>`).join("")}</ol></div>` : ""}
+          ${cs.length ? `<div class="bd2__pal${cs.length <= 4 ? " bd2__pal--1" : ""}"><p class="bd2__k">Color</p><ul>${cs.map((c) => `<li style="background:${c.hex};color:${lum(c.hex) > 0.6 ? "#252A34" : "#fff"}"><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul></div>` : ""}
+          <div class="bd2__imgs bd2__imgs--${Math.min(pics.length, 2)}">${pics.slice(0, 2).map((it) => fig(it)).join("")}</div>
+        </div>
       </div>${foot(p.title)}
     </section>`;
   }
-  function resultPages(p, i, imgs) {
-    const rest = imgs.slice(2);
-    if (!rest.length) return p.image ? [page(p, i, "Final Work", `<div class="mk mk--1"><figure><img src="${esc(p.image)}" alt="" /></figure></div>`)] : [];
-    const chunks = [];
-    for (let k = 0; k < rest.length && chunks.length < MAX_RESULT_PAGES; k += 4) chunks.push(rest.slice(k, k + 4));
-    return chunks.map((ch) => page(p, i, "Final Work", `
-      <div class="mk mk--${ch.length}">${ch.map((it) => `<figure><img src="${esc(it.image)}" alt="" />${it.title ? `<figcaption>${esc(it.title)}${it.desc ? ` · ${esc(it.desc)}` : ""}</figcaption>` : ""}</figure>`).join("")}</div>`));
+
+  /* 결과물 쪽: 섹션별로 남은 이미지를 2장씩 크게. 최대 2쪽 (2장짜리 쪽 · 뒤쪽 섹션을 먼저 골라요)
+     이미지가 하나도 없는 작업은 결과물 쪽 없이 표지 + 보드 2쪽으로 끝나요 */
+  function resultPages(p, i) {
+    const groups = imageGroups(p);
+    const used = new Set(boardPicks(groups).map((it) => it.image));
+    const cands = [];
+    groups.forEach((g, gi) => {
+      const rest = g.list.filter((it) => !used.has(it.image));
+      const per = rest.every((it) => it.wide) ? 4 : 2;   // 16:9 영상 장면은 한 쪽에 4장(2×2)
+      for (let k = 0; k < rest.length; k += per) cands.push({ g, gi, imgs: rest.slice(k, k + per) });
+    });
+    const pick = [...cands].sort((a, b) => b.imgs.length - a.imgs.length || b.gi - a.gi).slice(0, MAX_RESULT_PAGES)
+      .sort((a, b) => cands.indexOf(a) - cands.indexOf(b));
+    // 이미지 묶음이 없는 작업(결과물이 한 장): 대표 이미지를 한 쪽 가득 — 보드는 디테일, 여기는 전체
+    if (!pick.length && p.image) return [`<section class="page">
+      <div class="page__in">${head(pad2(i + 1), p.title, "Final Work")}
+        <div class="rs rs--1">${fig({ image: p.image })}</div>
+      </div>${foot(p.title)}
+    </section>`];
+    return pick.map(({ g, imgs }) => `<section class="page">
+      <div class="page__in">${head(pad2(i + 1), p.title, g.label || "Final Work")}
+        ${g.title ? `<p class="rs__title">${esc(g.title)}</p>` : ""}
+        <div class="rs rs--${imgs.length}">${imgs.map((it) => fig(it)).join("")}</div>
+      </div>${foot(p.title)}
+    </section>`);
   }
 
   /* 8. 마지막 쪽 */
@@ -401,7 +436,7 @@
     // 목차(Selected Work) 쪽 없이 이력 다음에 바로 프로젝트로 넘어가요. 다시 넣으려면: pages.push(toc(pick, pages.length + 2, num()))
     // 프로젝트 하나: 표지 → 보드 1장 → 결과물 1~2장 (LAYOUT = "flow" 면 예전처럼 정리 최대 3장 → 목업)
     pick.forEach((p, i) => {
-      if (LAYOUT === "board") { const imgs = imagesOf(p); pages.push(projectA(p, i), boardPage(p, i, imgs), ...resultPages(p, i, imgs)); }
+      if (LAYOUT === "board") pages.push(projectA(p, i), boardPage(p, i), ...resultPages(p, i));
       else pages.push(projectA(p, i), `<div class="ov-marker" data-i="${i}"></div>`, ...mockupPages(p, i));
     });
     pages.push(closing(info));
@@ -421,6 +456,12 @@
     });
     // 이미지를 다 불러온 뒤 '준비 완료' 표시 (PDF 만드는 스크립트가 기다려요)
     await Promise.all([...book.querySelectorAll("img")].map((im) => (im.complete ? 0 : new Promise((ok) => { im.onload = im.onerror = ok; }))));
+    // 보드 · 결과물 칸: 이미지와 칸의 비율이 크게 다르면(세로 포스터를 가로 칸에) 자르지 않고 통째로
+    book.querySelectorAll(".bd2__imgs figure, .rs figure").forEach((f) => {
+      const im = f.querySelector("img"); if (!im || !im.naturalWidth || f.classList.contains("detail")) return;
+      const ri = im.naturalWidth / im.naturalHeight, rf = f.clientWidth / Math.max(1, f.clientHeight);
+      if (Math.max(ri / rf, rf / ri) > 1.35) f.classList.add("fit");
+    });
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     document.documentElement.dataset.pdfReady = "1";
   }
