@@ -1195,3 +1195,16 @@ a.sns-icon:hover, a.sns-icon:focus-visible { background: #fff !important; box-sh
 a.sns-icon:hover .sns-icon__mono, a.sns-icon:focus-visible .sns-icon__mono { opacity: 0; transform: scale(.7); }
 a.sns-icon:hover .sns-icon__color, a.sns-icon:focus-visible .sns-icon__color { opacity: 1; transform: none; }
 .phero__facts .tool-i img[src$="chatgpt.svg"], .phero__facts .tool-i img[src$="github.svg"] { filter: invert(1); }
+
+/* 이미지 묶음: 줄 높이 맞춤 (js/project.js justify) — 자르지 않고 원래 비율대로 */
+.gallery.gallery--j { display: flex; flex-direction: column; gap: 16px; }
+.gallery--j .grow { display: flex; gap: 16px; align-items: flex-start; }
+.gallery--j .fig { min-width: 0; }
+.gallery--j .fig img { width: 100%; height: auto; object-fit: contain; flex: none; }
+@media (max-width: 560px) { .gallery--j .grow { gap: 10px; } .gallery.gallery--j { gap: 14px; } }
+
+/* 슬라이드: 세로 · 정사각 이미지는 통째로 + 같은 이미지 흐린 배경 (js/main.js slideFit) */
+.slide__img { position: relative; }
+.slide__bg { display: none; position: absolute; inset: -30px; background-size: cover; background-position: center; filter: blur(26px) saturate(.9); opacity: .55; }
+.slide__img.is-fit .slide__bg { display: block; }
+.slide__img.is-fit img { position: relative; object-fit: contain; object-position: center; filter: drop-shadow(0 14px 24px rgba(0, 0, 0, .22)); }
