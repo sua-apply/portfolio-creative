@@ -705,3 +705,5 @@ ul, ol { padding: 0; list-style: none; }
 .pj__vid { position: relative; display: block; line-height: 0; text-decoration: none; }
 .pj__play { left: auto; top: auto; right: 4mm; bottom: 4mm; width: auto; height: auto; margin: 0; padding: 2mm 3.6mm; border-radius: 10mm; background: var(--navy); color: #fff; font-size: 8.5pt; font-weight: 700; line-height: 1; letter-spacing: .01em; box-shadow: none; }
 .pj__play::after { content: none; }
+/* 공모전 출품작 표기: Overview 맨 앞 */
+.bb__lead { display: inline-block; align-self: flex-start; margin-bottom: 3mm; padding: 1.4mm 3mm; border-radius: 1.2mm; background: var(--tn); color: var(--ac); font-size: 9.5pt; font-weight: 700; }
