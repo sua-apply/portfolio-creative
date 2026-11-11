@@ -478,7 +478,7 @@
   const lines = (s) => esc(s).replace(/\n/g, "<br />");
   const paras = (b) => (b.body || []).map((x) => `<p class="bb__p">${lines(x)}</p>`).join("");
   const BB = {
-    text: (b) => paras(b),
+    text: (b) => `${b.lead ? `<p class="bb__lead">${esc(b.lead)}</p>` : ""}${paras(b)}`,
     stats: (b) => `<div class="bb__stats">${(b.items || []).map((it, n) => {
       const k = `<p class="bb__sk"><b>${pad2(n + 1)}</b>${esc(it.k)}</p>`;
       if (it.kind === "bar") {
