@@ -114,6 +114,12 @@
     const abbr = (t) => TOOL_ABBR[normTool(t)];
     // PDF에는 도구 로고만 (스킬 글자 목록은 자리를 많이 차지해서 빼요 — 웹에는 그대로)
     const tools = labels.filter((t) => logoOf(t) || abbr(t)), others = [];
+    // AI 도구는 PDF에만 따로 한 묶음으로 (웹 스킬 목록에는 없어요)
+    const AI_TOOLS = ["ChatGPT", "Claude", "SUNO", "Higgsfield"];
+    const toolLi = (t) => `<li>${logoOf(t) ? `<img src="img/logos/${logoOf(t)}" alt="" />` : `<b>${abbr(t)}</b>`}<span>${esc(t.replace(/^Adobe\s+/i, "").replace(/\s*\(.*?\)/, ""))}</span></li>`;
+    // 자격증: PDF에서는 급수 · 등급을 빼고 같은 이름은 하나로 (웹은 그대로)
+    const certName = (t) => String(t || "").replace(/\s*(\d\s*급|[A-Z]\s*등급)\s*$/, "").trim();
+    const certRows = (rows) => { const seen = new Set(); return rows.map((x) => ({ ...x, title: certName(x.title) })).filter((x) => !seen.has(x.title) && seen.add(x.title)); };
     return `<section class="page">
       <div class="page__in">
         ${head(num, "Profile", R.eyebrow || "")}
@@ -126,10 +132,10 @@
           <div class="pf3__col">${left.map(sec).join("")}</div>
           <div class="pf3__col">${right.map(sec).join("")}</div>
           <div class="pf3__bottom">
-              ${tools.length ? `<div class="pf3__sec"><h3>Tools</h3><ul class="pf3__tools">${tools.map((t) => `<li>${logoOf(t) ? `<img src="img/logos/${logoOf(t)}" alt="" />` : `<b>${abbr(t)}</b>`}<span>${esc(t.replace(/^Adobe\s+/i, "").replace(/\s*\(.*?\)/, ""))}</span></li>`).join("")}</ul></div>` : ""}
+              ${tools.length ? `<div class="pf3__sec"><h3>Tools</h3><div class="pf3__tg"><div><em>Design</em><ul class="pf3__tools">${tools.map(toolLi).join("")}</ul></div><div><em>AI</em><ul class="pf3__tools">${AI_TOOLS.map(toolLi).join("")}</ul></div></div></div>` : ""}
               ${others.length ? `<div class="pf3__sec"><h3>Skills</h3><p class="pf3__skills">${others.map(esc).join(" · ")}</p></div>` : ""}
             </div>
-          ${certs ? `<div class="pf3__sec pf3__sec--cert"><h3>${esc(EN[certs[0]])}<span>${esc(certs[0])}</span></h3><ul>${certs[1].map((x) => `<li><time>${esc(x.date)}</time><strong>${esc(x.title)}</strong></li>`).join("")}</ul></div>` : ""}
+          ${certs ? `<div class="pf3__sec pf3__sec--cert"><h3>${esc(EN[certs[0]])}<span>${esc(certs[0])}</span></h3><ul>${certRows(certs[1]).map((x) => `<li><time>${esc(x.date)}</time><strong>${esc(x.title)}</strong></li>`).join("")}</ul></div>` : ""}
         </div>
       </div>${foot("Profile")}
     </section>`;
@@ -231,7 +237,7 @@
   // 도구 · SNS 로고 (img/logos). 없는 도구는 글자 배지로
   const TOOL_LOGO = { photoshop: "photoshop.svg", illustrator: "illustrator.svg", indesign: "indesign.svg", "after effects": "after-effects.svg",
     "premiere pro": "premiere-pro.svg", figma: "figma.svg", notion: "notion.svg", chatgpt: "openai.svg", openai: "openai.svg",
-    claude: "claude.svg", suno: "suno.png", github: "github.svg" };
+    claude: "claude.svg", suno: "suno.png", higgsfield: "higgsfield.svg", github: "github.svg" };
   const SNS_LOGO = { instagram: "instagram.png", youtube: "youtube.png", naver_blog: "naver.svg", naver: "naver.svg", tistory: "tistory.svg", facebook: "facebook.png", github: "github.svg" };
   const logoOf = (t) => TOOL_LOGO[normTool(t)];
   const toolBadge = (t) => {

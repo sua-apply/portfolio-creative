@@ -689,3 +689,12 @@ ul, ol { padding: 0; list-style: none; }
 .end-page .end__logo { background: transparent; padding: 0; }
 .end-page .end__mark { background: #E9E7E2; color: var(--navy) !important; }
 .pj-page { background: #F6F5F2; }
+/* 도구: Design · AI 두 묶음 */
+.pf3__tg { display: flex; gap: 7mm; align-items: flex-start; }
+.pf3__tg > div { display: flex; flex-direction: column; gap: 1.6mm; }
+.pf3__tg > div + div { padding-left: 7mm; border-left: .6pt solid var(--line); }
+.pf3__tg em { font-style: normal; font-size: 6.5pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+/* 프로젝트 표지 도구: 로고만 (이름은 마우스 올리면 보이는 title로만) */
+.tools { gap: 2.4mm; }
+.tools .tlogo + .tb__name { display: none; }
+.tools .tlogo { width: 7mm; height: 7mm; }
