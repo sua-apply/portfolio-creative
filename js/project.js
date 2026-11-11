@@ -225,6 +225,7 @@
       fig.innerHTML = `<div class="pcover__video"><iframe src="https://www.youtube-nocookie.com/embed/${play.dataset.yt}?autoplay=1&rel=0&playsinline=1" title="${esc(p.title)} 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
     });
     viewer();
+    justify();
   }
 
   /* 빠른 이동
@@ -280,6 +281,51 @@
       else if (e.key === "Escape") { const a = $(".qbar__back"); toList(null); location.href = a.href; }
     });
     if (next && next.thumb) { const im = new Image(); im.src = next.thumb; }   // 다음 이미지를 미리 받아 둬요
+  }
+
+  /* 이미지 묶음: 줄 높이 맞춤 (비핸스식)
+     - 이미지를 자르지 않아요. 한 줄의 높이를 맞추고, 너비는 각 이미지의 원래 비율대로 나눠요
+     - 세로 포스터는 좁게, 가로 목업은 넓게 → 잘림도 빈칸도 없이 가지런해요
+     - 화면이 좁으면 한 줄에 들어가는 장 수가 줄어요 (휴대폰은 1~2장) */
+  function justify() {
+    const sets = [...document.querySelectorAll(".psec .gallery")].filter((g) => g.querySelectorAll(".fig img").length >= 2);
+    if (!sets.length) return;
+    const ready = (im) => im.complete && im.naturalWidth ? Promise.resolve() : new Promise((r) => { im.addEventListener("load", r, { once: true }); im.addEventListener("error", r, { once: true }); });
+    const layout = (g) => {
+      const figs = [...g.querySelectorAll(":scope > .fig, :scope > .grow > .fig")];
+      const ratio = (f) => { const im = f.querySelector("img"); return im && im.naturalWidth ? im.naturalWidth / im.naturalHeight : 4 / 3; };
+      const W = g.clientWidth || 800, gap = 16;
+      const target = W < 560 ? 240 : W < 900 ? 300 : 380;   // 원하는 줄 높이(px)
+      const rows = []; let row = [], sum = 0;
+      figs.forEach((f) => {
+        row.push(f); sum += ratio(f);
+        if (sum * target + gap * (row.length - 1) >= W) { rows.push(row); row = []; sum = 0; }
+      });
+      if (row.length) {
+        // 마지막 줄이 한 장만 남고 앞줄이 있으면 앞줄에 붙여요 (외톨이 한 장 방지)
+        const prev = rows[rows.length - 1];
+        if (row.length === 1 && prev && prev.length < 3) prev.push(...row);
+        else if (row.length === 1 && prev) rows.push([prev.pop(), ...row]);   // 앞줄에서 한 장 데려와 2장으로
+        else rows.push(row);
+      }
+      g.textContent = "";
+      g.classList.add("gallery--j");
+      rows.forEach((r, i) => {
+        const el = document.createElement("div");
+        el.className = "grow";
+        const s = r.reduce((a, f) => a + ratio(f), 0);
+        // 마지막 줄이 너무 짧으면 억지로 늘리지 않고 원래 줄 높이로 왼쪽부터 놓아요
+        const short = i === rows.length - 1 && rows.length > 1 && s * target + gap * (r.length - 1) < W * 0.66;
+        // 세로 이미지만 있는 줄은 너무 높아지지 않게 줄 높이를 제한하고 가운데 정렬해요
+        const cap = target * 1.5, tall = !short && (W - gap * (r.length - 1)) / s > cap;
+        if (tall) el.style.justifyContent = "center";
+        r.forEach((f) => { const k = ratio(f); f.style.flex = short ? `0 0 ${k * target}px` : tall ? `0 1 ${k * cap}px` : `${k} 1 0`; f.querySelector("img").style.aspectRatio = String(k); el.appendChild(f); });
+        g.appendChild(el);
+      });
+    };
+    sets.forEach((g) => Promise.all([...g.querySelectorAll(".fig img")].map((im) => { im.loading = "eager"; return ready(im); })).then(() => layout(g)));
+    let w = innerWidth, t;
+    addEventListener("resize", () => { clearTimeout(t); t = setTimeout(() => { if (Math.abs(innerWidth - w) < 40) return; w = innerWidth; sets.forEach(layout); }, 200); });
   }
 
   /* 이미지 크게 보기 (대표 이미지 · 목업 · 펼침면 · 장면)
