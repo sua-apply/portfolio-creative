@@ -698,3 +698,10 @@ ul, ol { padding: 0; list-style: none; }
 .tools { gap: 2.4mm; }
 .tools .tlogo + .tb__name { display: none; }
 .tools .tlogo { width: 7mm; height: 7mm; }
+/* 영상 작업: 대표 이미지 = 유튜브 링크, 가운데 재생 표시 */
+.pj__art--video { position: relative; display: block; text-decoration: none; }
+.pj__play { position: absolute; left: 50%; top: 50%; width: 16mm; height: 16mm; margin: -8mm 0 0 -8mm; border-radius: 50%; background: rgba(37, 42, 52, .78); box-shadow: 0 2mm 6mm rgba(0, 0, 0, .18); }
+.pj__play::after { content: ""; position: absolute; left: 6.4mm; top: 4.6mm; border-style: solid; border-width: 3.4mm 0 3.4mm 5.6mm; border-color: transparent transparent transparent #fff; }
+.pj__vid { position: relative; display: block; line-height: 0; text-decoration: none; }
+.pj__play { left: auto; top: auto; right: 4mm; bottom: 4mm; width: auto; height: auto; margin: 0; padding: 2mm 3.6mm; border-radius: 10mm; background: var(--navy); color: #fff; font-size: 8.5pt; font-weight: 700; line-height: 1; letter-spacing: .01em; box-shadow: none; }
+.pj__play::after { content: none; }
