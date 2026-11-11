@@ -74,7 +74,8 @@
         <div><strong>${esc(x.title)}${x.status ? `<em class="pf3__st">${esc(x.status)}</em>` : ""}</strong>${x.sub || x.len ? `<span>${[x.sub, x.len].filter(Boolean).map(esc).join(" · ")}</span>` : ""}</div></li>`).join("")}</ul></div>`;
     const labels = skills.flatMap((g) => g.items.map(([label]) => label));
     const abbr = (t) => TOOL_ABBR[normTool(t)];
-    const tools = labels.filter((t) => logoOf(t) || abbr(t)), others = labels.filter((t) => !logoOf(t) && !abbr(t));
+    // PDF에는 도구 로고만 (스킬 글자 목록은 자리를 많이 차지해서 빼요 — 웹에는 그대로)
+    const tools = labels.filter((t) => logoOf(t) || abbr(t)), others = [];
     return `<section class="page">
       <div class="page__in">
         ${head(num, "Profile", R.eyebrow || "")}
