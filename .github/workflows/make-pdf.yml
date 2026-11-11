@@ -24,11 +24,13 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: PDF 만들기
         run: python tools/make-pdf.py
+        env:
+          PDF_SAVE_DATA: "1"
       - name: 바뀌었으면 올리기
         run: |
-          if git diff --quiet -- files/portfolio.pdf; then echo "바뀐 것 없음"; exit 0; fi
+          if false; then echo "바뀐 것 없음"; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add files/portfolio.pdf
+          git add files/portfolio.pdf files/pdf-data.json
           git commit -m "포트폴리오 PDF 다시 만들기 (DB 내용 기준)"
           git push

@@ -33,8 +33,13 @@ def main():
         if a.data:
             body = open(a.data, encoding="utf-8").read()
             pg.route("**/rest/v1/rpc/get_portfolio", lambda r: r.fulfill(status=200, content_type="application/json", body=body))
+        saved = []
+        if os.environ.get("PDF_SAVE_DATA"):
+            pg.on("response", lambda r: saved.append(r) if "rpc/get_portfolio" in r.url else None)
         pg.goto(url)
         pg.wait_for_selector("html[data-pdf-ready='1']", timeout=30000)
+        if saved:
+            open(os.path.join(ROOT, "files", "pdf-data.json"), "w", encoding="utf-8").write(saved[-1].text())
         pg.emulate_media(media="print")
         pg.pdf(path=a.out, width="297mm", height="210mm", print_background=True, prefer_css_page_size=True)
         b.close()
