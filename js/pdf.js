@@ -288,6 +288,63 @@
     return [page(p, i, "Mockup", `<div class="mk mk--empty"><p>목업 이미지 준비 중</p></div>`)];
   }
 
+  /* 6-B. 프로젝트 보드 (브랜드 보드처럼 한 장 요약) + 결과물 쪽 (최대 2장)
+     프로젝트 하나 = 표지 1 → 보드 1 → 결과물 1~2  (3~4쪽). 자세한 과정 · 회고는 웹 상세 페이지로 */
+  const LAYOUT = "board";          // "board"(요약 보드) · "flow"(예전: 정리 최대 3장 + 섹션별 목업)
+  const MAX_RESULT_PAGES = 2;
+  function imagesOf(p) {
+    const seen = new Set(), out = [];
+    const add = (image, title, desc) => { if (image && !seen.has(image)) { seen.add(image); out.push({ image, title, desc }); } };
+    sectionsOf(p).forEach((s) => {
+      if (s.type === "mockup") add(s.image, s.caption);
+      if (s.type === "gallery") (s.items || []).forEach((it) => add(it.image, it.title, it.desc));
+      if (s.type === "scenario") {
+        const sc = (s.scenes || []).filter((x) => x.image);
+        [...sc.filter((x) => x.key), ...sc.filter((x) => !x.key)].forEach((x) => add(x.image, x.title));
+      }
+    });
+    return out;
+  }
+  const clip = (t, n) => { t = String(t || "").trim(); return t.length > n ? `${t.slice(0, n - 1).replace(/[\s,·]+$/, "")}…` : t; };
+  function boardPage(p, i, imgs) {
+    const secs = sectionsOf(p);
+    const cards = secs.filter((s) => s.type === "cards" && (s.items || []).length);
+    const concept = cards.find((s) => /concept/i.test(s.label || "")) || cards[0];
+    const pal = secs.find((s) => s.type === "palette" && (s.colors || []).some((c) => HEX.test(c.hex)));
+    const brief = [["Problem", p.problem], ["Solution", p.action], ["Result", p.resultText]].filter(([, v]) => v);
+    const pics = imgs.slice(0, 2);
+    const tiles = [];
+    tiles.push(`<div class="bd__t bd__brief"><p class="bd__k">Brief</p>
+      ${brief.map(([k, v]) => `<div class="bd__row"><span>${k}</span><p>${esc(clip(v, 150))}</p></div>`).join("")}
+      ${p.role ? `<div class="bd__row bd__row--role"><span>Role</span><p>${esc(p.role)}</p></div>` : ""}</div>`);
+    if (concept) tiles.push(`<div class="bd__t bd__concept${(p.did || []).length ? "" : " bd--tall"}"><p class="bd__k">${esc(concept.label || "Concept")}</p>
+      <h4 class="bd__h">${esc(concept.title || "")}</h4>
+      <ul class="bd__kw">${concept.items.slice(0, 4).map((it) => `<li><strong>${esc(it.kicker || it.title)}</strong>${it.kicker ? `<span>${esc(clip(it.title, 46))}</span>` : ""}</li>`).join("")}</ul></div>`);
+    if ((p.did || []).length) tiles.push(`<div class="bd__t bd__did${concept ? "" : " bd--tall"}"><p class="bd__k">What I did</p>
+      <ol>${p.did.slice(0, 4).map((d, n) => `<li><b>${pad2(n + 1)}</b>${esc(clip(d, 48))}</li>`).join("")}</ol></div>`);
+    if (pal) {
+      const cs = pal.colors.filter((c) => HEX.test(c.hex)).slice(0, 8);
+      tiles.push(`<div class="bd__t bd__pal"><p class="bd__k">Color</p><ul>${cs.map((c) => `<li style="background:${c.hex};color:${lum(c.hex) > 0.6 ? "#252A34" : "#fff"}"><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul></div>`);
+    }
+    const shown = pics.length ? pics : (p.image ? [{ image: p.image }] : []);
+    tiles.push(`<div class="bd__imgs bd__imgs--${shown.length}${pal ? "" : " bd__imgs--wide"}">${shown.map((it) => `<figure><img src="${esc(it.image)}" alt="" />${it.title ? `<figcaption>${esc(it.title)}${it.desc ? ` · ${esc(it.desc)}` : ""}</figcaption>` : ""}</figure>`).join("")}</div>`);
+    const web = `${SITE}project.html?id=${encodeURIComponent(p.id)}`;
+    return `<section class="page bd-page">
+      <div class="page__in">${head(pad2(i + 1), p.title, "Project Board")}
+        <div class="bd${pal ? "" : " bd--nopal"}">${tiles.join("")}</div>
+        <p class="bd__more">리서치 · 과정 · 회고 전체 → <a href="${web}">웹에서 보기</a>${p.youtube ? `<span>·</span>완성 영상 → <a href="https://youtu.be/${esc(p.youtube)}">영상 보러가기</a>` : ""}</p>
+      </div>${foot(p.title)}
+    </section>`;
+  }
+  function resultPages(p, i, imgs) {
+    const rest = imgs.slice(2);
+    if (!rest.length) return p.image ? [page(p, i, "Final Work", `<div class="mk mk--1"><figure><img src="${esc(p.image)}" alt="" /></figure></div>`)] : [];
+    const chunks = [];
+    for (let k = 0; k < rest.length && chunks.length < MAX_RESULT_PAGES; k += 4) chunks.push(rest.slice(k, k + 4));
+    return chunks.map((ch) => page(p, i, "Final Work", `
+      <div class="mk mk--${ch.length}">${ch.map((it) => `<figure><img src="${esc(it.image)}" alt="" />${it.title ? `<figcaption>${esc(it.title)}${it.desc ? ` · ${esc(it.desc)}` : ""}</figcaption>` : ""}</figure>`).join("")}</div>`));
+  }
+
   /* 8. 마지막 쪽 */
   function closing(info) {
     const groups = info.sns.map((g) => ({ title: g.title, items: g.items.filter((s) => s.url) })).filter((g) => g.items.length);
@@ -325,8 +382,11 @@
     const pages = [cover(R, pick[0], info), profile(R, info, num())];
     const rs = resume(window.RESUME, pad2(n + 1)); if (rs) { n += 1; pages.push(rs); }
     // 목차(Selected Work) 쪽 없이 이력 다음에 바로 프로젝트로 넘어가요. 다시 넣으려면: pages.push(toc(pick, pages.length + 2, num()))
-    // 프로젝트 하나: 표지 → 정리(최대 3장) → 목업(1장 이상)
-    pick.forEach((p, i) => { pages.push(projectA(p, i), `<div class="ov-marker" data-i="${i}"></div>`, ...mockupPages(p, i)); });
+    // 프로젝트 하나: 표지 → 보드 1장 → 결과물 1~2장 (LAYOUT = "flow" 면 예전처럼 정리 최대 3장 → 목업)
+    pick.forEach((p, i) => {
+      if (LAYOUT === "board") { const imgs = imagesOf(p); pages.push(projectA(p, i), boardPage(p, i, imgs), ...resultPages(p, i, imgs)); }
+      else pages.push(projectA(p, i), `<div class="ov-marker" data-i="${i}"></div>`, ...mockupPages(p, i));
+    });
     pages.push(closing(info));
     const book = document.getElementById("book");
     book.innerHTML = pages.join("");

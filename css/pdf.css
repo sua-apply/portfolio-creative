@@ -259,3 +259,51 @@ ul, ol { padding: 0; list-style: none; }
 .notes .pts { margin: 1mm 0 0; padding: 0; list-style: none; }
 .notes .pts li { padding: .6mm 0 .6mm 3mm; border: 0; position: relative; }
 .notes .pts li::before { content: "·"; position: absolute; left: 0; color: var(--pink); font-weight: 800; }
+
+/* =========================================
+   프로젝트 보드 (브랜드 보드처럼 한 장 요약) — js/pdf.js boardPage
+   왼쪽부터 Brief(세로 한 칸) · 콘셉트/한 일 · 컬러(세로 띠) · 이미지 두 칸
+   ========================================= */
+.bd { flex: 1; min-height: 0; display: grid; gap: 4mm;
+  grid-template-columns: 1.15fr 1fr .62fr 1.45fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+.bd--nopal { grid-template-columns: 1.15fr 1fr 2.07fr; }
+.bd__t { min-height: 0; overflow: hidden; border-radius: 3mm; background: var(--bg); padding: 6mm 6mm 5mm; display: flex; flex-direction: column; }
+.bd__k { font-size: 7pt; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--pink-text); margin-bottom: 3.5mm; }
+.bd__h { font-size: 12pt; font-weight: 800; letter-spacing: -0.02em; line-height: 1.35; margin-bottom: 4mm; }
+
+.bd__brief { grid-column: 1; grid-row: 1 / 3; background: var(--navy); color: #fff; }
+.bd__brief .bd__k { color: var(--cyan); }
+.bd__row { padding: 3.2mm 0; border-top: .6pt solid rgba(255,255,255,.18); }
+.bd__row:first-of-type { border-top: 0; padding-top: 0; }
+.bd__row span { display: block; font-size: 7pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 1.2mm; }
+.bd__row p { font-size: 8.6pt; line-height: 1.6; color: rgba(255,255,255,.92); }
+.bd__row--role { margin-top: auto; }
+.bd__row--role p { font-size: 8pt; color: rgba(255,255,255,.75); }
+
+.bd__concept { grid-column: 2; grid-row: 1; }
+.bd__did { grid-column: 2; grid-row: 2; }
+.bd--tall { grid-row: 1 / 3; }
+.bd__kw { display: grid; gap: 2.6mm; }
+.bd__kw li { display: grid; gap: .6mm; padding-left: 3mm; border-left: 1.4pt solid var(--pink); }
+.bd__kw strong { font-size: 9.5pt; font-weight: 800; letter-spacing: -0.01em; }
+.bd__kw span { font-size: 7.6pt; line-height: 1.45; color: var(--ink-3); }
+.bd__did ol { display: grid; gap: 2.4mm; }
+.bd__did li { display: grid; grid-template-columns: 7mm 1fr; font-size: 8.4pt; line-height: 1.5; color: var(--ink-2); }
+.bd__did b { font-size: 8pt; font-weight: 800; color: var(--pink); }
+
+.bd__pal { grid-column: 3; grid-row: 1 / 3; padding: 6mm 4mm 4mm; background: var(--paper); border: .6pt solid var(--line); }
+.bd__pal ul { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 1.6mm; }
+.bd__pal li { flex: 1; min-height: 0; border-radius: 2mm; padding: 2mm 3mm; display: flex; flex-direction: column; justify-content: flex-end; }
+.bd__pal strong { font-size: 7.4pt; font-weight: 700; line-height: 1.25; }
+.bd__pal code { font-family: var(--font); font-size: 6.6pt; opacity: .8; }
+
+.bd__imgs { grid-column: 4; grid-row: 1 / 3; min-height: 0; display: grid; gap: 4mm; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.bd__imgs--wide { grid-column: 3; }
+.bd__imgs--1, .bd__imgs--0 { grid-template-rows: minmax(0, 1fr); }
+.bd__imgs figure { position: relative; min-height: 0; border-radius: 3mm; overflow: hidden; background: var(--bg); }
+.bd__imgs img { width: 100%; height: 100%; object-fit: cover; }
+.bd__imgs figcaption { position: absolute; left: 3mm; bottom: 3mm; padding: 1mm 2.4mm; border-radius: 1.2mm; background: rgba(37,42,52,.72); color: #fff; font-size: 7pt; }
+
+.bd__more { margin-top: 4mm; font-size: 8pt; color: var(--ink-3); }
+.bd__more a { color: var(--pink-text); font-weight: 700; text-decoration: none; }
+.bd__more span { margin: 0 2.4mm; }
