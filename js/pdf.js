@@ -51,7 +51,7 @@
           <div class="cover__name"><strong>박수아</strong><span>PARK Sua</span></div>
           <p class="cover__meta">${mail ? `<a href="mailto:${esc(mail)}">${esc(mail)}</a>` : ""}<a href="${SITE}">${SITE.replace(/^https:\/\//, "").replace(/\/$/, "")}</a></p>
         </div>
-        <p class="cover__big" aria-hidden="true">PORT<br />FOLIO</p>
+        <p class="cover__big" aria-hidden="true"><b>P</b>O<b>R</b>T<br /><b>F</b>O<b>L</b>I<b>O</b></p>
       </div>
     </section>`;
   }
