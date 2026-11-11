@@ -42,7 +42,7 @@
   /* 1. 표지: 글자만 (특정 프로젝트 이미지를 쓰지 않아요) */
   /* 1. 표지 — COVER: "grid"(작업 썸네일) · "index"(밝은 에디토리얼 + 목차) · "type"(문장 하나 크게)
      ?cover=… 로 미리 볼 수 있어요 */
-  const COVER = new URLSearchParams(location.search).get("cover") || "grid";
+  const COVER = new URLSearchParams(location.search).get("cover") || "classic";
   function cover(R, first, info, pick) {
     const mail = info.mail;
     const title = R.title || "생각을 <em>형태</em>로,<br />형태를 <em>경험</em>으로.";
@@ -50,6 +50,19 @@
     const site = SITE.replace(/^https:\/\//, "").replace(/\/$/, "");
     const cats = [...new Set(pick.map((p) => p.categoryLabel).filter(Boolean))];
     const contact = `${mail ? `<a href="mailto:${esc(mail)}">${esc(mail)}</a>` : ""}<a href="${SITE}">${site}</a>`;
+    // classic: 지금 표지 (문장 + 큰 PORTFOLIO, 홀수 글자 색) — 밝은 바탕
+    if (COVER === "classic") return `<section class="page cover--light">
+      <div class="cover">
+        <div class="cover__text">
+          <p class="cover__tag"><i></i>PORTFOLIO ${year}</p>
+          <h1 class="cover__title">${title}</h1>
+          ${R.eyebrow ? `<p class="cover__eyebrow">${esc(R.eyebrow)}</p>` : ""}
+          <div class="cover__name"><strong>박수아</strong><span>PARK Sua</span></div>
+          <p class="cover__meta">${contact}</p>
+        </div>
+        <p class="cover__big" aria-hidden="true"><b>P</b>O<b>R</b>T<br /><b>F</b>O<b>L</b>I<b>O</b></p>
+      </div>
+    </section>`;
     if (COVER === "index") return `<section class="page cv2">
       <div class="cv2__top"><span>PORTFOLIO ${year}</span><span>Visual Designer</span></div>
       <div class="cv2__main">

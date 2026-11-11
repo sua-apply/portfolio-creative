@@ -658,3 +658,14 @@ ul, ol { padding: 0; list-style: none; }
 .cv3__name { display: flex; align-items: baseline; gap: 4mm; }
 .cv1 { grid-template-rows: minmax(0, 1fr); }
 .cv1__wall { height: 100%; overflow: hidden; }
+/* 표지 밝은 바탕 */
+.cover--light { background: #F6F5F2; color: var(--navy); }
+.cover--light .cover__tag { color: var(--cyan-text); }
+.cover--light .cover__tag i { background: var(--cyan-text); }
+.cover--light .cover__title em { color: var(--pink-text); }
+.cover--light .cover__big { -webkit-text-stroke: 1pt rgba(37, 42, 52, .22); }
+.cover--light .cover__big b { color: var(--pink); -webkit-text-stroke: 0; }
+.cover--light .cover__eyebrow { color: var(--ink-3); }
+.cover--light .cover__name { border-top-color: rgba(37, 42, 52, .2); }
+.cover--light .cover__name span { color: var(--ink-3); }
+.cover--light .cover__meta { color: var(--ink-2); }
