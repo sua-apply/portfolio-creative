@@ -88,7 +88,7 @@
       let g = groups.find((x) => x.title === s.group);
       if (!g) groups.push((g = { title: s.group, items: [] }));
       const [label, mark, cls] = SNS_PLATFORMS[s.platform] || SNS_PLATFORMS.etc;
-      g.items.push({ platform: label, mark, cls, key: s.platform, name: s.name, url: s.url || "" });
+      g.items.push({ platform: label, key: s.platform, mark, cls, name: s.name, url: s.url || "" });
     });
     return groups;
   }
@@ -116,22 +116,6 @@
      예) "기획 · 곡 디렉션 · 싱크 조정" → '싱크 / 조정' 처럼 끊기지 않아요 */
   window.listHTML = (text, sep = " · ") => String(text ?? "").split(/\s*[·,]\s*/).filter(Boolean)
     .map((t) => `<span class="nobr">${window.esc(t)}</span>`).join(`<span class="list-sep">${sep}</span>`);
-  /* 도구 · 채널 공식 로고 (img/brand). 이름은 대소문자 · 'Adobe ' · '(Basic)' 상관없이 찾아요. 없으면 "" */
-  const BRAND = {
-    photoshop: "photoshop.svg", illustrator: "illustrator.svg", indesign: "indesign.svg", "after effects": "after-effects.svg",
-    "premiere pro": "premiere-pro.svg", premiere: "premiere-pro.svg", figma: "figma.svg", notion: "notion.svg", github: "github.svg",
-    chatgpt: "chatgpt.svg", openai: "chatgpt.svg", claude: "claude.svg", suno: "suno.png",
-    instagram: "instagram.png", tistory: "tistory.svg", youtube: "youtube.svg", facebook: "facebook.svg", naver_blog: "naver-blog.svg", "naver blog": "naver-blog.svg",
-  };
-  window.brandIcon = (name) => {
-    const k = String(name ?? "").toLowerCase().replace(/^adobe\s+/, "").replace(/\s*\(.*\)\s*$/, "").trim();
-    return BRAND[k] ? `img/brand/${BRAND[k]}` : "";
-  };
-  /* 도구 이름 앞에 작은 로고 (로고가 없는 도구는 글자만) */
-  window.toolHTML = (name, size = 16) => {
-    const src = window.brandIcon(name);
-    return `<span class="tool-i">${src ? `<img src="${src}" alt="" width="${size}" height="${size}" />` : ""}${window.esc(name)}</span>`;
-  };
   window.esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   /* 프로젝트 카드: 메인 미리보기 · 프로젝트 목록에서 같이 써요 */
   window.projectCard = (p) => `
