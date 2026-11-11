@@ -59,21 +59,30 @@
   /* 2. 프로필 + 스킬 */
   function profile(R, info, num) {
     const skills = (R.skills || []).filter((g) => g.items.length);
+    const blocks = resumeBlocks(window.RESUME);
+    const certs = blocks.find(([t]) => t === "자격증");
+    const main = blocks.filter((b) => b !== certs);
+    // 'A - B' 처럼 긴 이름은 앞부분만 제목으로, 뒷부분은 아랫줄로 (한 줄에 깔끔하게)
+    const split = (x) => { const m = /^(.+?)\s+-\s+(.+)$/.exec(x.title || ""); return m ? { ...x, title: m[1], sub: [m[2], x.sub].filter(Boolean).join(" · ") } : x; };
+    // 한 항목 = 이름 / 기간 (+ 상태 · 기간 길이) / 세부 — 모든 항목이 같은 모양
+    const item = (x) => `<li><strong>${esc(x.title)}</strong><span class="pf2__d"><time>${esc(x.date)}</time>${x.status ? `<b>${esc(x.status)}</b>` : ""}${x.len ? `<i>${esc(x.len)}</i>` : ""}</span>${x.sub ? `<span>${esc(x.sub)}</span>` : ""}</li>`;
+    const tools = skills.flatMap((g) => g.items.map(([label]) => label));
+    const isTool = (t) => TOOL_BADGES[normTool(t)] || /notion|html|css/i.test(t);
     return `<section class="page">
       <div class="page__in">
-        ${head(num, "Profile", "About Me · Skills")}
-        <div class="profile">
-          <aside class="profile__side">
-            <img class="profile__photo" src="${esc(info.photo)}" alt="" />
+        ${head(num, "Profile", "Education · Career · Certificate")}
+        <div class="pf2">
+          <aside class="pf2__side">
+            <img class="pf2__photo" src="${esc(info.photo)}" alt="" />
             <div class="profile__name"><strong>박수아</strong><span>PARK Sua</span></div>
             <dl class="facts">${info.facts.filter(([k]) => k && k !== "이름").map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
           </aside>
-          <div class="profile__main">
-            <div class="about"><p class="k" style="margin-bottom:3mm">About Me</p>${info.about.map((p) => `<p>${p}</p>`).join("")}</div>
-            ${skills.length ? `<div><p class="k" style="margin-bottom:3mm">Skills &amp; Tools</p><div class="skills">${skills.map((g) => `
-              <div class="skills__col"><h3>${esc(g.title)} <small>${g.items.length}</small></h3>
-                <ul>${g.items.map(([label, icon]) => `<li>${icon ? `<img src="img/icons/${esc(icon)}.svg" alt="" />` : ""}${esc(label)}</li>`).join("")}</ul></div>`).join("")}</div></div>` : ""}
-          </div>
+          <div class="pf2__cv">${main.map(([t, rows]) => `<div class="pf2__b"><h3>${esc(t)}</h3><ul>${rows.map(split).map(item).join("")}</ul></div>`).join("")}</div>
+          ${certs ? `<div class="pf2__cert"><div class="pf2__b"><h3>${esc(certs[0])} <small>${certs[1].length}</small></h3><ul>${certs[1].map((x) => `<li><strong>${esc(x.title)}</strong><time>${esc(x.date)}</time></li>`).join("")}</ul></div></div>` : ""}
+          ${tools.length ? `<div class="pf2__tools">
+            ${tools.some((t) => !isTool(t)) ? `<div><p class="k">Skills</p><ul>${tools.filter((t) => !isTool(t)).map((t) => `<li><span class="tb tb--text">${esc(t)}</span></li>`).join("")}</ul></div>` : ""}
+            ${tools.some(isTool) ? `<div><p class="k">Tools</p><ul>${tools.filter(isTool).map((t) => `<li>${toolBadge(t)}</li>`).join("")}</ul></div>` : ""}
+          </div>` : ""}
         </div>
       </div>${foot("Profile")}
     </section>`;
@@ -113,8 +122,8 @@
     return `<div class="rv">${table}${list}</div>`;
   }
 
-  function resume(RS, num) {
-    if (!RS) return "";
+  function resumeBlocks(RS) {
+    if (!RS) return [];
     const range = (s, e) => (!s ? e || "" : `${s} – ${e && !(e > NOW_YM) ? e : e || "현재"}`);
     const r = (date, title, sub, status, len) => ({ date, title, sub, status, len });
     const sorted = (list, k) => [...(list || [])].sort(latest(k));
@@ -130,6 +139,10 @@
       ["어학", sorted(RS.languages, "date").filter((x) => !(x.expires && x.expires < NOW_YM)).map((x) => r(x.date, `${x.test}${x.score ? ` ${x.score}` : ""}`, x.org))],
       ["자격증", sorted(RS.certificates, "date").filter((x) => !x.expired).map((x) => r(x.date, x.name, x.org))],
     ].filter(([, rows]) => rows.length);
+    return blocks;
+  }
+  function resume(RS, num) {
+    const blocks = resumeBlocks(RS);
     if (!blocks.length) return "";
     return `<section class="page">
       <div class="page__in">
@@ -165,9 +178,11 @@
     photoshop: ["Ps", "#001E36", "#31A8FF"], illustrator: ["Ai", "#330000", "#FF9A00"], indesign: ["Id", "#49021F", "#FF3366"],
     "after effects": ["Ae", "#00005B", "#9999FF"], "premiere pro": ["Pr", "#00005B", "#9999FF"], lightroom: ["Lr", "#001E36", "#31A8FF"],
     figma: ["Fg", "#1E1E1E", "#A259FF"], blender: ["Bl", "#1E1E1E", "#F5792A"],
+    notion: ["N", "#FFFFFF", "#111111"], "html / css": ["&lt;/&gt;", "#E34F26", "#FFFFFF"], "html/css": ["&lt;/&gt;", "#E34F26", "#FFFFFF"],
   };
+  const normTool = (t) => String(t).toLowerCase().replace(/^adobe\s+/, "").replace(/\s*\(.*?\)\s*/g, "").trim();
   const toolBadge = (t) => {
-    const key = String(t).toLowerCase().replace(/^adobe\s+/, "").trim();
+    const key = normTool(t);
     const b = TOOL_BADGES[key];
     return b ? `<span class="tb" style="background:${b[1]};color:${b[2]}" title="${esc(t)}">${b[0]}</span><span class="tb__name">${esc(t)}</span>`
       : `<span class="tb tb--text">${esc(t)}</span>`;
@@ -445,7 +460,7 @@
     let n = 0;
     const num = () => pad2(++n);
     const pages = [cover(R, pick[0], info), profile(R, info, num())];
-    const rs = resume(window.RESUME, pad2(n + 1)); if (rs) { n += 1; pages.push(rs); }
+    // 이력은 프로필 쪽에 함께 (따로 쪽을 두려면: const rs = resume(window.RESUME, pad2(n + 1)); if (rs) { n += 1; pages.push(rs); })
     // 목차(Selected Work) 쪽 없이 이력 다음에 바로 프로젝트로 넘어가요. 다시 넣으려면: pages.push(toc(pick, pages.length + 2, num()))
     // 프로젝트 하나: 표지 → 보드 1장 → 결과물 1~2장 (LAYOUT = "flow" 면 예전처럼 정리 최대 3장 → 목업)
     pick.forEach((p, i) => {

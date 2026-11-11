@@ -357,3 +357,36 @@ ul, ol { padding: 0; list-style: none; }
 .rv-li span { font-size: 8.2pt; color: var(--ink-3); white-space: nowrap; }
 .rv-t { border-top: 0; }
 .rv-r { grid-template-columns: 20mm 34mm minmax(0, 1fr) 92mm 26mm; }
+
+/* 프로필 v2 (한 쪽): 사진 · 학력/경력/교육/대외활동 · 자격증 · 아래 도구 로고 — js/pdf.js profile */
+.pf2 { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: 54mm minmax(0, 1fr) 76mm; grid-template-rows: minmax(0, 1fr) auto;
+  column-gap: 11mm; row-gap: 7mm; }
+.pf2__side { grid-row: 1 / 3; display: flex; flex-direction: column; gap: 5mm; }
+.pf2__photo { width: 54mm; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 3mm; background: var(--gray); }
+.pf2__cv { min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 9mm; row-gap: 7mm; align-content: start; }
+.pf2__b h3 { display: flex; align-items: baseline; gap: 2mm; padding-bottom: 2.2mm; margin-bottom: 1mm; border-bottom: 1.1pt solid var(--navy); font-size: 10.5pt; font-weight: 800; }
+.pf2__b h3 small { font-size: 8pt; color: var(--pink-text); }
+.pf2__b li { padding: 2.6mm 0; border-bottom: .5pt solid var(--line); }
+.pf2__b li strong { display: block; font-size: 9.6pt; font-weight: 700; line-height: 1.35; }
+.pf2__b li span { display: block; margin-top: .8mm; font-size: 8pt; line-height: 1.45; color: var(--ink-3); }
+.pf2__b li time { font-variant-numeric: tabular-nums; }
+.pf2__b li b { color: var(--pink-text); font-weight: 700; }
+.pf2__cert .pf2__b li { display: flex; justify-content: space-between; align-items: baseline; gap: 3mm; padding: 2.2mm 0; }
+.pf2__cert .pf2__b li strong { font-size: 9pt; }
+.pf2__cert .pf2__b li time { flex: none; font-size: 7.8pt; color: var(--ink-3); }
+.pf2__tools { grid-column: 2 / 4; padding-top: 4mm; border-top: .5pt solid var(--line); display: flex; align-items: center; gap: 6mm; }
+.pf2__tools .k { flex: none; margin: 0; }
+.pf2__tools ul { display: flex; flex-wrap: wrap; align-items: center; gap: 2.4mm 5mm; }
+.pf2__tools li { display: flex; align-items: center; gap: 1.6mm; font-size: 8pt; color: var(--ink-2); }
+.pf2__tools .tb { width: 6.4mm; height: 6.4mm; font-size: 7pt; }
+.pf2__tools .tb--text { width: auto; height: auto; padding: 1mm 2.4mm; font-size: 7.4pt; }
+.pf2__b li .pf2__d { display: flex; align-items: baseline; gap: 2mm; white-space: nowrap; }
+.pf2__b li .pf2__d b { font-size: 7.6pt; }
+.pf2__b li .pf2__d i { font-style: normal; }
+.pf2__cv { row-gap: 9mm; }
+.pf2__tools { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3.4mm; align-items: start; }
+.pf2__tools > div { display: grid; grid-template-columns: 16mm minmax(0, 1fr); align-items: center; }
+.pf2__tools ul { gap: 2mm 4.6mm; }
+.pf2__tools .tb__name { display: inline; font-size: 8pt; color: var(--ink-2); font-weight: 600; }
+.pf2__tools .tb { min-width: 6.4mm; width: auto; padding: 0 1mm; }
+.pf2__tools .tb[style*="#FFFFFF;color:#111111"] { border: .6pt solid var(--line); }
