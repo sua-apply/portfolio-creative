@@ -136,6 +136,9 @@
   function renderSlider(list) {
     const track = $("#slideTrack");
     if (!track) return;
+    /* 슬라이드 이미지가 칸(16:10)보다 세로로 길면 자르지 않고 통째로 보여주고,
+       남는 양옆은 같은 이미지를 흐리게 깔아 채워요. 가로판(DB detail.slide_image)이 있으면 그걸 먼저 써요 */
+    window.slideFit = (im) => { const r = im.naturalWidth / im.naturalHeight; im.parentNode.classList.toggle("is-fit", r < 1.45); };
     const sorted = [...list].sort((a, b) => b.date.localeCompare(a.date));
     let pick = sorted.filter((p) => p.slide);
     if (!pick.length) pick = sorted;
@@ -143,7 +146,7 @@
     track.innerHTML = pick.length ? pick.map((p, i) => `
       <article class="slide" aria-roledescription="slide" aria-label="${i + 1} / ${pick.length}">
         <a class="slide__link" href="${esc(window.keepLink(`project.html?id=${encodeURIComponent(p.id)}`))}">
-          <span class="slide__img"><img src="${esc(p.image || p.thumb)}" alt="" ${i ? 'loading="lazy"' : ""} /></span>
+          ${((src) => `<span class="slide__img"><span class="slide__bg" style="background-image:url(&quot;${esc(src)}&quot;)" aria-hidden="true"></span><img src="${esc(src)}" alt="" ${i ? 'loading="lazy"' : ""} onload="window.slideFit&&slideFit(this)" /></span>`)((p.detail && p.detail.slide_image) || p.image || p.thumb)}
           <span class="slide__info">
             <span class="slide__meta">${isAward(p) ? `<b class="slide__award">${esc(p.result.value)}</b>` : ""}${esc(p.categoryLabel)}${p.date ? ` · ${esc(p.date.slice(0, 4))}` : ""}${p.type ? ` · ${esc(window.kindLabel(p))}` : ""}</span>
             <strong class="slide__title">${esc(p.title)}</strong>
