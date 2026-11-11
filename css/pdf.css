@@ -612,3 +612,5 @@ ul, ol { padding: 0; list-style: none; }
 .bb__keys--arch li { height: 46mm; }
 .bb__cards p { margin-top: auto; padding-top: 3mm; border-top: .6pt solid rgba(37, 42, 52, .12); font-size: 9pt; line-height: 1.6; color: var(--ink-2); }
 .bb__cards strong { margin-bottom: 3mm; }
+/* 표지 PORTFOLIO: 홀수 글자(P·R·F·L·O)만 색을 채워요 */
+.cover__big b { font-weight: inherit; color: var(--pink); -webkit-text-stroke: 0; }
