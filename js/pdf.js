@@ -1,14 +1,15 @@
 /* =========================================
    포트폴리오 PDF 쪽 만들기 (portfolio-pdf.html)
    - 표지 → 프로필 → 이력 → 대표 프로젝트(표지 1 · 정리 최대 3 · 목업 1장 이상) → 마지막 쪽
-   - 대표 프로젝트: 메인과 같은 규칙 (DB featured 켠 것, 없으면 최신순) 최대 4개
+   - 대표 프로젝트: DB featured 켠 것 + PDF에만 넣을 것(detail.pdf: true), 없으면 최신순, 최대 5개
+     (메인 화면의 대표 프로젝트는 featured 만 봐요 — PDF 전용으로 넣어도 웹은 그대로)
    - About Me · 연락처는 index.html 에 적힌 내용을, SNS 는 DB(sns_links)에서 가져와요
    - 이력 · 프로젝트 정보는 웹과 같은 규칙으로 보여줘요 (진행 상태·기간·교육 시간, '프로젝트 / 나의 참여' 묶음)
    ========================================= */
 (function () {
   "use strict";
   const SITE = "https://sua-apply.github.io/portfolio-creative/";
-  const MAX_PROJECTS = 4;
+  const MAX_PROJECTS = 5;
   const esc = (s) => window.esc(s);
   const pad2 = (n) => String(n).padStart(2, "0");
   const HEX = /^#[0-9a-f]{3,8}$/i;
@@ -312,7 +313,7 @@
     const info = await readIndex();
     const R = window.ROLE_DATA || {};
     const sorted = [...(window.PROJECTS || [])].sort((a, b) => b.date.localeCompare(a.date));
-    let pick = sorted.filter((p) => p.featured);
+    let pick = sorted.filter((p) => p.featured || (p.detail && p.detail.pdf === true));
     if (!pick.length) pick = sorted;
     pick = pick.slice(0, MAX_PROJECTS);
 
