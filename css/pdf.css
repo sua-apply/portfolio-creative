@@ -669,3 +669,23 @@ ul, ol { padding: 0; list-style: none; }
 .cover--light .cover__name { border-top-color: rgba(37, 42, 52, .2); }
 .cover--light .cover__name span { color: var(--ink-3); }
 .cover--light .cover__meta { color: var(--ink-2); }
+
+/* ===== 밝은 톤 PDF: 바탕은 미색, 색은 작은 포인트로만 ===== */
+.page--light { background: #F6F5F2; color: var(--navy); }
+/* 표지 큰 PORTFOLIO: 홀수 글자는 옅은 핑크, 나머지는 회색 외곽선 */
+.cover--light .cover__big b { color: #FFC9D7; }
+.cover--light .cover__big { -webkit-text-stroke: 1pt rgba(37, 42, 52, .18); }
+/* 마지막 쪽 */
+.end-page .end__k { color: var(--cyan-text); }
+.end-page .end__title em { color: var(--pink-text); }
+.end-page .end__lead { color: var(--ink-3); }
+.end-page .end__mail { color: var(--navy); border-bottom-color: var(--pink); }
+.end-page .end__web { background: #fff; border-color: #E4E2DD; color: var(--navy); }
+.end-page .end__web span { color: var(--ink-3); }
+.end-page .end__web strong { color: var(--cyan-text); }
+.end-page .end__sns h3 { color: var(--ink-3); }
+.end-page .end__sns a { color: var(--navy); border-bottom-color: #E2E0DB; }
+.end-page .end__sns a span { color: var(--ink-3); }
+.end-page .end__logo { background: transparent; padding: 0; }
+.end-page .end__mark { background: #E9E7E2; color: var(--navy) !important; }
+.pj-page { background: #F6F5F2; }
