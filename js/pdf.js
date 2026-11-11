@@ -40,19 +40,44 @@
   const head = (num, title, en) => `<header class="ph"><span class="ph__num">${num}</span><h2 class="ph__title">${esc(title)}</h2>${en ? `<span class="ph__en">${esc(en)}</span>` : ""}</header>`;
 
   /* 1. 표지: 글자만 (특정 프로젝트 이미지를 쓰지 않아요) */
-  function cover(R, first, info) {
+  /* 1. 표지 — COVER: "grid"(작업 썸네일) · "index"(밝은 에디토리얼 + 목차) · "type"(문장 하나 크게)
+     ?cover=… 로 미리 볼 수 있어요 */
+  const COVER = new URLSearchParams(location.search).get("cover") || "grid";
+  function cover(R, first, info, pick) {
     const mail = info.mail;
-    return `<section class="page page--navy">
-      <div class="cover">
-        <div class="cover__text">
-          <p class="cover__tag"><i></i>PORTFOLIO ${new Date().getFullYear()}</p>
-          <h1 class="cover__title">${R.title || "생각을 <em>형태</em>로,<br />형태를 <em>경험</em>으로."}</h1>
-          ${R.eyebrow ? `<p class="cover__eyebrow">${esc(R.eyebrow)}</p>` : ""}
-          <div class="cover__name"><strong>박수아</strong><span>PARK Sua</span></div>
-          <p class="cover__meta">${mail ? `<a href="mailto:${esc(mail)}">${esc(mail)}</a>` : ""}<a href="${SITE}">${SITE.replace(/^https:\/\//, "").replace(/\/$/, "")}</a></p>
+    const title = R.title || "생각을 <em>형태</em>로,<br />형태를 <em>경험</em>으로.";
+    const year = new Date().getFullYear();
+    const site = SITE.replace(/^https:\/\//, "").replace(/\/$/, "");
+    const cats = [...new Set(pick.map((p) => p.categoryLabel).filter(Boolean))];
+    const contact = `${mail ? `<a href="mailto:${esc(mail)}">${esc(mail)}</a>` : ""}<a href="${SITE}">${site}</a>`;
+    if (COVER === "index") return `<section class="page cv2">
+      <div class="cv2__top"><span>PORTFOLIO ${year}</span><span>Visual Designer</span></div>
+      <div class="cv2__main">
+        <div class="cv2__l">
+          <h1 class="cv2__title">${title}</h1>
+          <div class="cv2__name"><strong>박수아</strong><span>PARK SUA</span></div>
+          <p class="cv2__meta">${contact}</p>
         </div>
-        <p class="cover__big" aria-hidden="true"><b>P</b>O<b>R</b>T<br /><b>F</b>O<b>L</b>I<b>O</b></p>
+        <ol class="cv2__idx">${pick.map((p, i) => `<li><b>${pad2(i + 1)}</b><span>${esc(p.title)}</span><em>${esc(p.categoryLabel)}</em></li>`).join("")}</ol>
       </div>
+    </section>`;
+    if (COVER === "type") return `<section class="page page--navy cv3">
+      <div class="cv3__top"><span>PORTFOLIO ${year}</span><span>${esc(cats.join(" · "))}</span></div>
+      <h1 class="cv3__title">${title}</h1>
+      <div class="cv3__foot">
+        <div class="cv3__name"><strong>박수아</strong><span>Visual Designer · PARK SUA</span></div>
+        <p class="cv3__meta">${contact}</p>
+      </div>
+    </section>`;
+    return `<section class="page page--navy cv1">
+      <div class="cv1__l">
+        <p class="cover__tag"><i></i>PORTFOLIO ${year}</p>
+        <h1 class="cv1__title">${title}</h1>
+        <p class="cv1__cats">${esc(cats.join(" · "))}</p>
+        <div class="cv1__name"><strong>박수아</strong><span>Visual Designer · PARK SUA</span></div>
+        <p class="cv1__meta">${contact}</p>
+      </div>
+      <div class="cv1__wall">${pick.map((p) => `<figure><img src="${esc(p.thumb || p.image)}" alt="" /></figure>`).join("")}</div>
     </section>`;
   }
 
@@ -536,7 +561,7 @@
 
     let n = 0;
     const num = () => pad2(++n);
-    const pages = [cover(R, pick[0], info), profile(R, info, num())];
+    const pages = [cover(R, pick[0], info, pick), profile(R, info, num())];
     // 이력은 프로필 쪽에 함께 (따로 쪽을 두려면: const rs = resume(window.RESUME, pad2(n + 1)); if (rs) { n += 1; pages.push(rs); })
     // 목차(Selected Work) 쪽 없이 이력 다음에 바로 프로젝트로 넘어가요. 다시 넣으려면: pages.push(toc(pick, pages.length + 2, num()))
     // 프로젝트 하나: 표지 → 보드 1장 → 결과물 1~2장 (LAYOUT = "flow" 면 예전처럼 정리 최대 3장 → 목업)
@@ -600,6 +625,17 @@
       const W = f.clientWidth, H = free ? Infinity : f.clientHeight - (cap ? cap.offsetHeight + 8 : 0);
       const w = Math.min(W, H * r);
       im.style.width = `${w}px`; im.style.height = `${w / r}px`;
+    });
+    // 표지 작업 벽: 줄마다 같은 높이로, 이미지 비율 그대로 (자르지 않음)
+    book.querySelectorAll(".cv1__wall").forEach((wall) => {
+      const fs = [...wall.querySelectorAll("figure")];
+      const rs = fs.map((f) => { const im = f.querySelector("img"); return im.naturalWidth ? im.naturalWidth / im.naturalHeight : 1; });
+      const W = wall.clientWidth, H = wall.clientHeight, gap = 10;
+      const rows = fs.length > 4 ? 3 : 2, per = Math.ceil(fs.length / rows);
+      let hs = [];
+      for (let r = 0; r < rows; r += 1) { const a = rs.slice(r * per, r * per + per); hs.push((W - gap * (a.length - 1)) / a.reduce((x, y) => x + y, 0)); }
+      const k = 0.985 * Math.min(1, (H - gap * (rows - 1)) / hs.reduce((x, y) => x + y, 0));
+      fs.forEach((f, i) => { const h = hs[Math.floor(i / per)] * k; f.style.height = `${h}px`; f.style.width = `${h * rs[i]}px`; });
     });
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     document.documentElement.dataset.pdfReady = "1";

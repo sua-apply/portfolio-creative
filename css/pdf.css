@@ -614,3 +614,47 @@ ul, ol { padding: 0; list-style: none; }
 .bb__cards strong { margin-bottom: 3mm; }
 /* 표지 PORTFOLIO: 홀수 글자(P·R·F·L·O)만 색을 채워요 */
 .cover__big b { font-weight: inherit; color: var(--pink); -webkit-text-stroke: 0; }
+
+/* ===== 표지 v2 (3안) ===== */
+/* 1) grid: 왼쪽 문장 · 오른쪽 작업 벽 */
+.cv1 { display: grid; grid-template-columns: 1fr 1.05fr; gap: 12mm; padding: var(--pad); }
+.cv1__l { display: flex; flex-direction: column; min-height: 0; }
+.cv1__title { margin-top: auto; font-size: 40pt; font-weight: 800; line-height: 1.22; letter-spacing: -0.04em; }
+.cv1__title em, .cv3__title em { font-style: normal; color: var(--pink); }
+.cv1__cats { margin-top: 6mm; font-size: 10pt; color: rgba(255, 255, 255, .6); letter-spacing: .02em; }
+.cv1__name { margin-top: auto; padding-top: 6mm; border-top: 1pt solid rgba(255, 255, 255, .18); display: flex; align-items: baseline; gap: 4mm; }
+.cv1__name strong, .cv3__name strong { font-size: 18pt; font-weight: 800; }
+.cv1__name span, .cv3__name span { font-size: 9.5pt; color: rgba(255, 255, 255, .6); letter-spacing: .04em; }
+.cv1__meta, .cv3__meta { margin-top: 2.5mm; display: flex; gap: 6mm; font-size: 9pt; color: rgba(255, 255, 255, .7); }
+.cv1__meta a, .cv3__meta a, .cv2__meta a { color: inherit; text-decoration: none; }
+.cv1__wall { min-height: 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 10px; }
+.cv1__wall figure { overflow: hidden; border-radius: 1.5mm; }
+.cv1__wall img { width: 100%; height: 100%; object-fit: contain; }
+
+/* 2) index: 밝은 에디토리얼 + 작업 목차 */
+.cv2 { padding: var(--pad); display: flex; flex-direction: column; background: #F6F5F2; }
+.cv2__top { display: flex; justify-content: space-between; padding-bottom: 4mm; border-bottom: 1.2pt solid var(--navy); font-size: 9pt; font-weight: 700; letter-spacing: .14em; }
+.cv2__main { flex: 1; display: grid; grid-template-columns: 1.25fr 1fr; gap: 16mm; padding-top: 10mm; }
+.cv2__l { display: flex; flex-direction: column; }
+.cv2__title { font-size: 44pt; font-weight: 800; line-height: 1.2; letter-spacing: -0.045em; color: var(--navy); }
+.cv2__title em { font-style: normal; color: var(--pink-text); }
+.cv2__name { margin-top: auto; display: flex; align-items: baseline; gap: 4mm; }
+.cv2__name strong { font-size: 18pt; font-weight: 800; }
+.cv2__name span { font-size: 9.5pt; letter-spacing: .1em; color: var(--ink-3); }
+.cv2__meta { margin-top: 2.5mm; display: flex; gap: 6mm; font-size: 9pt; color: var(--ink-2); }
+.cv2__idx { align-self: end; }
+.cv2__idx li { display: grid; grid-template-columns: 11mm 1fr auto; align-items: baseline; gap: 3mm; padding: 3.6mm 0; border-bottom: .6pt solid #D8D7D3; }
+.cv2__idx li:first-child { border-top: .6pt solid #D8D7D3; }
+.cv2__idx b { font-size: 9pt; color: var(--pink-text); }
+.cv2__idx span { font-size: 11pt; font-weight: 700; }
+.cv2__idx em { font-style: normal; font-size: 8pt; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+
+/* 3) type: 문장 하나를 크게 */
+.cv3 { padding: var(--pad); display: flex; flex-direction: column; }
+.cv3__top { display: flex; justify-content: space-between; font-size: 9pt; font-weight: 700; letter-spacing: .14em; color: var(--cyan); }
+.cv3__top span:last-child { color: rgba(255, 255, 255, .55); letter-spacing: .06em; font-weight: 600; }
+.cv3__title { margin: auto 0; font-size: 72pt; font-weight: 800; line-height: 1.15; letter-spacing: -0.05em; }
+.cv3__foot { display: flex; justify-content: space-between; align-items: flex-end; padding-top: 6mm; border-top: 1pt solid rgba(255, 255, 255, .18); }
+.cv3__name { display: flex; align-items: baseline; gap: 4mm; }
+.cv1 { grid-template-rows: minmax(0, 1fr); }
+.cv1__wall { height: 100%; overflow: hidden; }
