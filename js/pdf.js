@@ -92,16 +92,25 @@
   }
   const hours = (h) => (h == null || h === "" ? "" : /^\d+(\.\d+)?$/.test(String(h).trim()) ? `${Number(h).toLocaleString("ko-KR")}시간` : String(h));
   const latest = (k) => (a, b) => (b[k] || NOW_YM).localeCompare(a[k] || NOW_YM);
-  /* 이력 배치: 짧은 묶음(4줄 이하)은 위에 가로로 나란히, 긴 묶음(자격증 등)은 아래 전체 폭에 3단으로 흘려요
-     → 한쪽 단만 길게 늘어지고 나머지가 비는 일이 없게 */
-  const rrowHTML = (x) => `<div class="rrow"><div class="rrow__d"><time>${esc(x.date)}</time>${x.status || x.len ? `<span class="rrow__m">${x.status ? `<b>${esc(x.status)}</b>` : ""}${x.status && x.len ? " · " : ""}${x.len ? esc(x.len) : ""}</span>` : ""}</div><div><strong>${esc(x.title)}</strong>${x.sub ? `<span>${esc(x.sub)}</span>` : ""}</div></div>`;
+  /* 이력 배치: 한 항목 = 한 줄 표.  [구분] [기간] [이름] [기관 · 전공] [상태 · 기간]
+     자격증처럼 짧은 항목이 많은 묶음은 아래에 두 단으로 (날짜 · 이름 · 기관 한 줄) */
   function resumeLayout(blocks) {
-    const short = blocks.filter(([, rows]) => rows.length <= 4), long = blocks.filter(([, rows]) => rows.length > 4);
-    const block = ([t, rows], wide) => `<div class="rblock${wide ? " rblock--wide" : ""}"><h3>${t} <small>${rows.length}</small></h3><div class="rblock__rows">${rows.map(rrowHTML).join("")}</div></div>`;
-    return `<div class="resume2">
-      ${short.length ? `<div class="resume2__top" style="--n:${Math.min(short.length, 4)}">${short.map((b) => block(b)).join("")}</div>` : ""}
-      ${long.map((b) => block(b, true)).join("")}
-    </div>`;
+    const many = blocks.filter(([t, rows]) => rows.length > 4 && t === "자격증");
+    const main = blocks.filter((b) => !many.includes(b));
+    const meta = (x) => [x.status && `<b>${esc(x.status)}</b>`, x.len && esc(x.len)].filter(Boolean).join(" · ");
+    // 'A - B' 처럼 긴 이름은 앞부분만 이름 칸에, 뒷부분은 기관 칸 앞에 (한 줄에 잘리지 않게)
+    const split = (x) => { const m = /^(.+?)\s+-\s+(.+)$/.exec(x.title || ""); return m ? { ...x, title: m[1], sub: [m[2], x.sub].filter(Boolean).join(" · ") } : x; };
+    const table = main.length ? `<div class="rv-t">${main.map(([t, rows]) => rows.map(split).map((x, n) => `
+        <div class="rv-r${n === 0 ? " rv-r--first" : ""}">
+          <span class="rv-c">${n === 0 ? esc(t) : ""}</span>
+          <time>${esc(x.date)}</time>
+          <strong>${esc(x.title)}</strong>
+          <span class="rv-s">${esc(x.sub || "")}</span>
+          <span class="rv-m">${meta(x)}</span>
+        </div>`).join("")).join("")}</div>` : "";
+    const list = many.map(([t, rows]) => `<div class="rv-l"><h3>${esc(t)} <small>${rows.length}</small></h3>
+        <div class="rv-l__rows">${rows.map((x) => `<div class="rv-li"><time>${esc(x.date)}</time><strong>${esc(x.title)}</strong><span>${esc(x.sub || "")}</span></div>`).join("")}</div></div>`).join("");
+    return `<div class="rv">${table}${list}</div>`;
   }
 
   function resume(RS, num) {

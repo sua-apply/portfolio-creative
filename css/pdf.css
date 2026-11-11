@@ -336,3 +336,24 @@ ul, ol { padding: 0; list-style: none; }
 .resume2 .rrow span { font-size: 8.8pt; }
 .resume2 .rblock h3 { font-size: 11.5pt; padding-bottom: 2.6mm; }
 .bd2__imgs--cols { grid-template-rows: minmax(0, 1fr); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* 이력 v3: 한 항목 한 줄 표 (js/pdf.js resumeLayout) */
+.rv { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 10mm; }
+.rv-t { border-top: 1.2pt solid var(--navy); }
+.rv-r { display: grid; grid-template-columns: 22mm 38mm minmax(0, 1fr) 72mm 30mm; column-gap: 5mm; align-items: baseline;
+  padding: 3.4mm 0; border-bottom: .5pt solid var(--line); font-size: 9.4pt; }
+.rv-r--first:not(:first-child) { border-top: .9pt solid var(--ink-3); }
+.rv-c { font-size: 9pt; font-weight: 800; color: var(--ink); }
+.rv-r time, .rv-li time { color: var(--ink-3); font-size: 8.6pt; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rv-r strong { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-s { color: var(--ink-3); font-size: 8.6pt; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-m { font-size: 8.4pt; color: var(--ink-3); text-align: right; white-space: nowrap; }
+.rv-m b { color: var(--pink-text); font-weight: 700; }
+.rv-l h3 { display: flex; align-items: baseline; gap: 2mm; padding-bottom: 2.4mm; border-bottom: 1.2pt solid var(--navy); font-size: 10.5pt; font-weight: 800; }
+.rv-l h3 small { font-size: 8pt; color: var(--pink-text); }
+.rv-l__rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10mm; }
+.rv-li { display: grid; grid-template-columns: 18mm minmax(0, 1fr) auto; column-gap: 4mm; align-items: baseline; padding: 2.8mm 0; border-bottom: .5pt solid var(--line); font-size: 9.2pt; }
+.rv-li strong { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-li span { font-size: 8.2pt; color: var(--ink-3); white-space: nowrap; }
+.rv-t { border-top: 0; }
+.rv-r { grid-template-columns: 20mm 34mm minmax(0, 1fr) 92mm 26mm; }
