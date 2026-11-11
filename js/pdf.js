@@ -264,12 +264,12 @@
           <p class="pj__kind">${esc([p.categoryLabel, window.kindLabel(p)].filter(Boolean).join(" · "))}</p>
           ${p.summary ? `<p class="pj__sum">${esc(p.summary)}</p>` : ""}
           <dl class="pj__facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
-          ${p.youtube
-            // 영상 작업(유튜브 링크가 있는 프로젝트)은 유튜브로 바로 가요
-            ? `<p class="pj__link">완성 영상 → <a href="https://youtu.be/${esc(p.youtube)}">영상 보러가기</a></p>`
-            : `<p class="pj__link">자세한 과정 → <a href="${SITE}project.html?id=${encodeURIComponent(p.id)}">웹에서 보기</a></p>`}
+          <p class="pj__link">자세한 과정 → <a href="${SITE}project.html?id=${encodeURIComponent(p.id)}">웹에서 보기</a></p>
         </div>
-        <figure class="pj__art"><img src="${esc(p.image || p.thumb)}" alt="" /></figure>
+        ${p.youtube
+          // 영상 작업은 대표 이미지를 누르면 유튜브로 바로 가요 (가운데 재생 표시)
+          ? `<figure class="pj__art"><a class="pj__vid" href="https://youtu.be/${esc(p.youtube)}"><img src="${esc(p.image || p.thumb)}" alt="" /><span class="pj__play">▶ 영상 보기 · 3:40</span></a></figure>`
+          : `<figure class="pj__art"><img src="${esc(p.image || p.thumb)}" alt="" /></figure>`}
       </div>
       <div class="foot"><span></span><span class="pg"></span></div>
     </section>`;
@@ -521,7 +521,7 @@
     const m = B.mock;
     if (m && (m.items || []).length) {
       const imgs = m.items.slice(0, 2).map((it) => ({ image: it.src, title: it.cap }));
-      const link = m.link && p.youtube ? ` · <a href="https://youtu.be/${esc(p.youtube)}">영상 보러가기</a>` : "";
+      const link = "";
       out.push(`<section class="page bp" style="${vars}">
         <div class="page__in">${head(pad2(i + 1), p.title, m.en || "Mockup")}
           ${m.t ? `<p class="rs__title">${esc(m.t)}${link}</p>` : ""}
@@ -589,7 +589,8 @@
       else if (LAYOUT === "board") pages.push(projectA(p, i), boardPage(p, i), ...resultPages(p, i));
       else pages.push(projectA(p, i), `<div class="ov-marker" data-i="${i}"></div>`, ...mockupPages(p, i));
     });
-    pages.push(closing(info));
+    // 마지막 연락처 쪽은 빼요 (연락처는 표지 · 프로필에 있어요)
+    // pages.push(closing(info));
     const book = document.getElementById("book");
     book.innerHTML = pages.join("");
     // 정리 쪽: 글꼴을 불러온 뒤 실제 높이로 채워요
