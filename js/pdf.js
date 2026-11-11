@@ -194,7 +194,7 @@
   const TOOL_LOGO = { photoshop: "photoshop.svg", illustrator: "illustrator.svg", indesign: "indesign.svg", "after effects": "after-effects.svg",
     "premiere pro": "premiere-pro.svg", figma: "figma.svg", notion: "notion.svg", chatgpt: "openai.svg", openai: "openai.svg",
     claude: "claude.svg", suno: "suno.png", github: "github.svg" };
-  const SNS_LOGO = { instagram: "instagram.png", youtube: "youtube.png", naver_blog: "naver.svg", naver: "naver.svg", facebook: "facebook.png", github: "github.svg" };
+  const SNS_LOGO = { instagram: "instagram.png", youtube: "youtube.png", naver_blog: "naver.svg", naver: "naver.svg", tistory: "tistory.svg", facebook: "facebook.png", github: "github.svg" };
   const logoOf = (t) => TOOL_LOGO[normTool(t)];
   const toolBadge = (t) => {
     const key = normTool(t);
