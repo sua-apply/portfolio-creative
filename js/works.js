@@ -93,7 +93,7 @@
   const toolsHTML = (tools, pct) => (tools.length ? `<div class="sum">
         <span class="sum__k">많이 쓴 도구 <small>전체 프로젝트 중 사용 비율</small></span>
         <ul class="bars">${tools.map(([k, n]) => `
-          <li><span class="bars__name">${esc(k)}</span>
+          <li><span class="bars__name">${window.toolHTML(k, 16)}</span>
             <span class="bars__track" aria-hidden="true"><span class="bars__fill${n === tools[0][1] ? " is-top" : ""}" style="width:${pct(n)}%"></span></span>
             <span class="bars__pct">${pct(n)}%</span></li>`).join("")}</ul>
       </div>` : "");
@@ -167,8 +167,8 @@
     if (!tools.length) return "";
     const shown = tools.slice(0, 3);
     return `<span class="sw-tools" aria-label="사용 도구: ${esc(tools.join(", "))}">${shown.map((t) => {
-      const ic = toolIcon(t);
-      return `<span class="sw-tool">${ic ? `<img src="img/icons/${ic}.svg" alt="" width="14" height="14" />` : ""}${esc(t)}</span>`;
+      const ic = window.brandIcon(t) || (toolIcon(t) ? `img/icons/${toolIcon(t)}.svg` : "");
+      return `<span class="sw-tool">${ic ? `<img src="${ic}" alt="" width="14" height="14" />` : ""}${esc(t)}</span>`;
     }).join("")}${tools.length > 3 ? `<span class="sw-tool sw-tool--more">+${tools.length - 3}</span>` : ""}</span>`;
   }
 
