@@ -427,6 +427,67 @@
     </section>`);
   }
 
+  /* 6-C. 브랜드 보드 (레퍼런스: 달무리 아트보드) — DB detail.pdf_board
+     프로젝트 하나 = 표지 → 정리 2장(기획 | 디자인) → 목업 1장
+     pdf_board = { accent, tint, pages: [{ en, cols, divider, left: [블록], right: [블록] }, …], mock: { en, t, items: [{ src, cap }] } }
+     블록 type: text · stats · pairs · statement · cards · image · keys · colors · arc · steps · list · note */
+  const lines = (s) => esc(s).replace(/\n/g, "<br />");
+  const paras = (b) => (b.body || []).map((x) => `<p class="bb__p">${lines(x)}</p>`).join("");
+  const BB = {
+    text: (b) => paras(b),
+    stats: (b) => `<div class="bb__stats">${(b.items || []).map((it, n) => {
+      const k = `<p class="bb__sk"><b>${pad2(n + 1)}</b>${esc(it.k)}</p>`;
+      if (it.kind === "bar") {
+        const av = parseFloat(it.a.v), bv = parseFloat(it.b.v), hb = 100, ha = Math.round((av / bv) * 100);
+        return `<div class="bb__stat">${k}${it.unit ? `<p class="bb__unit">${esc(it.unit)}</p>` : ""}<div class="bb__bars">
+          <div><span>${esc(it.a.v)}</span><i style="height:${ha}%"></i><em>${esc(it.a.l)}</em></div><b class="bb__arrow">↗</b>
+          <div><span>${esc(it.b.v)}</span><i class="on" style="height:${hb}%"></i><em>${esc(it.b.l)}</em></div></div></div>`;
+      }
+      if (it.kind === "big") return `<div class="bb__stat">${k}<p class="bb__big">${it.pre ? `<small>${esc(it.pre)}</small>` : ""}${esc(it.v)}${it.post ? `<small>${esc(it.post)}</small>` : ""}</p></div>`;
+      return `<div class="bb__stat">${k}<ul class="bb__rows">${(it.rows || []).map((r) => `<li><span>${esc(r.k)}</span><strong>${esc(r.v)}</strong></li>`).join("")}</ul></div>`;
+    }).join("")}</div>${b.source ? `<p class="bb__src">${esc(b.source)}</p>` : ""}${b.foot ? `<p class="bb__foot">${lines(b.foot)}</p>` : ""}`,
+    pairs: (b) => `${b.sub ? `<p class="bb__sub">${esc(b.sub)}</p>` : ""}<div class="bb__pairs">${b.head ? `<div class="h"><span>${esc(b.head[0])}</span><span></span><span>${esc(b.head[1])}</span></div>` : ""}${(b.items || []).map(([x, y]) => `<div><span>${esc(x)}</span><b>→</b><strong>${esc(y)}</strong></div>`).join("")}</div>`,
+    statement: (b) => `<div class="bb__sts">${(b.items || []).map((it) => `<div class="bb__st"><h4>${esc(it.k)}</h4><p>${lines(it.v)}</p></div>`).join("")}</div>`,
+    cards: (b) => `<div class="bb__cards" style="grid-template-columns:repeat(${(b.items || []).length},minmax(0,1fr))">${(b.items || []).map((it, n) => `<div><b>${pad2(n + 1)}</b><span>${esc(it.k)}</span><strong>${lines(it.t)}</strong>${it.d ? `<p>${lines(it.d)}</p>` : ""}</div>`).join("")}</div>${b.foot ? `<p class="bb__foot">${lines(b.foot)}</p>` : ""}`,
+    image: (b) => `<div class="bb__imgs" data-grid="${b.grid || ""}">${(b.items || []).map((it) => `<figure><div class="bb__ph"><img src="${esc(it.src)}" alt="" /></div>${it.cap ? `<figcaption>${esc(it.cap)}</figcaption>` : ""}</figure>`).join("")}</div>${paras(b)}`,
+    keys: (b) => `<ul class="bb__keys${b.shape === "arch" ? " bb__keys--arch" : ""}${(b.items || []).length > 3 ? " bb__keys--sm" : ""}">${(b.items || []).map((it) => {
+      const c = HEX.test(it.c || "") ? it.c : "";
+      const st = c ? ` style="background:${c};color:${lum(c) > 0.6 ? "#252A34" : "#fff"}"` : "";
+      return `<li${st}><strong>${esc(it.ko)}</strong><span>${esc(it.en)}</span></li>`;
+    }).join("")}</ul>${paras(b)}`,
+    colors: (b) => { const cs = (b.items || []).filter((c) => HEX.test(c.hex));
+      return `<ul class="bb__cols">${cs.map((c, n) => `<li style="background:${c.hex};color:${lum(c.hex) > 0.6 ? "#252A34" : "#fff"};flex:${n === 0 && cs.length <= 4 ? 1.5 : 1}"><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul>${paras(b)}`; },
+    arc: (b) => `<div class="bb__arc">${(b.items || []).map((it) => `<div style="flex:${it.n || 1}"${it.key ? ' class="on"' : ""}><i></i><span>${esc(it.l)}</span><em>${it.n}장면</em></div>`).join("")}</div>${paras(b)}`,
+    steps: (b) => `<ol class="bb__steps">${(b.items || []).map((it, n) => `<li><b>${pad2(n + 1)}</b><strong>${esc(it.t)}</strong><span>${esc(it.d || "")}</span></li>`).join("")}</ol>${paras(b)}`,
+    list: (b) => `<dl class="bb__list">${(b.items || []).map((it) => `<div><dt>${esc(it.k)}</dt><dd>${esc(it.v)}</dd></div>`).join("")}</dl>${paras(b)}`,
+    note: (b) => paras(b),
+  };
+  const bblock = (b) => BB[b.type] ? `<div class="bb bb--${b.type}${b.grow ? " grow" : ""}"><h3 class="bb__t">${esc(b.t || "")}</h3>${BB[b.type](b)}</div>` : "";
+  function brandPages(p, i) {
+    const B = p.detail.pdf_board;
+    const vars = `--ac:${HEX.test(B.accent || "") ? B.accent : "#252A34"};--tn:${HEX.test(B.tint || "") ? B.tint : "#F3F3F5"}`;
+    const out = (B.pages || []).map((pg) => `<section class="page bp" style="${vars}">
+      <div class="page__in">${head(pad2(i + 1), p.title, pg.en || "")}
+        <div class="bp__grid${pg.divider ? " bp__grid--div" : ""}" style="grid-template-columns:${esc(pg.cols || "1fr 1fr")}">
+          <div class="bp__col">${(pg.left || []).map(bblock).join("")}</div>
+          <div class="bp__col">${(pg.right || []).map(bblock).join("")}</div>
+        </div>
+      </div>${foot(p.title)}
+    </section>`);
+    const m = B.mock;
+    if (m && (m.items || []).length) {
+      const imgs = m.items.slice(0, 2).map((it) => ({ image: it.src, title: it.cap }));
+      const link = m.link && p.youtube ? ` · <a href="https://youtu.be/${esc(p.youtube)}">영상 보러가기</a>` : "";
+      out.push(`<section class="page bp" style="${vars}">
+        <div class="page__in">${head(pad2(i + 1), p.title, m.en || "Mockup")}
+          ${m.t ? `<p class="rs__title">${esc(m.t)}${link}</p>` : ""}
+          <div class="rs rs--${imgs.length}">${imgs.map((it) => fig(it)).join("")}</div>
+        </div>${foot(p.title)}
+      </section>`);
+    }
+    return out;
+  }
+
   /* 8. 마지막 쪽 */
   function closing(info) {
     const groups = info.sns.map((g) => ({ title: g.title, items: g.items.filter((s) => s.url) })).filter((g) => g.items.length);
@@ -480,7 +541,8 @@
     // 목차(Selected Work) 쪽 없이 이력 다음에 바로 프로젝트로 넘어가요. 다시 넣으려면: pages.push(toc(pick, pages.length + 2, num()))
     // 프로젝트 하나: 표지 → 보드 1장 → 결과물 1~2장 (LAYOUT = "flow" 면 예전처럼 정리 최대 3장 → 목업)
     pick.forEach((p, i) => {
-      if (LAYOUT === "board") pages.push(projectA(p, i), boardPage(p, i), ...resultPages(p, i));
+      if (p.detail && p.detail.pdf_board && (p.detail.pdf_board.pages || []).length) pages.push(projectA(p, i), ...brandPages(p, i));
+      else if (LAYOUT === "board") pages.push(projectA(p, i), boardPage(p, i), ...resultPages(p, i));
       else pages.push(projectA(p, i), `<div class="ov-marker" data-i="${i}"></div>`, ...mockupPages(p, i));
     });
     pages.push(closing(info));
@@ -518,6 +580,26 @@
       const im = f.querySelector("img"); if (!im || !im.naturalWidth || f.classList.contains("detail")) return;
       const ri = im.naturalWidth / im.naturalHeight, rf = f.clientWidth / Math.max(1, f.clientHeight);
       if (Math.max(ri / rf, rf / ri) > 1.35) f.classList.add("fit");
+    });
+    // 브랜드 보드 이미지 칸: 이미지 비율대로 칸 너비를 나눠요 (자르지 않고 같은 높이로)
+    book.querySelectorAll(".bb__imgs").forEach((box) => {
+      const ims = [...box.querySelectorAll("img")];
+      if (!ims.length || ims.some((im) => !im.naturalWidth)) return;
+      const a = ims.map((im) => im.naturalWidth / im.naturalHeight);
+      const g = +box.dataset.grid;
+      if (g === 1) { box.style.gridTemplateColumns = "minmax(0,1fr)"; box.style.gridTemplateRows = `repeat(${ims.length}, minmax(0,1fr))`; }
+      else if (g === 2) { box.style.gridTemplateColumns = "repeat(2, minmax(0,1fr))"; box.style.gridTemplateRows = `repeat(${Math.ceil(ims.length / 2)}, minmax(0,1fr))`; }
+      else { box.style.gridTemplateColumns = a.map((x) => `minmax(0,${x}fr)`).join(" "); box.style.gridTemplateRows = "minmax(0,1fr)"; }
+    });
+    // 칸 안에서 이미지 크기를 직접 정해요 (자르지 않고 가장 크게, 캡션은 이미지 바로 아래)
+    book.querySelectorAll(".bb__imgs figure").forEach((f) => {
+      const im = f.querySelector("img"), cap = f.querySelector("figcaption");
+      if (!im || !im.naturalWidth) return;
+      const r = im.naturalWidth / im.naturalHeight;
+      const free = f.closest(".bb__imgs").dataset.grid === "2";   // 2열 격자: 너비 기준 (행 높이는 내용대로)
+      const W = f.clientWidth, H = free ? Infinity : f.clientHeight - (cap ? cap.offsetHeight + 8 : 0);
+      const w = Math.min(W, H * r);
+      im.style.width = `${w}px`; im.style.height = `${w / r}px`;
     });
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     document.documentElement.dataset.pdfReady = "1";
