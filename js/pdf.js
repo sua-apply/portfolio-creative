@@ -1,7 +1,8 @@
 /* =========================================
    포트폴리오 PDF 쪽 만들기 (portfolio-pdf.html)
    - 표지 → 프로필 → 이력 → 대표 프로젝트(표지 1 · 정리 최대 3 · 목업 1장 이상) → 마지막 쪽
-   - 대표 프로젝트: DB featured 켠 것 + PDF에만 넣을 것(detail.pdf: true), 없으면 최신순, 최대 5개
+   - 대표 프로젝트: DB featured 켠 것 + PDF에만 넣을 것(detail.pdf: true), 없으면 최신순, 최대 6개
+     PDF에서만 내용을 바꾸려면 detail.pdf_patch (아래 pdfVersion)
      (메인 화면의 대표 프로젝트는 featured 만 봐요 — PDF 전용으로 넣어도 웹은 그대로)
    - About Me · 연락처는 index.html 에 적힌 내용을, SNS 는 DB(sns_links)에서 가져와요
    - 이력 · 프로젝트 정보는 웹과 같은 규칙으로 보여줘요 (진행 상태·기간·교육 시간, '프로젝트 / 나의 참여' 묶음)
@@ -9,7 +10,7 @@
 (function () {
   "use strict";
   const SITE = "https://sua-apply.github.io/portfolio-creative/";
-  const MAX_PROJECTS = 5;
+  const MAX_PROJECTS = 6;
   const esc = (s) => window.esc(s);
   const pad2 = (n) => String(n).padStart(2, "0");
   const HEX = /^#[0-9a-f]{3,8}$/i;
@@ -311,6 +312,20 @@
     </section>`;
   }
 
+  /* PDF에서만 다르게 보여줄 내용 (DB detail.pdf_patch) — 웹은 그대로 두고 PDF만 먼저 바꿀 때
+     예: { "image": "…", "period": "…", "summary": "…", "problem": "…", "action": "…", "result": "…",
+           "did": [...], "tools": [...], "sections": [...] }   (없는 칸은 웹 내용 그대로) */
+  function pdfVersion(p) {
+    const x = p.detail && p.detail.pdf_patch;
+    if (!x) return p;
+    const q = { ...p, detail: { ...p.detail } };
+    if (x.image) q.image = q.thumb = x.image;
+    ["period", "summary", "problem", "action", "did", "tools"].forEach((k) => { if (x[k] != null) q[k] = x[k]; });
+    if (x.result != null) q.resultText = x.result;
+    if (x.sections) q.detail.sections = x.sections;
+    return q;
+  }
+
   async function build() {
     await window.PROJECTS_READY;
     const info = await readIndex();
@@ -318,7 +333,7 @@
     const sorted = [...(window.PROJECTS || [])].sort((a, b) => b.date.localeCompare(a.date));
     let pick = sorted.filter((p) => p.featured || (p.detail && p.detail.pdf === true));
     if (!pick.length) pick = sorted;
-    pick = pick.slice(0, MAX_PROJECTS);
+    pick = pick.slice(0, MAX_PROJECTS).map(pdfVersion);
 
     let n = 0;
     const num = () => pad2(++n);
