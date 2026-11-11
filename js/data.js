@@ -88,7 +88,7 @@
       let g = groups.find((x) => x.title === s.group);
       if (!g) groups.push((g = { title: s.group, items: [] }));
       const [label, mark, cls] = SNS_PLATFORMS[s.platform] || SNS_PLATFORMS.etc;
-      g.items.push({ platform: label, mark, cls, name: s.name, url: s.url || "" });
+      g.items.push({ platform: label, key: s.platform, mark, cls, name: s.name, url: s.url || "" });
     });
     return groups;
   }

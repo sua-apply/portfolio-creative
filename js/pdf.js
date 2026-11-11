@@ -57,23 +57,41 @@
   }
 
   /* 2. 프로필 + 스킬 */
+  /* 2. 프로필 (한 쪽): 레퍼런스처럼 줄 없이 여백으로 — 왼쪽 날짜, 오른쪽 이름(+ 아랫줄 세부), 도구는 작은 테두리 칸 */
+  const EN = { 학력: "Education", 경력: "Experience", 교육: "Training", 대외활동: "Activity", 교내활동: "Campus", 수상: "Award", 어학: "Language", 자격증: "Certificate" };
+  const TOOL_ABBR = { photoshop: "Ps", illustrator: "Ai", indesign: "Id", "after effects": "Ae", "premiere pro": "Pr", figma: "Fg", blender: "Bl", notion: "N", "html / css": "&lt;/&gt;", "html/css": "&lt;/&gt;" };
   function profile(R, info, num) {
     const skills = (R.skills || []).filter((g) => g.items.length);
+    const blocks = resumeBlocks(window.RESUME);
+    const get = (t) => blocks.find(([k]) => k === t);
+    const left = ["학력", "교육"].map(get).filter(Boolean);
+    const right = ["경력", "대외활동", "교내활동", "수상", "어학"].map(get).filter(Boolean);
+    const certs = get("자격증");
+    // 'A - B' 처럼 긴 이름은 앞부분만 이름으로, 뒷부분은 아랫줄 세부로
+    const split = (x) => { const m = /^(.+?)\s+-\s+(.+)$/.exec(x.title || ""); return m ? { ...x, title: m[1], sub: [m[2], x.sub].filter(Boolean).join(" · ") } : x; };
+    const sec = ([t, rows]) => `<div class="pf3__sec"><h3>${esc(EN[t] || t)}<span>${esc(t)}</span></h3><ul>${rows.map(split).map((x) => `
+      <li><div class="pf3__date"><time>${String(x.date).split(/\s+–\s+/).map(esc).join(" –<br />")}</time></div>
+        <div><strong>${esc(x.title)}${x.status ? `<em class="pf3__st">${esc(x.status)}</em>` : ""}</strong>${x.sub || x.len ? `<span>${[x.sub, x.len].filter(Boolean).map(esc).join(" · ")}</span>` : ""}</div></li>`).join("")}</ul></div>`;
+    const labels = skills.flatMap((g) => g.items.map(([label]) => label));
+    const abbr = (t) => TOOL_ABBR[normTool(t)];
+    // PDF에는 도구 로고만 (스킬 글자 목록은 자리를 많이 차지해서 빼요 — 웹에는 그대로)
+    const tools = labels.filter((t) => logoOf(t) || abbr(t)), others = [];
     return `<section class="page">
       <div class="page__in">
-        ${head(num, "Profile", "About Me · Skills")}
-        <div class="profile">
-          <aside class="profile__side">
-            <img class="profile__photo" src="${esc(info.photo)}" alt="" />
-            <div class="profile__name"><strong>박수아</strong><span>PARK Sua</span></div>
-            <dl class="facts">${info.facts.filter(([k]) => k && k !== "이름").map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+        ${head(num, "Profile", R.eyebrow || "")}
+        <div class="pf3">
+          <aside class="pf3__side">
+            <img class="pf3__photo" src="${esc(info.photo)}" alt="" />
+            <p class="pf3__name"><strong>박수아</strong><span>PARK Sua</span></p>
+            <dl class="pf3__facts">${info.facts.filter(([k]) => k && k !== "이름").map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
           </aside>
-          <div class="profile__main">
-            <div class="about"><p class="k" style="margin-bottom:3mm">About Me</p>${info.about.map((p) => `<p>${p}</p>`).join("")}</div>
-            ${skills.length ? `<div><p class="k" style="margin-bottom:3mm">Skills &amp; Tools</p><div class="skills">${skills.map((g) => `
-              <div class="skills__col"><h3>${esc(g.title)} <small>${g.items.length}</small></h3>
-                <ul>${g.items.map(([label, icon]) => `<li>${icon ? `<img src="img/icons/${esc(icon)}.svg" alt="" />` : ""}${esc(label)}</li>`).join("")}</ul></div>`).join("")}</div></div>` : ""}
-          </div>
+          <div class="pf3__col">${left.map(sec).join("")}</div>
+          <div class="pf3__col">${right.map(sec).join("")}</div>
+          <div class="pf3__bottom">
+              ${tools.length ? `<div class="pf3__sec"><h3>Tools</h3><ul class="pf3__tools">${tools.map((t) => `<li>${logoOf(t) ? `<img src="img/logos/${logoOf(t)}" alt="" />` : `<b>${abbr(t)}</b>`}<span>${esc(t.replace(/^Adobe\s+/i, "").replace(/\s*\(.*?\)/, ""))}</span></li>`).join("")}</ul></div>` : ""}
+              ${others.length ? `<div class="pf3__sec"><h3>Skills</h3><p class="pf3__skills">${others.map(esc).join(" · ")}</p></div>` : ""}
+            </div>
+          ${certs ? `<div class="pf3__sec pf3__sec--cert"><h3>${esc(EN[certs[0]])}<span>${esc(certs[0])}</span></h3><ul>${certs[1].map((x) => `<li><time>${esc(x.date)}</time><strong>${esc(x.title)}</strong></li>`).join("")}</ul></div>` : ""}
         </div>
       </div>${foot("Profile")}
     </section>`;
@@ -92,8 +110,29 @@
   }
   const hours = (h) => (h == null || h === "" ? "" : /^\d+(\.\d+)?$/.test(String(h).trim()) ? `${Number(h).toLocaleString("ko-KR")}시간` : String(h));
   const latest = (k) => (a, b) => (b[k] || NOW_YM).localeCompare(a[k] || NOW_YM);
-  function resume(RS, num) {
-    if (!RS) return "";
+  /* 이력 배치: 한 항목 = 한 줄 표.  [구분] [기간] [이름] [기관 · 전공] [상태 · 기간]
+     자격증처럼 짧은 항목이 많은 묶음은 아래에 두 단으로 (날짜 · 이름 · 기관 한 줄) */
+  function resumeLayout(blocks) {
+    const many = blocks.filter(([t, rows]) => rows.length > 4 && t === "자격증");
+    const main = blocks.filter((b) => !many.includes(b));
+    const meta = (x) => [x.status && `<b>${esc(x.status)}</b>`, x.len && esc(x.len)].filter(Boolean).join(" · ");
+    // 'A - B' 처럼 긴 이름은 앞부분만 이름 칸에, 뒷부분은 기관 칸 앞에 (한 줄에 잘리지 않게)
+    const split = (x) => { const m = /^(.+?)\s+-\s+(.+)$/.exec(x.title || ""); return m ? { ...x, title: m[1], sub: [m[2], x.sub].filter(Boolean).join(" · ") } : x; };
+    const table = main.length ? `<div class="rv-t">${main.map(([t, rows]) => rows.map(split).map((x, n) => `
+        <div class="rv-r${n === 0 ? " rv-r--first" : ""}">
+          <span class="rv-c">${n === 0 ? esc(t) : ""}</span>
+          <time>${esc(x.date)}</time>
+          <strong>${esc(x.title)}</strong>
+          <span class="rv-s">${esc(x.sub || "")}</span>
+          <span class="rv-m">${meta(x)}</span>
+        </div>`).join("")).join("")}</div>` : "";
+    const list = many.map(([t, rows]) => `<div class="rv-l"><h3>${esc(t)} <small>${rows.length}</small></h3>
+        <div class="rv-l__rows">${rows.map((x) => `<div class="rv-li"><time>${esc(x.date)}</time><strong>${esc(x.title)}</strong><span>${esc(x.sub || "")}</span></div>`).join("")}</div></div>`).join("");
+    return `<div class="rv">${table}${list}</div>`;
+  }
+
+  function resumeBlocks(RS) {
+    if (!RS) return [];
     const range = (s, e) => (!s ? e || "" : `${s} – ${e && !(e > NOW_YM) ? e : e || "현재"}`);
     const r = (date, title, sub, status, len) => ({ date, title, sub, status, len });
     const sorted = (list, k) => [...(list || [])].sort(latest(k));
@@ -109,14 +148,15 @@
       ["어학", sorted(RS.languages, "date").filter((x) => !(x.expires && x.expires < NOW_YM)).map((x) => r(x.date, `${x.test}${x.score ? ` ${x.score}` : ""}`, x.org))],
       ["자격증", sorted(RS.certificates, "date").filter((x) => !x.expired).map((x) => r(x.date, x.name, x.org))],
     ].filter(([, rows]) => rows.length);
+    return blocks;
+  }
+  function resume(RS, num) {
+    const blocks = resumeBlocks(RS);
     if (!blocks.length) return "";
     return `<section class="page">
       <div class="page__in">
         ${head(num, "Resume", blocks.map(([t]) => t).join(" · "))}
-        <div class="resume resume--${Math.min(blocks.length, 3)}">${blocks.map(([t, rows]) => `
-          <div class="rblock"><h3>${t} <small>${rows.length}</small></h3>
-            ${rows.map((x) => `<div class="rrow"><div class="rrow__d"><time>${esc(x.date)}</time>${x.status || x.len ? `<span class="rrow__m">${x.status ? `<b>${esc(x.status)}</b>` : ""}${x.status && x.len ? " · " : ""}${x.len ? esc(x.len) : ""}</span>` : ""}</div><div><strong>${esc(x.title)}</strong>${x.sub ? `<span>${esc(x.sub)}</span>` : ""}</div></div>`).join("")}
-          </div>`).join("")}</div>
+        ${resumeLayout(blocks)}
       </div>${foot("Resume")}
     </section>`;
   }
@@ -147,9 +187,18 @@
     photoshop: ["Ps", "#001E36", "#31A8FF"], illustrator: ["Ai", "#330000", "#FF9A00"], indesign: ["Id", "#49021F", "#FF3366"],
     "after effects": ["Ae", "#00005B", "#9999FF"], "premiere pro": ["Pr", "#00005B", "#9999FF"], lightroom: ["Lr", "#001E36", "#31A8FF"],
     figma: ["Fg", "#1E1E1E", "#A259FF"], blender: ["Bl", "#1E1E1E", "#F5792A"],
+    notion: ["N", "#FFFFFF", "#111111"], "html / css": ["&lt;/&gt;", "#E34F26", "#FFFFFF"], "html/css": ["&lt;/&gt;", "#E34F26", "#FFFFFF"],
   };
+  const normTool = (t) => String(t).toLowerCase().replace(/^adobe\s+/, "").replace(/\s*\(.*?\)\s*/g, "").trim();
+  // 도구 · SNS 로고 (img/logos). 없는 도구는 글자 배지로
+  const TOOL_LOGO = { photoshop: "photoshop.svg", illustrator: "illustrator.svg", indesign: "indesign.svg", "after effects": "after-effects.svg",
+    "premiere pro": "premiere-pro.svg", figma: "figma.svg", notion: "notion.svg", chatgpt: "openai.svg", openai: "openai.svg",
+    claude: "claude.svg", suno: "suno.png", github: "github.svg" };
+  const SNS_LOGO = { instagram: "instagram.png", youtube: "youtube.png", naver_blog: "naver.svg", naver: "naver.svg", tistory: "tistory.svg", facebook: "facebook.png", github: "github.svg" };
+  const logoOf = (t) => TOOL_LOGO[normTool(t)];
   const toolBadge = (t) => {
-    const key = String(t).toLowerCase().replace(/^adobe\s+/, "").trim();
+    const key = normTool(t);
+    if (TOOL_LOGO[key]) return `<img class="tlogo" src="img/logos/${TOOL_LOGO[key]}" alt="" title="${esc(t)}" /><span class="tb__name">${esc(t)}</span>`;
     const b = TOOL_BADGES[key];
     return b ? `<span class="tb" style="background:${b[1]};color:${b[2]}" title="${esc(t)}">${b[0]}</span><span class="tb__name">${esc(t)}</span>`
       : `<span class="tb tb--text">${esc(t)}</span>`;
@@ -289,6 +338,95 @@
     return [page(p, i, "Mockup", `<div class="mk mk--empty"><p>목업 이미지 준비 중</p></div>`)];
   }
 
+  /* 6-B. 프로젝트 보드 (브랜드 보드처럼 한 장 요약) + 결과물 쪽 (최대 2장)
+     프로젝트 하나 = 표지 1 → 보드 1 → 결과물 1~2  (3~4쪽). 자세한 과정 · 회고는 웹 상세 페이지로 */
+  const LAYOUT = "board";          // "board"(요약 보드) · "flow"(예전: 정리 최대 3장 + 섹션별 목업)
+  const MAX_RESULT_PAGES = 2;
+  // 이미지 묶음: 상세의 섹션 하나 = 한 묶음 (목업 · 갤러리 · 스토리보드 장면)
+  function imageGroups(p) {
+    const seen = new Set();
+    return sectionsOf(p).map((s) => {
+      let list = [];
+      if (s.type === "mockup" && s.image) list = [{ image: s.image, title: s.caption }];
+      if (s.type === "gallery") list = (s.items || []).filter((it) => it.image).map((it) => ({ image: it.image, title: it.title, desc: it.desc }));
+      if (s.type === "scenario") {
+        const sc = (s.scenes || []).filter((x) => x.image);
+        list = [...sc.filter((x) => x.key), ...sc.filter((x) => !x.key)].map((x) => ({ image: x.image, title: x.title, wide: true }));
+      }
+      list = list.filter((it) => !seen.has(it.image) && seen.add(it.image));
+      return { label: s.label || "", title: s.title || "", list };
+    }).filter((g) => g.list.length);
+  }
+  const imagesOf = (p) => imageGroups(p).flatMap((g) => g.list);
+  const clip = (t, n) => { t = String(t || "").trim(); return t.length > n ? `${t.slice(0, n - 1).replace(/[\s,·]+$/, "")}…` : t; };
+  // 첫 문장만. 첫 문장이 아주 길면 그때만 줄여요
+  const first = (t, n) => { const m = /^[\s\S]*?[다요]\.(?=\s|$)/.exec(String(t || "").trim()); return clip(m ? m[0] : t, n); };
+  const fig = (it, cap = true) => `<figure${it.wide ? ' class="fit"' : it.detail ? ' class="detail"' : ""}><img src="${esc(it.image)}" alt="" />${cap && it.title ? `<figcaption>${esc(it.title)}${it.desc ? ` · ${esc(it.desc)}` : ""}</figcaption>` : ""}</figure>`;
+
+  // 보드에 쓸 이미지 2장: 첫 묶음의 첫 장 + 둘째 묶음의 첫 장 (묶음이 하나면 그 묶음의 1·2번째)
+  function boardPicks(groups) {
+    if (!groups.length) return [];
+    if (groups.length === 1) return groups[0].list.slice(0, 2);
+    return [groups[0].list[0], groups[1].list[0]];
+  }
+
+  /* 프로젝트 보드 (v2): 글은 최소로 — 핵심 한 문장 · 역할 태그 · 결과 숫자 · 키워드 3개 · 컬러 · 큰 이미지 */
+  function boardPage(p, i) {
+    const secs = sectionsOf(p);
+    const groups = imageGroups(p);
+    const cards = secs.filter((s) => s.type === "cards" && (s.items || []).length);
+    const concept = cards.find((s) => /concept/i.test(s.label || "")) || cards[0];
+    const pal = secs.find((s) => s.type === "palette" && (s.colors || []).some((c) => HEX.test(c.hex)));
+    const roles = String(p.role || "").split(/\s+·\s+|,\s*/).filter(Boolean).slice(0, 5);
+    const r = p.result;
+    let pics = boardPicks(groups);
+    // 이미지가 대표 한 장뿐이면 보드에 그 한 장을 통째로
+    if (!pics.length && p.image) pics = [{ image: p.image }];
+    // 키워드: DB detail.pdf_keywords 가 있으면 그것을, 없으면 콘셉트 카드의 kicker (제목이 짧으면 아래에 작게)
+    const own = p.detail && Array.isArray(p.detail.pdf_keywords) ? p.detail.pdf_keywords : null;
+    const kw = own ? own.slice(0, 3).map((k) => (typeof k === "string" ? { k } : { k: k.k, sub: k.sub }))
+      : concept ? concept.items.slice(0, 3).map((it) => ({ k: it.kicker || it.title, sub: it.kicker && String(it.title).length <= 16 ? it.title : "" })) : [];
+    const cs = pal ? pal.colors.filter((c) => HEX.test(c.hex)).slice(0, 6) : [];
+    return `<section class="page bd-page">
+      <div class="page__in">${head(pad2(i + 1), p.title, "Project Board")}
+        <div class="bd2${cs.length ? "" : " bd2--nopal"}${kw.length ? "" : " bd2--nokw"}">
+          <div class="bd2__key">
+            <p class="bd2__k">Key Idea</p>
+            <p class="bd2__idea">${esc(first(p.action || p.desc || p.summary, 110))}</p>
+            ${r && r.value ? `<div class="bd2__num"><strong>${esc(r.value)}</strong><span>${esc(r.label || "")}</span></div>`
+              : p.resultText ? `<div class="bd2__res"><p class="bd2__k">Result</p><p>${esc(first(p.resultText, 150))}</p></div>` : ""}
+            ${roles.length ? `<div class="bd2__roles"><p class="bd2__k">Role</p><ul>${roles.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+          </div>
+          ${kw.length ? `<div class="bd2__kw"><p class="bd2__k">${esc(own ? "Keyword" : (concept.label || "Concept").split("&")[0].trim())}</p><ol>${kw.map((k, n) => `<li><span>${pad2(n + 1)}</span><div><strong>${esc(k.k)}</strong>${k.sub ? `<em>${esc(k.sub)}</em>` : ""}</div></li>`).join("")}</ol></div>` : ""}
+          ${cs.length ? `<div class="bd2__pal${cs.length <= 4 ? " bd2__pal--1" : ""}"><p class="bd2__k">Color</p><ul>${cs.map((c) => `<li style="background:${c.hex};color:${lum(c.hex) > 0.6 ? "#252A34" : "#fff"}"><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul></div>` : ""}
+          <div class="bd2__imgs bd2__imgs--${Math.min(pics.length, 2)}">${pics.slice(0, 2).map((it) => fig(it)).join("")}</div>
+        </div>
+      </div>${foot(p.title)}
+    </section>`;
+  }
+
+  /* 결과물 쪽: 섹션별로 남은 이미지를 2장씩 크게. 최대 2쪽 (2장짜리 쪽 · 뒤쪽 섹션을 먼저 골라요)
+     이미지가 하나도 없는 작업은 결과물 쪽 없이 표지 + 보드 2쪽으로 끝나요 */
+  function resultPages(p, i) {
+    const groups = imageGroups(p);
+    const used = new Set(boardPicks(groups).map((it) => it.image));
+    const cands = [];
+    groups.forEach((g, gi) => {
+      const rest = g.list.filter((it) => !used.has(it.image));
+      const per = rest.every((it) => it.wide) ? 4 : 2;   // 16:9 영상 장면은 한 쪽에 4장(2×2)
+      for (let k = 0; k < rest.length; k += per) cands.push({ g, gi, imgs: rest.slice(k, k + per) });
+    });
+    const pick = [...cands].sort((a, b) => b.imgs.length - a.imgs.length || b.gi - a.gi).slice(0, MAX_RESULT_PAGES)
+      .sort((a, b) => cands.indexOf(a) - cands.indexOf(b));
+    // 이미지 묶음이 없는 작업(결과물이 한 장)은 표지 + 보드로 끝나요 (같은 그림을 또 싣지 않게)
+    return pick.map(({ g, imgs }) => `<section class="page">
+      <div class="page__in">${head(pad2(i + 1), p.title, g.label || "Final Work")}
+        ${g.title ? `<p class="rs__title">${esc(g.title)}</p>` : ""}
+        <div class="rs rs--${imgs.length}">${imgs.map((it) => fig(it)).join("")}</div>
+      </div>${foot(p.title)}
+    </section>`);
+  }
+
   /* 8. 마지막 쪽 */
   function closing(info) {
     const groups = info.sns.map((g) => ({ title: g.title, items: g.items.filter((s) => s.url) })).filter((g) => g.items.length);
@@ -306,7 +444,7 @@
         </div>
         <div class="end__r">
           <a class="end__web" href="${SITE}"><span>전체 프로젝트와 작업 과정은 웹 포트폴리오에서</span><strong>${SITE.replace(/^https:\/\//, "")}</strong></a>
-          ${groups.map((g) => `<div class="end__sns"><h3>${esc(g.title || "SNS")}</h3>${g.items.map((s) => `<a href="${esc(s.url)}"><span>${esc(s.platform)}</span>${esc(s.name)}</a>`).join("")}</div>`).join("")}
+          ${groups.map((g) => `<div class="end__sns"><h3>${esc(g.title || "SNS")}</h3>${g.items.map((s) => `<a href="${esc(s.url)}">${SNS_LOGO[s.key] ? `<img class="end__logo" src="img/logos/${SNS_LOGO[s.key]}" alt="" title="${esc(s.platform)}" />` : `<span class="end__mark" title="${esc(s.platform)}">${esc(s.mark || s.platform.slice(0, 1))}</span>`}${esc(s.name)}</a>`).join("")}</div>`).join("")}
         </div>
       </div>
     </section>`;
@@ -338,10 +476,13 @@
     let n = 0;
     const num = () => pad2(++n);
     const pages = [cover(R, pick[0], info), profile(R, info, num())];
-    const rs = resume(window.RESUME, pad2(n + 1)); if (rs) { n += 1; pages.push(rs); }
+    // 이력은 프로필 쪽에 함께 (따로 쪽을 두려면: const rs = resume(window.RESUME, pad2(n + 1)); if (rs) { n += 1; pages.push(rs); })
     // 목차(Selected Work) 쪽 없이 이력 다음에 바로 프로젝트로 넘어가요. 다시 넣으려면: pages.push(toc(pick, pages.length + 2, num()))
-    // 프로젝트 하나: 표지 → 정리(최대 3장) → 목업(1장 이상)
-    pick.forEach((p, i) => { pages.push(projectA(p, i), `<div class="ov-marker" data-i="${i}"></div>`, ...mockupPages(p, i)); });
+    // 프로젝트 하나: 표지 → 보드 1장 → 결과물 1~2장 (LAYOUT = "flow" 면 예전처럼 정리 최대 3장 → 목업)
+    pick.forEach((p, i) => {
+      if (LAYOUT === "board") pages.push(projectA(p, i), boardPage(p, i), ...resultPages(p, i));
+      else pages.push(projectA(p, i), `<div class="ov-marker" data-i="${i}"></div>`, ...mockupPages(p, i));
+    });
     pages.push(closing(info));
     const book = document.getElementById("book");
     book.innerHTML = pages.join("");
@@ -359,6 +500,25 @@
     });
     // 이미지를 다 불러온 뒤 '준비 완료' 표시 (PDF 만드는 스크립트가 기다려요)
     await Promise.all([...book.querySelectorAll("img")].map((im) => (im.complete ? 0 : new Promise((ok) => { im.onload = im.onerror = ok; }))));
+    // 이미지 2장 배치: 좌우(같은 높이, 비율대로 폭) / 위아래 중 이미지가 더 크게 보이는 쪽으로 (자르지 않음)
+    book.querySelectorAll(".bd2__imgs--2, .rs--2").forEach((box) => {
+      const ims = [...box.querySelectorAll("img")];
+      if (ims.length !== 2 || ims.some((im) => !im.naturalWidth)) return;
+      const a = ims.map((im) => im.naturalWidth / im.naturalHeight);
+      const W = box.clientWidth, H = box.clientHeight, gap = 16, cap = 14;   // px (대략), cap = 캡션 줄
+      const hRow = Math.min(H - cap, (W - gap) / (a[0] + a[1]));
+      const rowArea = hRow * hRow * (a[0] + a[1]);
+      const cellH = (H - gap) / 2 - cap;
+      const colArea = a.reduce((sum, ai) => { const w = Math.min(W, cellH * ai); return sum + w * (w / ai); }, 0);
+      if (rowArea >= colArea) { box.style.gridTemplateRows = "minmax(0, 1fr)"; box.style.gridTemplateColumns = `${a[0]}fr ${a[1]}fr`; }
+      else { box.style.gridTemplateColumns = "minmax(0, 1fr)"; box.style.gridTemplateRows = "repeat(2, minmax(0, 1fr))"; }
+    });
+    // 보드 · 결과물 칸: 이미지와 칸의 비율이 크게 다르면(세로 포스터를 가로 칸에) 자르지 않고 통째로
+    book.querySelectorAll(".bd2__imgs figure, .rs figure").forEach((f) => {
+      const im = f.querySelector("img"); if (!im || !im.naturalWidth || f.classList.contains("detail")) return;
+      const ri = im.naturalWidth / im.naturalHeight, rf = f.clientWidth / Math.max(1, f.clientHeight);
+      if (Math.max(ri / rf, rf / ri) > 1.35) f.classList.add("fit");
+    });
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
     document.documentElement.dataset.pdfReady = "1";
   }

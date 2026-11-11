@@ -259,3 +259,215 @@ ul, ol { padding: 0; list-style: none; }
 .notes .pts { margin: 1mm 0 0; padding: 0; list-style: none; }
 .notes .pts li { padding: .6mm 0 .6mm 3mm; border: 0; position: relative; }
 .notes .pts li::before { content: "·"; position: absolute; left: 0; color: var(--pink); font-weight: 800; }
+
+/* =========================================
+   프로젝트 보드 v2 (브랜드 보드처럼 한 장) — js/pdf.js boardPage
+   [Key Idea 남색 세로 칸] [키워드 / 컬러] [큰 이미지 두 칸]   글은 최소로, 이미지는 크게
+   ========================================= */
+.bd2 { flex: 1 1 0; height: 0; min-height: 0; display: grid; gap: 4.5mm;
+  grid-template-columns: 62mm 52mm minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+.bd2--nopal .bd2__kw, .bd2--nokw .bd2__pal { grid-row: 1 / 3; }
+.bd2--nopal.bd2--nokw { grid-template-columns: 62mm minmax(0, 1fr); }
+.bd2__k { font-size: 6.8pt; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--pink-text); margin-bottom: 3mm; }
+
+.bd2__key { grid-column: 1; grid-row: 1 / 3; min-height: 0; overflow: hidden; border-radius: 3mm; background: var(--navy); color: #fff;
+  padding: 8mm 7mm 7mm; display: flex; flex-direction: column; }
+.bd2__key .bd2__k { color: var(--cyan); }
+.bd2__idea { font-size: 12.5pt; font-weight: 700; line-height: 1.55; letter-spacing: -0.02em; }
+.bd2__num { margin-top: 7mm; padding-top: 5mm; border-top: .6pt solid rgba(255,255,255,.2); display: flex; flex-direction: column; gap: 1mm; }
+.bd2__num strong { font-size: 26pt; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; color: #fff; }
+.bd2__num span { font-size: 8pt; color: rgba(255,255,255,.7); }
+.bd2__roles { margin-top: auto; }
+.bd2__roles ul { display: flex; flex-wrap: wrap; gap: 1.6mm; }
+.bd2__roles li { font-size: 7.6pt; font-weight: 600; padding: 1.2mm 2.6mm; border-radius: 10mm; background: rgba(255,255,255,.1); color: rgba(255,255,255,.9); }
+
+.bd2__kw { grid-column: 2; grid-row: 1; min-height: 0; overflow: hidden; border-radius: 3mm; background: var(--bg); padding: 7mm 6mm 6mm; display: flex; flex-direction: column; }
+.bd2__kw ol { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; }
+.bd2__kw li { display: flex; align-items: baseline; gap: 3mm; font-size: 13pt; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; }
+.bd2__kw li span { font-size: 7.5pt; font-weight: 800; color: var(--pink); }
+
+.bd2__pal { grid-column: 2; grid-row: 2; min-height: 0; overflow: hidden; border-radius: 3mm; background: var(--paper); border: .6pt solid var(--line); padding: 6mm 4mm 4mm; display: flex; flex-direction: column; }
+.bd2__pal ul { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 1.6mm; }
+.bd2__pal li { min-height: 0; border-radius: 2mm; padding: 1.6mm 2.2mm; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+.bd2__pal strong { font-size: 6.6pt; font-weight: 700; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bd2__pal code { font-family: var(--font); font-size: 6pt; opacity: .8; }
+
+.bd2__imgs { grid-column: 3; grid-row: 1 / 3; min-height: 0; display: grid; gap: 4.5mm; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.bd2--nopal.bd2--nokw .bd2__imgs { grid-column: 2; }
+.bd2__imgs--1 { grid-template-rows: minmax(0, 1fr); }
+.bd2__imgs figure, .rs figure { position: relative; min-height: 0; border-radius: 3mm; overflow: hidden; background: var(--bg); }
+.bd2__imgs img, .rs img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.bd2__imgs .fit img, .rs .fit img { object-fit: contain; }
+.bd2__imgs figcaption, .rs figcaption { position: absolute; left: 3mm; bottom: 3mm; padding: 1mm 2.4mm; border-radius: 1.2mm; background: rgba(37,42,52,.72); color: #fff; font-size: 7pt; }
+
+/* 결과물 쪽: 2장을 크게 (1장이면 한 장 가득) */
+.rs__title { margin: -2mm 0 4mm; font-size: 10pt; font-weight: 700; color: var(--ink-2); }
+.rs { flex: 1 1 0; height: 0; min-height: 0; display: grid; gap: 5mm; }
+.rs--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.rs--1 { grid-template-columns: minmax(0, 1fr); }
+.rs img { object-fit: contain; }
+.bd2__kw li div { display: flex; flex-direction: column; gap: .6mm; }
+.bd2__kw li strong { font-weight: 800; }
+.bd2__kw li em { font-style: normal; font-size: 8pt; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
+.bd2__imgs .detail img { transform: scale(1.9); transform-origin: 50% 62%; }
+.rs--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rs--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.bd2__pal--1 ul { grid-template-columns: minmax(0, 1fr); }
+.bd2__pal--1 strong { font-size: 7.4pt; }
+.bd2__pal--1 code { font-size: 6.6pt; }
+.bd2__res { margin-top: 7mm; padding-top: 5mm; border-top: .6pt solid rgba(255,255,255,.2); }
+.bd2__res p:last-child { font-size: 9pt; line-height: 1.6; color: rgba(255,255,255,.8); }
+
+/* 이력 v2: 짧은 묶음은 위에 나란히, 긴 묶음은 아래 전체 폭 3단 (js/pdf.js resumeLayout) */
+.resume2 { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 9mm; }
+.resume2__top { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); column-gap: 8mm; row-gap: 6mm; }
+.resume2 .rblock { margin: 0; }
+.resume2 .rrow { padding: 2.6mm 0; }
+.rblock--wide .rblock__rows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 8mm; }
+
+/* 이미지는 절대 자르지 않아요: 칸 안에 통째로(contain), 캡션은 이미지 아래 한 줄 */
+.bd2__imgs figure, .rs figure { display: flex; flex-direction: column; gap: 1.8mm; background: none; border-radius: 0; overflow: visible; }
+.bd2__imgs figure img, .rs figure img { position: static; inset: auto; flex: 1 1 0; min-height: 0; width: 100%; height: auto; object-fit: contain; object-position: center; transform: none; }
+.bd2__imgs figcaption, .rs figcaption { position: static; padding: 0; background: none; color: var(--ink-3); font-size: 7.4pt; text-align: center; }
+/* 이력: 글씨와 줄 간격을 조금 키워 쪽을 고르게 채워요 */
+.resume2 { gap: 12mm; }
+.resume2 .rrow { padding: 3.6mm 0; font-size: 9.6pt; }
+.resume2 .rrow time { font-size: 8.6pt; }
+.resume2 .rrow span { font-size: 8.8pt; }
+.resume2 .rblock h3 { font-size: 11.5pt; padding-bottom: 2.6mm; }
+.bd2__imgs--cols { grid-template-rows: minmax(0, 1fr); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* 이력 v3: 한 항목 한 줄 표 (js/pdf.js resumeLayout) */
+.rv { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 10mm; }
+.rv-t { border-top: 1.2pt solid var(--navy); }
+.rv-r { display: grid; grid-template-columns: 22mm 38mm minmax(0, 1fr) 72mm 30mm; column-gap: 5mm; align-items: baseline;
+  padding: 3.4mm 0; border-bottom: .5pt solid var(--line); font-size: 9.4pt; }
+.rv-r--first:not(:first-child) { border-top: .9pt solid var(--ink-3); }
+.rv-c { font-size: 9pt; font-weight: 800; color: var(--ink); }
+.rv-r time, .rv-li time { color: var(--ink-3); font-size: 8.6pt; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rv-r strong { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-s { color: var(--ink-3); font-size: 8.6pt; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-m { font-size: 8.4pt; color: var(--ink-3); text-align: right; white-space: nowrap; }
+.rv-m b { color: var(--pink-text); font-weight: 700; }
+.rv-l h3 { display: flex; align-items: baseline; gap: 2mm; padding-bottom: 2.4mm; border-bottom: 1.2pt solid var(--navy); font-size: 10.5pt; font-weight: 800; }
+.rv-l h3 small { font-size: 8pt; color: var(--pink-text); }
+.rv-l__rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 10mm; }
+.rv-li { display: grid; grid-template-columns: 18mm minmax(0, 1fr) auto; column-gap: 4mm; align-items: baseline; padding: 2.8mm 0; border-bottom: .5pt solid var(--line); font-size: 9.2pt; }
+.rv-li strong { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-li span { font-size: 8.2pt; color: var(--ink-3); white-space: nowrap; }
+.rv-t { border-top: 0; }
+.rv-r { grid-template-columns: 20mm 34mm minmax(0, 1fr) 92mm 26mm; }
+
+/* 프로필 v2 (한 쪽): 사진 · 학력/경력/교육/대외활동 · 자격증 · 아래 도구 로고 — js/pdf.js profile */
+.pf2 { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: 54mm minmax(0, 1fr) 76mm; grid-template-rows: minmax(0, 1fr) auto;
+  column-gap: 11mm; row-gap: 7mm; }
+.pf2__side { grid-row: 1 / 3; display: flex; flex-direction: column; gap: 5mm; }
+.pf2__photo { width: 54mm; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 3mm; background: var(--gray); }
+.pf2__cv { min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 9mm; row-gap: 7mm; align-content: start; }
+.pf2__b h3 { display: flex; align-items: baseline; gap: 2mm; padding-bottom: 2.2mm; margin-bottom: 1mm; border-bottom: 1.1pt solid var(--navy); font-size: 10.5pt; font-weight: 800; }
+.pf2__b h3 small { font-size: 8pt; color: var(--pink-text); }
+.pf2__b li { padding: 2.6mm 0; border-bottom: .5pt solid var(--line); }
+.pf2__b li strong { display: block; font-size: 9.6pt; font-weight: 700; line-height: 1.35; }
+.pf2__b li span { display: block; margin-top: .8mm; font-size: 8pt; line-height: 1.45; color: var(--ink-3); }
+.pf2__b li time { font-variant-numeric: tabular-nums; }
+.pf2__b li b { color: var(--pink-text); font-weight: 700; }
+.pf2__cert .pf2__b li { display: flex; justify-content: space-between; align-items: baseline; gap: 3mm; padding: 2.2mm 0; }
+.pf2__cert .pf2__b li strong { font-size: 9pt; }
+.pf2__cert .pf2__b li time { flex: none; font-size: 7.8pt; color: var(--ink-3); }
+.pf2__tools { grid-column: 2 / 4; padding-top: 4mm; border-top: .5pt solid var(--line); display: flex; align-items: center; gap: 6mm; }
+.pf2__tools .k { flex: none; margin: 0; }
+.pf2__tools ul { display: flex; flex-wrap: wrap; align-items: center; gap: 2.4mm 5mm; }
+.pf2__tools li { display: flex; align-items: center; gap: 1.6mm; font-size: 8pt; color: var(--ink-2); }
+.pf2__tools .tb { width: 6.4mm; height: 6.4mm; font-size: 7pt; }
+.pf2__tools .tb--text { width: auto; height: auto; padding: 1mm 2.4mm; font-size: 7.4pt; }
+.pf2__b li .pf2__d { display: flex; align-items: baseline; gap: 2mm; white-space: nowrap; }
+.pf2__b li .pf2__d b { font-size: 7.6pt; }
+.pf2__b li .pf2__d i { font-style: normal; }
+.pf2__cv { row-gap: 9mm; }
+.pf2__tools { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3.4mm; align-items: start; }
+.pf2__tools > div { display: grid; grid-template-columns: 16mm minmax(0, 1fr); align-items: center; }
+.pf2__tools ul { gap: 2mm 4.6mm; }
+.pf2__tools .tb__name { display: inline; font-size: 8pt; color: var(--ink-2); font-weight: 600; }
+.pf2__tools .tb { min-width: 6.4mm; width: auto; padding: 0 1mm; }
+.pf2__tools .tb[style*="#FFFFFF;color:#111111"] { border: .6pt solid var(--line); }
+
+/* 프로필 v3 — 레퍼런스처럼: 칸 사이 줄 없이 여백, 왼쪽 날짜 · 오른쪽 이름, 작은 섹션 제목에 짧은 밑줄 */
+.pf3 { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: 52mm minmax(0, 1.15fr) minmax(0, 1fr) 62mm; column-gap: 10mm; padding-top: 2mm; }
+.pf3__side { display: flex; flex-direction: column; gap: 4.5mm; }
+.pf3__photo { width: 46mm; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 2mm; background: var(--gray); }
+.pf3__name strong { font-size: 15pt; font-weight: 800; letter-spacing: -0.02em; margin-right: 2mm; }
+.pf3__name span { font-size: 8.5pt; font-weight: 700; letter-spacing: .08em; color: var(--ink-3); }
+.pf3__facts { display: grid; gap: 1.8mm; font-size: 8.4pt; }
+.pf3__facts div { display: grid; grid-template-columns: 13mm minmax(0, 1fr); }
+.pf3__facts dt { color: var(--ink-3); font-weight: 700; }
+.pf3__facts dd { overflow-wrap: anywhere; }
+.pf3__col { min-width: 0; display: flex; flex-direction: column; gap: 9mm; }
+.pf3__sec h3 { display: inline-flex; align-items: baseline; gap: 2mm; margin-bottom: 4.5mm; padding-bottom: 1.2mm; border-bottom: 1.4pt solid var(--ink);
+  font-size: 9pt; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.pf3__sec h3 span { font-size: 7.6pt; font-weight: 600; letter-spacing: 0; color: var(--ink-3); }
+.pf3__sec > ul { display: grid; gap: 4mm; }
+.pf3__sec li { display: grid; grid-template-columns: 27mm minmax(0, 1fr); column-gap: 3mm; align-items: baseline; }
+.pf3__date time { display: block; font-size: 8pt; color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pf3__date b, .pf3__date i { display: block; margin-top: .6mm; font-size: 7.4pt; font-style: normal; }
+.pf3__date b { color: var(--pink-text); font-weight: 700; }
+.pf3__date i { color: var(--ink-3); }
+.pf3__sec li strong { display: block; font-size: 9.2pt; font-weight: 700; line-height: 1.4; }
+.pf3__sec li span { display: block; margin-top: .6mm; font-size: 7.8pt; line-height: 1.45; color: var(--ink-3); }
+.pf3__sec--cert > ul { gap: 2.6mm; }
+.pf3__sec--cert li { grid-template-columns: 15mm minmax(0, 1fr); }
+.pf3__sec--cert time { font-size: 7.8pt; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.pf3__sec--cert strong { font-size: 8.6pt !important; font-weight: 600 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf3__tools { display: flex !important; flex-wrap: wrap; gap: 2.6mm 2.2mm; }
+.pf3__tools li { display: flex; flex-direction: column; align-items: center; gap: 1mm; width: 12mm; }
+.pf3__tools b { display: grid; place-items: center; width: 8.4mm; height: 8.4mm; border: 1pt solid var(--ink); border-radius: 1.6mm; font-size: 8pt; font-weight: 800; }
+.pf3__tools span { font-size: 6pt !important; margin: 0 !important; color: var(--ink-3); text-align: center; line-height: 1.2; white-space: nowrap; }
+.pf3__skills { font-size: 8pt; line-height: 1.6; color: var(--ink-2); }
+.pf3 { grid-template-columns: 56mm minmax(0, 1fr) minmax(0, 1fr) 72mm; column-gap: 9mm; }
+.pf3__sec li { grid-template-columns: 15mm minmax(0, 1fr); }
+.pf3__date time { line-height: 1.4; }
+.pf3__sec li strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf3__side-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 5mm; }
+.pf3__side-bottom .pf3__sec h3 { margin-bottom: 3mm; }
+.pf3__tools { gap: 2mm 1.2mm; }
+.pf3__tools li { width: 12.6mm; }
+.pf3__tools b { width: 7.6mm; height: 7.6mm; font-size: 7.4pt; }
+.pf3__sec--cert li { grid-template-columns: 14mm minmax(0, 1fr); }
+.pf3__sec--cert > ul { gap: 3.2mm; }
+/* 프로필 v3 배치: [사진 칸 | 학력·교육 | 경력·활동] 위, 자격증은 아래 전체 폭 두 단 */
+.pf3 { grid-template-columns: 56mm minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); column-gap: 11mm; row-gap: 10mm; }
+.pf3__side { grid-row: 1 / 3; min-height: 0; overflow: hidden; gap: 3.6mm; }
+.pf3__photo { width: 40mm; }
+.pf3__sec--cert { grid-column: 2 / 4; align-self: start; }
+.pf3__sec--cert > ul { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 11mm; row-gap: 3mm; }
+.pf3__sec--cert li { grid-template-columns: 15mm minmax(0, 1fr); }
+.pf3__side-bottom { gap: 4mm; }
+.pf3__tools { gap: 1.8mm 1mm; }
+.pf3__tools li { width: 13mm; }
+/* 도구 · 스킬: 자격증 아래 한 줄 (사진 칸은 사진 · 이름 · 연락처만) */
+.pf3 { grid-template-rows: auto auto minmax(0, 1fr); }
+.pf3__side { grid-row: 1 / 4; }
+.pf3__sec--cert { grid-row: 2; }
+.pf3__bottom { grid-column: 2 / 4; grid-row: 3; align-self: end; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14mm; align-items: start; }
+.pf3__bottom .pf3__tools { flex-wrap: nowrap; gap: 1.6mm; }
+.pf3__bottom .pf3__tools li { width: 14mm; }
+.pf3__bottom .pf3__skills { margin-top: 1mm; }
+.pf3 { row-gap: 7mm; }
+.pf3__col { gap: 7mm; }
+.pf3__sec > ul { gap: 3.4mm; }
+.pf3__sec--cert > ul { row-gap: 2.2mm; }
+.pf3__sec h3 { margin-bottom: 3.6mm; }
+.pf3__bottom { padding-top: 6mm; }
+/* 진행 중 표시: 이름 옆 작은 태그 */
+.pf3__st { display: inline-block; margin-left: 2mm; padding: .3mm 1.8mm; border-radius: 6mm; background: var(--pink-soft); color: var(--pink-text);
+  font-size: 6.8pt; font-weight: 700; font-style: normal; vertical-align: .3mm; }
+
+/* 로고 (img/logos): 도구 배지 · 프로필 도구 · 마지막 쪽 SNS */
+.tlogo { width: 6.2mm; height: 6.2mm; object-fit: contain; border-radius: 1.4mm; flex: none; }
+.tools .tlogo + .tb__name { display: none; }
+.pf3__tools img { width: 8.4mm; height: 8.4mm; object-fit: contain; border-radius: 1.6mm; }
+.end__sns a:has(.end__logo) { grid-template-columns: 6mm minmax(0, 1fr); align-items: center; }
+.end__logo { width: 4.6mm; height: 4.6mm; object-fit: contain; border-radius: 1mm; background: #fff; padding: .3mm; }
+.end__sns a { grid-template-columns: 6mm minmax(0, 1fr); align-items: center; }
+.end__mark { display: grid; place-items: center; width: 4.6mm; height: 4.6mm; border-radius: 1mm; background: rgba(255,255,255,.14); color: #fff !important; font-size: 6.4pt; font-weight: 800; }
+.tools { gap: 1.6mm 3.2mm; }
+.tools .tlogo + .tb__name { display: inline; margin-left: -1.6mm; font-size: 8pt; color: var(--ink-2); font-weight: 600; }
