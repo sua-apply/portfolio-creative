@@ -533,7 +533,7 @@
     const t = info.contactTitle || "끝까지 봐 주셔서 감사합니다.";
     const m = /^(.*\S)\s+(\S+)$/.exec(t);
     const title = m ? `${esc(m[1])}<br /><em>${esc(m[2])}</em>` : esc(t);
-    return `<section class="page page--navy">
+    return `<section class="page page--light end-page">
       <div class="end">
         <div class="end__l">
           <p class="end__k">CONTACT</p>
