@@ -300,12 +300,14 @@
       if (s.type === "gallery") (s.items || []).forEach((it) => add(it.image, it.title, it.desc));
       if (s.type === "scenario") {
         const sc = (s.scenes || []).filter((x) => x.image);
-        [...sc.filter((x) => x.key), ...sc.filter((x) => !x.key)].forEach((x) => add(x.image, x.title));
+        [...sc.filter((x) => x.key), ...sc.filter((x) => !x.key)].forEach((x) => { add(x.image, x.title); if (out.length) out[out.length - 1].wide = true; });
       }
     });
     return out;
   }
   const clip = (t, n) => { t = String(t || "").trim(); return t.length > n ? `${t.slice(0, n - 1).replace(/[\s,·]+$/, "")}…` : t; };
+  // 첫 문장만 (보드는 요약이라 한 문장씩). 첫 문장이 아주 길면 그때만 줄여요
+  const first = (t, n) => { const m = /^[\s\S]*?[다요]\.(?=\s|$)/.exec(String(t || "").trim()); return clip(m ? m[0] : t, n); };
   function boardPage(p, i, imgs) {
     const secs = sectionsOf(p);
     const cards = secs.filter((s) => s.type === "cards" && (s.items || []).length);
@@ -315,7 +317,7 @@
     const pics = imgs.slice(0, 2);
     const tiles = [];
     tiles.push(`<div class="bd__t bd__brief"><p class="bd__k">Brief</p>
-      ${brief.map(([k, v]) => `<div class="bd__row"><span>${k}</span><p>${esc(clip(v, 150))}</p></div>`).join("")}
+      ${brief.map(([k, v]) => `<div class="bd__row"><span>${k}</span><p>${esc(first(v, 140))}</p></div>`).join("")}
       ${p.role ? `<div class="bd__row bd__row--role"><span>Role</span><p>${esc(p.role)}</p></div>` : ""}</div>`);
     if (concept) tiles.push(`<div class="bd__t bd__concept${(p.did || []).length ? "" : " bd--tall"}"><p class="bd__k">${esc(concept.label || "Concept")}</p>
       <h4 class="bd__h">${esc(concept.title || "")}</h4>
@@ -327,7 +329,7 @@
       tiles.push(`<div class="bd__t bd__pal"><p class="bd__k">Color</p><ul>${cs.map((c) => `<li style="background:${c.hex};color:${lum(c.hex) > 0.6 ? "#252A34" : "#fff"}"><strong>${esc(c.name)}</strong><code>${esc(c.hex.toUpperCase())}</code></li>`).join("")}</ul></div>`);
     }
     const shown = pics.length ? pics : (p.image ? [{ image: p.image }] : []);
-    tiles.push(`<div class="bd__imgs bd__imgs--${shown.length}${pal ? "" : " bd__imgs--wide"}">${shown.map((it) => `<figure><img src="${esc(it.image)}" alt="" />${it.title ? `<figcaption>${esc(it.title)}${it.desc ? ` · ${esc(it.desc)}` : ""}</figcaption>` : ""}</figure>`).join("")}</div>`);
+    tiles.push(`<div class="bd__imgs bd__imgs--${shown.length}${pal ? "" : " bd__imgs--wide"}">${shown.map((it) => `<figure${it.wide ? ' class="fit"' : ""}><img src="${esc(it.image)}" alt="" />${it.title ? `<figcaption>${esc(it.title)}${it.desc ? ` · ${esc(it.desc)}` : ""}</figcaption>` : ""}</figure>`).join("")}</div>`);
     const web = `${SITE}project.html?id=${encodeURIComponent(p.id)}`;
     return `<section class="page bd-page">
       <div class="page__in">${head(pad2(i + 1), p.title, "Project Board")}
