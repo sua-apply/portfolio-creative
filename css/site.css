@@ -1183,12 +1183,14 @@ a.sns-icon:hover, a.sns-icon:focus-visible { background: var(--brand) !important
 .phero__facts .tool-i { margin: 2px 12px 2px 0; }
 .bars__name .tool-i { gap: 7px; }
 .skills__list img { object-fit: contain; }
-.sns-icon.has-logo { background: #fff !important; box-shadow: none; }
-.sns-icon.has-logo img { width: 24px; height: 24px; object-fit: contain; }
-.sns-icon.has-logo.sns__mark--yt img { width: 26px; }
-a.sns-icon.has-logo:hover, a.sns-icon.has-logo:focus-visible { background: #fff !important; box-shadow: 0 6px 16px rgba(0, 0, 0, .25); }
+/* SNS: 평소 흑백(흰 선 글자) → 마우스를 올리면 흰 동그라미 + 공식 로고 색 */
+.sns-icon { position: relative; overflow: hidden; }
+.sns-icon__mono, .sns-icon__color { position: absolute; inset: 0; margin: auto; transition: opacity .25s, transform .25s; }
+.sns-icon__mono { display: grid; place-items: center; }
+.sns-icon__color { width: 24px; height: 24px; object-fit: contain; opacity: 0; transform: scale(.7); }
+.sns-icon.sns__mark--yt .sns-icon__color { width: 26px; }
+.sns-icon__ts { display: grid; place-items: center; border-radius: 6px; background: #EB531F; color: #fff; font-size: 14px; font-weight: 900; }
+a.sns-icon:hover, a.sns-icon:focus-visible { background: #fff !important; box-shadow: 0 6px 16px rgba(0, 0, 0, .25); }
+a.sns-icon:hover .sns-icon__mono, a.sns-icon:focus-visible .sns-icon__mono { opacity: 0; transform: scale(.7); }
+a.sns-icon:hover .sns-icon__color, a.sns-icon:focus-visible .sns-icon__color { opacity: 1; transform: none; }
 .phero__facts .tool-i img[src$="chatgpt.svg"], .phero__facts .tool-i img[src$="github.svg"] { filter: invert(1); }
-/* 티스토리: 받은 로고가 없어서 같은 흰 동그라미 안에 브랜드 색 네모 + T (다른 로고와 크기 · 모양을 맞춰요) */
-.sns-icon.sns__mark--ts { background: #fff !important; box-shadow: none; }
-.sns-icon.sns__mark--ts b { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: #EB531F; color: #fff; font-size: 14px; font-weight: 900; }
-a.sns-icon.sns__mark--ts:hover { background: #fff !important; box-shadow: 0 6px 16px rgba(0, 0, 0, .25); }

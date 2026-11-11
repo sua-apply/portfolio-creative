@@ -424,9 +424,12 @@
         <ul class="sns-icons">${[...g.items].sort((a, b) => snsRank(a) - snsRank(b)).map((s) => {
           const label = `${s.platform}${s.name ? ` · ${s.name}` : ""}`;
           const logo = window.brandIcon(s.key);
-          const face = logo ? `<img src="${logo}" alt="" />` : SNS_GLYPH[s.cls] || `<b>${esc(s.mark)}</b>`;
+          // 평소에는 흰 선 글자(흑백), 마우스를 올리면 공식 로고(색)로 바뀌어요
+          const mono = `<span class="sns-icon__mono">${SNS_GLYPH[s.cls] || `<b>${esc(s.mark)}</b>`}</span>`;
+          const color = logo ? `<img class="sns-icon__color" src="${logo}" alt="" />` : s.cls === "ts" ? `<b class="sns-icon__color sns-icon__ts">T</b>` : "";
+          const face = mono + color;
           return s.url
-            ? `<li><a class="sns-icon${logo ? " has-logo" : ""} sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(label)} (새 창)" title="${esc(s.platform)}">${face}</a></li>`
+            ? `<li><a class="sns-icon sns__mark${s.cls ? ` sns__mark--${s.cls}` : ""}" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="${esc(label)} (새 창)" title="${esc(s.platform)}">${face}</a></li>`
             : `<li><span class="sns-icon sns__mark is-soon${s.cls ? ` sns__mark--${s.cls}` : ""}" role="img" aria-label="${esc(s.platform)} (곧 열려요)" title="${esc(s.platform)} · 곧 열려요">${face}</span></li>`;
         }).join("")}</ul>
       </div>`).join("");
