@@ -460,3 +460,14 @@ ul, ol { padding: 0; list-style: none; }
 /* 진행 중 표시: 이름 옆 작은 태그 */
 .pf3__st { display: inline-block; margin-left: 2mm; padding: .3mm 1.8mm; border-radius: 6mm; background: var(--pink-soft); color: var(--pink-text);
   font-size: 6.8pt; font-weight: 700; font-style: normal; vertical-align: .3mm; }
+
+/* 로고 (img/logos): 도구 배지 · 프로필 도구 · 마지막 쪽 SNS */
+.tlogo { width: 6.2mm; height: 6.2mm; object-fit: contain; border-radius: 1.4mm; flex: none; }
+.tools .tlogo + .tb__name { display: none; }
+.pf3__tools img { width: 8.4mm; height: 8.4mm; object-fit: contain; border-radius: 1.6mm; }
+.end__sns a:has(.end__logo) { grid-template-columns: 6mm minmax(0, 1fr); align-items: center; }
+.end__logo { width: 4.6mm; height: 4.6mm; object-fit: contain; border-radius: 1mm; background: #fff; padding: .3mm; }
+.end__sns a { grid-template-columns: 6mm minmax(0, 1fr); align-items: center; }
+.end__mark { display: grid; place-items: center; width: 4.6mm; height: 4.6mm; border-radius: 1mm; background: rgba(255,255,255,.14); color: #fff !important; font-size: 6.4pt; font-weight: 800; }
+.tools { gap: 1.6mm 3.2mm; }
+.tools .tlogo + .tb__name { display: inline; margin-left: -1.6mm; font-size: 8pt; color: var(--ink-2); font-weight: 600; }

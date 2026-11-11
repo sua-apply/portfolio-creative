@@ -74,7 +74,7 @@
         <div><strong>${esc(x.title)}${x.status ? `<em class="pf3__st">${esc(x.status)}</em>` : ""}</strong>${x.sub || x.len ? `<span>${[x.sub, x.len].filter(Boolean).map(esc).join(" · ")}</span>` : ""}</div></li>`).join("")}</ul></div>`;
     const labels = skills.flatMap((g) => g.items.map(([label]) => label));
     const abbr = (t) => TOOL_ABBR[normTool(t)];
-    const tools = labels.filter(abbr), others = labels.filter((t) => !abbr(t));
+    const tools = labels.filter((t) => logoOf(t) || abbr(t)), others = labels.filter((t) => !logoOf(t) && !abbr(t));
     return `<section class="page">
       <div class="page__in">
         ${head(num, "Profile", R.eyebrow || "")}
@@ -87,7 +87,7 @@
           <div class="pf3__col">${left.map(sec).join("")}</div>
           <div class="pf3__col">${right.map(sec).join("")}</div>
           <div class="pf3__bottom">
-              ${tools.length ? `<div class="pf3__sec"><h3>Tools</h3><ul class="pf3__tools">${tools.map((t) => `<li><b>${abbr(t)}</b><span>${esc(t.replace(/^Adobe\s+/i, "").replace(/\s*\(.*?\)/, ""))}</span></li>`).join("")}</ul></div>` : ""}
+              ${tools.length ? `<div class="pf3__sec"><h3>Tools</h3><ul class="pf3__tools">${tools.map((t) => `<li>${logoOf(t) ? `<img src="img/logos/${logoOf(t)}" alt="" />` : `<b>${abbr(t)}</b>`}<span>${esc(t.replace(/^Adobe\s+/i, "").replace(/\s*\(.*?\)/, ""))}</span></li>`).join("")}</ul></div>` : ""}
               ${others.length ? `<div class="pf3__sec"><h3>Skills</h3><p class="pf3__skills">${others.map(esc).join(" · ")}</p></div>` : ""}
             </div>
           ${certs ? `<div class="pf3__sec pf3__sec--cert"><h3>${esc(EN[certs[0]])}<span>${esc(certs[0])}</span></h3><ul>${certs[1].map((x) => `<li><time>${esc(x.date)}</time><strong>${esc(x.title)}</strong></li>`).join("")}</ul></div>` : ""}
@@ -189,8 +189,15 @@
     notion: ["N", "#FFFFFF", "#111111"], "html / css": ["&lt;/&gt;", "#E34F26", "#FFFFFF"], "html/css": ["&lt;/&gt;", "#E34F26", "#FFFFFF"],
   };
   const normTool = (t) => String(t).toLowerCase().replace(/^adobe\s+/, "").replace(/\s*\(.*?\)\s*/g, "").trim();
+  // 도구 · SNS 로고 (img/logos). 없는 도구는 글자 배지로
+  const TOOL_LOGO = { photoshop: "photoshop.svg", illustrator: "illustrator.svg", indesign: "indesign.svg", "after effects": "after-effects.svg",
+    "premiere pro": "premiere-pro.svg", figma: "figma.svg", notion: "notion.svg", chatgpt: "openai.svg", openai: "openai.svg",
+    claude: "claude.svg", suno: "suno.png", github: "github.svg" };
+  const SNS_LOGO = { instagram: "instagram.png", youtube: "youtube.png", naver_blog: "naver.svg", naver: "naver.svg", facebook: "facebook.png", github: "github.svg" };
+  const logoOf = (t) => TOOL_LOGO[normTool(t)];
   const toolBadge = (t) => {
     const key = normTool(t);
+    if (TOOL_LOGO[key]) return `<img class="tlogo" src="img/logos/${TOOL_LOGO[key]}" alt="" title="${esc(t)}" /><span class="tb__name">${esc(t)}</span>`;
     const b = TOOL_BADGES[key];
     return b ? `<span class="tb" style="background:${b[1]};color:${b[2]}" title="${esc(t)}">${b[0]}</span><span class="tb__name">${esc(t)}</span>`
       : `<span class="tb tb--text">${esc(t)}</span>`;
@@ -436,7 +443,7 @@
         </div>
         <div class="end__r">
           <a class="end__web" href="${SITE}"><span>전체 프로젝트와 작업 과정은 웹 포트폴리오에서</span><strong>${SITE.replace(/^https:\/\//, "")}</strong></a>
-          ${groups.map((g) => `<div class="end__sns"><h3>${esc(g.title || "SNS")}</h3>${g.items.map((s) => `<a href="${esc(s.url)}"><span>${esc(s.platform)}</span>${esc(s.name)}</a>`).join("")}</div>`).join("")}
+          ${groups.map((g) => `<div class="end__sns"><h3>${esc(g.title || "SNS")}</h3>${g.items.map((s) => `<a href="${esc(s.url)}">${SNS_LOGO[s.key] ? `<img class="end__logo" src="img/logos/${SNS_LOGO[s.key]}" alt="" title="${esc(s.platform)}" />` : `<span class="end__mark" title="${esc(s.platform)}">${esc(s.mark || s.platform.slice(0, 1))}</span>`}${esc(s.name)}</a>`).join("")}</div>`).join("")}
         </div>
       </div>
     </section>`;
