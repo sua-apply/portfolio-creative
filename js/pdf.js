@@ -172,7 +172,10 @@
           <p class="pj__kind">${esc([p.categoryLabel, window.kindLabel(p)].filter(Boolean).join(" · "))}</p>
           ${p.summary ? `<p class="pj__sum">${esc(p.summary)}</p>` : ""}
           <dl class="pj__facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
-          <p class="pj__link">자세한 과정 → <a href="${SITE}project.html?id=${encodeURIComponent(p.id)}">웹에서 보기</a></p>
+          ${p.youtube
+            // 영상 작업(유튜브 링크가 있는 프로젝트)은 유튜브로 바로 가요
+            ? `<p class="pj__link">완성 영상 → <a href="https://youtu.be/${esc(p.youtube)}">영상 보러가기</a></p>`
+            : `<p class="pj__link">자세한 과정 → <a href="${SITE}project.html?id=${encodeURIComponent(p.id)}">웹에서 보기</a></p>`}
         </div>
         <figure class="pj__art"><img src="${esc(p.image || p.thumb)}" alt="" /></figure>
       </div>
