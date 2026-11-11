@@ -319,9 +319,9 @@
     tiles.push(`<div class="bd__t bd__brief"><p class="bd__k">Brief</p>
       ${brief.map(([k, v]) => `<div class="bd__row"><span>${k}</span><p>${esc(first(v, 140))}</p></div>`).join("")}
       ${p.role ? `<div class="bd__row bd__row--role"><span>Role</span><p>${esc(p.role)}</p></div>` : ""}</div>`);
-    if (concept) tiles.push(`<div class="bd__t bd__concept${(p.did || []).length ? "" : " bd--tall"}"><p class="bd__k">${esc(concept.label || "Concept")}</p>
+    if (concept) tiles.push(`<div class="bd__t bd__concept${(p.did || []).length ? "" : " bd--tall"}"><p class="bd__k">${esc((concept.label || "Concept").split("&")[0].trim())}</p>
       <h4 class="bd__h">${esc(concept.title || "")}</h4>
-      <ul class="bd__kw">${concept.items.slice(0, 3).map((it) => `<li><strong>${esc(it.kicker || it.title)}</strong>${it.kicker ? `<span>${esc(clip(it.title, 34))}</span>` : ""}</li>`).join("")}</ul></div>`);
+      <ul class="bd__kw">${concept.items.slice(0, 3).map((it) => `<li><strong>${esc(it.kicker || it.title)}</strong>${it.kicker ? `<span>${esc(clip(it.title, 22))}</span>` : ""}</li>`).join("")}</ul></div>`);
     if ((p.did || []).length) tiles.push(`<div class="bd__t bd__did${concept ? "" : " bd--tall"}"><p class="bd__k">What I did</p>
       <ol>${p.did.slice(0, 4).map((d, n) => `<li><b>${pad2(n + 1)}</b>${esc(clip(d, 48))}</li>`).join("")}</ol></div>`);
     if (pal) {
