@@ -264,6 +264,8 @@
           <p class="pj__kind">${esc([p.categoryLabel, window.kindLabel(p)].filter(Boolean).join(" · "))}</p>
           ${p.summary ? `<p class="pj__sum">${esc(p.summary)}</p>` : ""}
           <dl class="pj__facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+          ${(p.stats || []).length ? `<ul class="pj__stats">${p.stats.slice(0, 4).map((x) => `<li><strong>${esc(x.value)}</strong><span>${esc(x.label || "")}</span></li>`).join("")}</ul>` : ""}
+          ${p.detail && p.detail.book && p.detail.book.pdf ? `<p class="pj__link">완성본 ${(p.detail.book.pages || []).length}쪽 → <a href="${SITE}${esc(p.detail.book.pdf)}">PDF로 보기</a></p>` : ""}
           <p class="pj__link">자세한 과정 → <a href="${SITE}project.html?id=${encodeURIComponent(p.id)}">웹에서 보기</a></p>
         </div>
         ${p.youtube

@@ -708,3 +708,10 @@ ul, ol { padding: 0; list-style: none; }
 /* 공모전 출품작 표기: Overview 맨 앞 */
 .bb__lead { display: inline-block; align-self: flex-start; margin-bottom: 3mm; padding: 1.4mm 3mm; border-radius: 1.2mm; background: var(--tn); color: var(--ac); font-size: 9.5pt; font-weight: 700; }
 .bb__imgs[data-grid="2"] { justify-items: center; }
+/* 프로젝트 표지: 결과 수치 */
+.pj__stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3mm 5mm; margin-top: 6mm; padding-top: 5mm; border-top: .6pt solid var(--line); }
+.pj__stats li { display: flex; flex-direction: column; gap: .8mm; }
+.pj__stats strong { font-size: 17pt; font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--pink-text); }
+.pj__stats span { font-size: 7.5pt; line-height: 1.4; color: var(--ink-3); }
+.pj__stats + .pj__link { margin-top: 5mm; }
+.pj__link + .pj__link { margin-top: 1.5mm; }

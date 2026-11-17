@@ -38,6 +38,8 @@
       date: ym(p.date, "-"), featured: p.featured, slide: !!p.on_slide, type: p.kind, client: p.client || "", role: p.my_role || "",
       did: p.did || [], tools: p.tools || [], tags: p.tags || [],
       result: p.result_value ? { value: p.result_value, label: p.result_label || "" } : null,
+      // 결과 수치 여러 개: detail.result_stats = [{ value: "24쪽", label: "…" }, …]
+      stats: ((p.detail && p.detail.result_stats) || []).filter((x) => x && x.value),
       thumb: p.thumb, image: p.image || p.thumb,
       link: (p.links && (p.links.detail || p.links.behance || p.links.youtube || p.links.demo)) || "",
       // 유튜브 영상: 상세 페이지 대표 이미지 자리에서 바로 재생 (youtu.be / watch?v= / shorts 주소 모두)
