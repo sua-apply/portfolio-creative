@@ -147,7 +147,6 @@
           <button type="button" class="book__nav book__nav--next" aria-label="다음 쪽"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
         </div>
         <div class="book__bar"><span class="book__pos" aria-live="polite"></span><button type="button" class="book__full">전체 화면</button>${b.pdf ? `<a class="book__pdf" href="${esc(b.pdf)}" target="_blank" rel="noopener">PDF로 보기 ↗</a>` : ""}</div>
-        <ol class="book__thumbs">${b.pages.map((src, i) => `<li><button type="button" data-i="${i}" aria-label="${i + 1}쪽"><img src="${esc(src)}" alt="" loading="lazy" /></button></li>`).join("")}</ol>
       </div>${b.caption ? `<p class="hint">${esc(b.caption)}</p>` : ""}`;
   };
   function bookViewer(p) {
