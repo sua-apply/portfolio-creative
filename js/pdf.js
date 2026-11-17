@@ -641,8 +641,9 @@
       const im = f.querySelector("img"), cap = f.querySelector("figcaption");
       if (!im || !im.naturalWidth) return;
       const r = im.naturalWidth / im.naturalHeight;
-      const free = f.closest(".bb__imgs").dataset.grid === "2";   // 2열 격자: 너비 기준 (행 높이는 내용대로)
-      const W = f.clientWidth, H = free ? Infinity : f.clientHeight - (cap ? cap.offsetHeight + 8 : 0);
+      const box = f.closest(".bb__imgs"), free = box.dataset.grid === "2";   // 2열 격자: 칸 너비와 (상자 높이 ÷ 줄 수) 중 작은 쪽
+      const rows = Math.ceil(box.querySelectorAll("figure").length / 2), capH = cap ? cap.offsetHeight + 8 : 0;
+      const W = free ? (box.clientWidth - 16) / 2 : f.clientWidth, H = free ? (box.clientHeight - 18 * (rows - 1)) / rows - capH : f.clientHeight - capH;
       const w = Math.min(W, H * r);
       im.style.width = `${w}px`; im.style.height = `${w / r}px`;
     });
