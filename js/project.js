@@ -146,7 +146,7 @@
           <button type="button" class="book__nav book__nav--prev" aria-label="이전 쪽"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
           <button type="button" class="book__nav book__nav--next" aria-label="다음 쪽"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
         </div>
-        <div class="book__bar"><span class="book__pos" aria-live="polite"></span>${b.pdf ? `<a class="book__pdf" href="${esc(b.pdf)}" target="_blank" rel="noopener">PDF로 보기 ↗</a>` : ""}</div>
+        <div class="book__bar"><span class="book__pos" aria-live="polite"></span><button type="button" class="book__full">전체 화면</button>${b.pdf ? `<a class="book__pdf" href="${esc(b.pdf)}" target="_blank" rel="noopener">PDF로 보기 ↗</a>` : ""}</div>
         <ol class="book__thumbs">${b.pages.map((src, i) => `<li><button type="button" data-i="${i}" aria-label="${i + 1}쪽"><img src="${esc(src)}" alt="" loading="lazy" /></button></li>`).join("")}</ol>
       </div>${b.caption ? `<p class="hint">${esc(b.caption)}</p>` : ""}`;
   };
@@ -166,13 +166,19 @@
       for (let i = 1; i < N; i += 2) v.push([i, i + 1 < N ? i + 1 : -1]);
       return v;
     };
-    let V = views(), at = 0, busy = null;
+    let V = views(), at = 0, flip = null;
     const pageHTML = (i) => (i < 0 ? "" : `<img src="${esc(pages[i])}" alt="${i + 1}쪽" draggable="false" />`);
-    const slot = (side, i) => `<div class="book__pg book__pg--${side}${i < 0 ? " is-empty" : ""}">${pageHTML(i)}</div>`;
+    const slot = (side, i) => `<div class="book__pg book__pg--${side}${i < 0 ? " is-empty" : ""}">${pageHTML(i)}<i class="book__cast" aria-hidden="true"></i></div>`;
+    // 책 두께: 읽은 만큼 왼쪽, 남은 만큼 오른쪽 종이 단면이 두꺼워져요
+    const edges = (k) => {
+      const done = k / Math.max(1, V.length - 1);
+      spread.style.setProperty("--lt", `${Math.round(done * 7)}px`);
+      spread.style.setProperty("--rt", `${Math.round((1 - done) * 7)}px`);
+    };
     const paint = (l, r) => {
       spread.classList.toggle("is-one", !wide());
       spread.classList.toggle("is-open", l >= 0 && r >= 0);
-      spread.innerHTML = `${wide() ? slot("l", l) : ""}${slot("r", r)}<i class="book__spine" aria-hidden="true"></i>`;
+      spread.innerHTML = `${wide() ? slot("l", l) : ""}${slot("r", r)}<i class="book__spine" aria-hidden="true"></i><i class="book__corner" aria-hidden="true"></i>`;
     };
     const ui = () => {
       const [l, r] = V[at], on = [l, r].filter((i) => i >= 0);
@@ -182,60 +188,139 @@
       if (first) { const row = first.closest("ol"); row.scrollTo({ left: first.parentElement.offsetLeft - row.clientWidth / 2 + first.clientWidth, behavior: "smooth" }); }
       el.querySelector(".book__nav--prev").disabled = at === 0;
       el.querySelector(".book__nav--next").disabled = at === V.length - 1;
+      spread.classList.toggle("is-last", at === V.length - 1);
       (V[at + 1] || []).concat(V[at - 1] || []).forEach((i) => { if (i >= 0) { const im = new Image(); im.src = pages[i]; } });
     };
-    // 한 장 넘기기: 가운데 제본선을 축으로 종이가 3D로 넘어가요
-    //  앞으로: 오른쪽 장(앞면 = 지금 오른쪽, 뒷면 = 다음 왼쪽)이 왼쪽으로
-    //  뒤로:  왼쪽 장(앞면 = 지금 왼쪽, 뒷면 = 이전 오른쪽)이 오른쪽으로
-    //  한 쪽 보기(휴대폰): 지금 쪽이 왼쪽 가장자리를 축으로 넘어가며 다음 쪽이 드러나요
-    const go = (k) => {
-      k = Math.max(0, Math.min(V.length - 1, k));
-      if (k === at) return;
-      if (busy) busy.finish();
+
+    /* 한 장 넘기기 — 가운데 제본선을 축으로 종이가 3D로 넘어가요
+       앞으로: 오른쪽 장(앞면 = 지금 오른쪽, 뒷면 = 다음 왼쪽)이 왼쪽으로
+       뒤로:  왼쪽 장(앞면 = 지금 왼쪽, 뒷면 = 이전 오른쪽)이 오른쪽으로
+       한 쪽 보기(휴대폰): 지금 쪽이 왼쪽 가장자리를 축으로 넘어가며 다음 쪽이 드러나요
+       begin() 은 넘기기를 준비만 하고, set(0~1) 로 손가락을 따라가거나 play() 로 끝까지 넘겨요 */
+    function begin(k) {
       const A = V[at], B = V[k], fwd = k > at, one = !wide();
-      at = k; ui();
-      if (calm) { paint(B[0], B[1]); return; }
-      let leaf;
+      let html;
       if (one) {
         paint(-1, fwd ? B[1] : A[1]);
-        leaf = `<div class="book__leaf book__leaf--one"><div class="book__face book__face--front">${pageHTML(fwd ? A[1] : B[1])}</div></div>`;
+        html = `<div class="book__leaf book__leaf--one"><div class="book__face book__face--front">${pageHTML(fwd ? A[1] : B[1])}</div></div>`;
       } else if (fwd) {
         paint(A[0], B[1]);
-        leaf = `<div class="book__leaf book__leaf--r"><div class="book__face book__face--front">${pageHTML(A[1])}</div><div class="book__face book__face--back">${pageHTML(B[0])}</div></div>`;
+        html = `<div class="book__leaf book__leaf--r"><div class="book__face book__face--front">${pageHTML(A[1])}</div><div class="book__face book__face--back">${pageHTML(B[0])}</div></div>`;
       } else {
         paint(B[0], A[1]);
-        leaf = `<div class="book__leaf book__leaf--l"><div class="book__face book__face--front">${pageHTML(A[0])}</div><div class="book__face book__face--back">${pageHTML(B[1])}</div></div>`;
+        html = `<div class="book__leaf book__leaf--l"><div class="book__face book__face--front">${pageHTML(A[0])}</div><div class="book__face book__face--back">${pageHTML(B[1])}</div></div>`;
       }
-      spread.insertAdjacentHTML("beforeend", leaf);
-      spread.classList.add("is-open");
+      spread.insertAdjacentHTML("beforeend", html);
+      spread.classList.add("is-open", "is-flipping");
       const lf = spread.querySelector(".book__leaf");
-      const kf = one
-        ? (fwd ? [{ transform: "rotateY(0deg)" }, { transform: "rotateY(-180deg)" }] : [{ transform: "rotateY(-180deg)" }, { transform: "rotateY(0deg)" }])
-        : (fwd ? [{ transform: "rotateY(0deg)" }, { transform: "rotateY(-180deg)" }] : [{ transform: "rotateY(0deg)" }, { transform: "rotateY(180deg)" }]);
-      busy = lf.animate(kf, { duration: one ? 560 : 760, easing: "cubic-bezier(.45,.05,.25,1)", fill: "forwards" });
-      // 넘어가는 동안 종이에 그림자가 졌다가 사라져요
-      lf.querySelectorAll(".book__face").forEach((f) => f.animate([{ "--shade": 0 }, { "--shade": 0.35 }, { "--shade": 0 }], { duration: one ? 560 : 760 }));
-      busy.onfinish = () => { busy = null; paint(B[0], B[1]); };
+      // 진행도 t(0~1) → 각도 · 그림자 · 살짝 들리는 휨
+      const sign = one || fwd ? -1 : 1, start = one && !fwd ? 1 : 0;
+      const set = (t) => {
+        t = Math.max(0, Math.min(1, t));
+        const q = start ? 1 - t : t;                         // 휴대폰 뒤로: 넘어가 있던 쪽이 돌아와요
+        const deg = sign * 180 * q;
+        const lift = Math.sin(Math.PI * q);
+        lf.style.transform = `rotateY(${deg}deg) translateZ(${lift * 2}px) skewY(${(fwd || one ? -1 : 1) * lift * 1.6}deg)`;
+        lf.style.setProperty("--shade", (lift * 0.42).toFixed(3));
+        spread.style.setProperty("--cast", (lift * 0.55).toFixed(3));
+        lf.dataset.t = t;
+      };
+      set(0);
+      return {
+        set,
+        play(to = 1, ms) {
+          return new Promise((done) => {
+            const from = +lf.dataset.t, dur = ms != null ? ms : (one ? 520 : 720) * Math.max(0.25, Math.abs(to - from));
+            const t0 = performance.now(), ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+            const tick = (now) => {
+              const x = Math.min(1, (now - t0) / Math.max(1, dur));
+              set(from + (to - from) * ease(x));
+              if (x < 1) requestAnimationFrame(tick); else done(to);
+            };
+            requestAnimationFrame(tick);
+          });
+        },
+        end(ok) {
+          spread.classList.remove("is-flipping");
+          spread.style.setProperty("--cast", 0);
+          if (ok) { at = k; edges(at); ui(); }
+          const v = V[at]; paint(v[0], v[1]);
+        },
+      };
+    }
+    const go = async (k) => {
+      k = Math.max(0, Math.min(V.length - 1, k));
+      if (k === at || flip) return;
+      if (calm) { at = k; edges(at); ui(); paint(V[at][0], V[at][1]); return; }
+      flip = begin(k);
+      const f = flip;
+      await f.play(1);
+      f.end(true); flip = null;
     };
     const viewOf = (i) => V.findIndex((v) => v.includes(i));
     el.querySelector(".book__nav--prev").addEventListener("click", () => go(at - 1));
     el.querySelector(".book__nav--next").addEventListener("click", () => go(at + 1));
     thumbs.forEach((t) => t.addEventListener("click", () => go(viewOf(+t.dataset.i))));
-    // 책을 눌러도 넘어가요: 오른쪽 절반 = 다음, 왼쪽 절반 = 이전
-    spread.addEventListener("click", (e) => { const r = spread.getBoundingClientRect(); go(at + (e.clientX - r.left > r.width / 2 ? 1 : -1)); });
     el.addEventListener("keydown", (e) => {
       if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); go(at + (e.key === "ArrowRight" ? 1 : -1)); }
     });
-    let x0 = null;
-    spread.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
-    spread.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) go(at + (dx < 0 ? 1 : -1)); x0 = null; });
-    let w = el.clientWidth;
-    addEventListener("resize", () => {
-      if (Math.abs(el.clientWidth - w) < 40) return;
-      w = el.clientWidth; if (busy) busy.finish();
-      const keep = V[at].find((i) => i >= 0); V = views(); at = Math.max(0, viewOf(keep)); paint(V[at][0], V[at][1]); ui();
+
+    /* 손으로 넘기기 (마우스 끌기 · 손가락 밀기)
+       - 오른쪽 절반을 잡고 왼쪽으로 끌면 다음 장, 왼쪽 절반을 잡고 오른쪽으로 끌면 이전 장 (휴대폰은 방향만 봐요)
+       - 종이가 손을 따라오고, 3분의 1 넘게 넘기거나 빠르게 휙 넘기면 끝까지 넘어가요. 아니면 제자리로
+       - 거의 안 움직이고 떼면 '누르기'로 보고 한 장 넘겨요 */
+    let drag = null;
+    spread.addEventListener("pointerdown", (e) => {
+      if (flip || e.button > 0) return;
+      const r = spread.getBoundingClientRect();
+      drag = { x0: e.clientX, t0: performance.now(), w: r.width, right: e.clientX - r.left > r.width / 2, id: e.pointerId, ctl: null, dir: 0 };
     });
-    paint(V[0][0], V[0][1]); ui();
+    spread.addEventListener("pointermove", (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x0;
+      if (!drag.ctl) {
+        if (Math.abs(dx) < 8) return;
+        const dir = dx < 0 ? 1 : -1;                         // 왼쪽으로 끌면 다음
+        if (wide() && ((dir > 0 && !drag.right) || (dir < 0 && drag.right))) return;
+        const k = at + dir;
+        if (k < 0 || k >= V.length) return;
+        drag.dir = dir; drag.ctl = flip = begin(k);
+        spread.setPointerCapture(e.pointerId);
+      }
+      // 넓은 화면은 한 장 너비의 1.6배, 휴대폰은 화면 너비만큼 끌면 끝까지 넘어가요
+      drag.ctl.set(Math.abs(dx) / (wide() ? drag.w * 0.8 : drag.w * 0.9));
+    });
+    const release = async (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag; drag = null;
+      if (!d.ctl) {                                          // 누르기 = 한 장 넘기기
+        if (Math.abs(e.clientX - d.x0) < 8 && e.type === "pointerup") go(at + (d.right ? 1 : -1));
+        return;
+      }
+      const t = +spread.querySelector(".book__leaf").dataset.t, fast = Math.abs(e.clientX - d.x0) / (performance.now() - d.t0) > 0.6;
+      const ok = t > 0.33 || fast;
+      await d.ctl.play(ok ? 1 : 0);
+      d.ctl.end(ok); flip = null;
+    };
+    spread.addEventListener("pointerup", release);
+    spread.addEventListener("pointercancel", release);
+
+    // 전체 화면으로 읽기
+    const fs = el.querySelector(".book__full");
+    if (fs && el.requestFullscreen) {
+      fs.addEventListener("click", () => (document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen()));
+      document.addEventListener("fullscreenchange", () => { fs.textContent = document.fullscreenElement === el ? "전체 화면 닫기" : "전체 화면"; el.focus(); });
+    } else if (fs) fs.remove();
+
+    let w = el.clientWidth;
+    const relayout = () => {
+      if (Math.abs(el.clientWidth - w) < 40 || flip) return;
+      w = el.clientWidth;
+      const keep = V[at].find((i) => i >= 0); V = views(); at = Math.max(0, viewOf(keep)); edges(at); paint(V[at][0], V[at][1]); ui();
+    };
+    addEventListener("resize", relayout);
+    document.addEventListener("fullscreenchange", () => setTimeout(() => { w = -999; relayout(); }, 60));
+    edges(0); paint(V[0][0], V[0][1]); ui();
   }
 
   // 참여: "팀 3인 · 기여도 50%" (기여도는 막대와 함께)
