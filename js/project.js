@@ -155,42 +155,87 @@
     if (!el) return;
     const pages = p.detail.book.pages, N = pages.length;
     const spread = el.querySelector(".book__spread"), pos = el.querySelector(".book__pos"), thumbs = [...el.querySelectorAll(".book__thumbs button")];
+    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const wide = () => el.clientWidth >= 720;
-    // 펼침면 묶음: [0] [1,2] [3,4] … 마지막이 혼자면 [N-1]
-    const groups = () => {
-      if (!wide()) return pages.map((_, i) => [i]);
-      const g = [[0]];
-      for (let i = 1; i < N; i += 2) g.push(i + 1 < N ? [i, i + 1] : [i]);
-      return g;
+    // 보기 묶음 [왼쪽, 오른쪽] (없는 쪽은 -1)
+    //  넓은 화면: 실제 책처럼 표지는 오른쪽에 혼자 → 2–3 · 4–5 … → 뒤표지는 왼쪽에 혼자
+    //  좁은 화면: 한 쪽씩 [-1, i]
+    const views = () => {
+      if (!wide()) return pages.map((_, i) => [-1, i]);
+      const v = [[-1, 0]];
+      for (let i = 1; i < N; i += 2) v.push([i, i + 1 < N ? i + 1 : -1]);
+      return v;
     };
-    let G = groups(), at = 0;
-    const show = (k) => {
-      at = Math.max(0, Math.min(G.length - 1, k));
-      const g = G[at];
-      spread.classList.toggle("is-single", g.length === 1);
-      spread.innerHTML = g.map((i) => `<img src="${esc(pages[i])}" alt="${i + 1}쪽" />`).join("");
-      pos.innerHTML = `<b>${g.map((i) => pad2(i + 1)).join("–")}</b> / ${pad2(N)}`;
-      thumbs.forEach((t, i) => t.classList.toggle("is-on", g.includes(i)));
-      const on = thumbs[g[0]];
-      if (on) { const row = on.closest("ol"); row.scrollTo({ left: on.parentElement.offsetLeft - row.clientWidth / 2 + on.clientWidth, behavior: "smooth" }); }
+    let V = views(), at = 0, busy = null;
+    const pageHTML = (i) => (i < 0 ? "" : `<img src="${esc(pages[i])}" alt="${i + 1}쪽" draggable="false" />`);
+    const slot = (side, i) => `<div class="book__pg book__pg--${side}${i < 0 ? " is-empty" : ""}">${pageHTML(i)}</div>`;
+    const paint = (l, r) => {
+      spread.classList.toggle("is-one", !wide());
+      spread.classList.toggle("is-open", l >= 0 && r >= 0);
+      spread.innerHTML = `${wide() ? slot("l", l) : ""}${slot("r", r)}<i class="book__spine" aria-hidden="true"></i>`;
+    };
+    const ui = () => {
+      const [l, r] = V[at], on = [l, r].filter((i) => i >= 0);
+      pos.innerHTML = `<b>${on.map((i) => pad2(i + 1)).join("–")}</b> / ${pad2(N)}`;
+      thumbs.forEach((t, i) => t.classList.toggle("is-on", on.includes(i)));
+      const first = thumbs[on[0]];
+      if (first) { const row = first.closest("ol"); row.scrollTo({ left: first.parentElement.offsetLeft - row.clientWidth / 2 + first.clientWidth, behavior: "smooth" }); }
       el.querySelector(".book__nav--prev").disabled = at === 0;
-      el.querySelector(".book__nav--next").disabled = at === G.length - 1;
-      // 다음 쪽 미리 받기
-      (G[at + 1] || []).forEach((i) => { const im = new Image(); im.src = pages[i]; });
+      el.querySelector(".book__nav--next").disabled = at === V.length - 1;
+      (V[at + 1] || []).concat(V[at - 1] || []).forEach((i) => { if (i >= 0) { const im = new Image(); im.src = pages[i]; } });
     };
-    const groupOf = (i) => G.findIndex((g) => g.includes(i));
-    el.querySelector(".book__nav--prev").addEventListener("click", () => show(at - 1));
-    el.querySelector(".book__nav--next").addEventListener("click", () => show(at + 1));
-    thumbs.forEach((t) => t.addEventListener("click", () => show(groupOf(+t.dataset.i))));
+    // 한 장 넘기기: 가운데 제본선을 축으로 종이가 3D로 넘어가요
+    //  앞으로: 오른쪽 장(앞면 = 지금 오른쪽, 뒷면 = 다음 왼쪽)이 왼쪽으로
+    //  뒤로:  왼쪽 장(앞면 = 지금 왼쪽, 뒷면 = 이전 오른쪽)이 오른쪽으로
+    //  한 쪽 보기(휴대폰): 지금 쪽이 왼쪽 가장자리를 축으로 넘어가며 다음 쪽이 드러나요
+    const go = (k) => {
+      k = Math.max(0, Math.min(V.length - 1, k));
+      if (k === at) return;
+      if (busy) busy.finish();
+      const A = V[at], B = V[k], fwd = k > at, one = !wide();
+      at = k; ui();
+      if (calm) { paint(B[0], B[1]); return; }
+      let leaf;
+      if (one) {
+        paint(-1, fwd ? B[1] : A[1]);
+        leaf = `<div class="book__leaf book__leaf--one"><div class="book__face book__face--front">${pageHTML(fwd ? A[1] : B[1])}</div></div>`;
+      } else if (fwd) {
+        paint(A[0], B[1]);
+        leaf = `<div class="book__leaf book__leaf--r"><div class="book__face book__face--front">${pageHTML(A[1])}</div><div class="book__face book__face--back">${pageHTML(B[0])}</div></div>`;
+      } else {
+        paint(B[0], A[1]);
+        leaf = `<div class="book__leaf book__leaf--l"><div class="book__face book__face--front">${pageHTML(A[0])}</div><div class="book__face book__face--back">${pageHTML(B[1])}</div></div>`;
+      }
+      spread.insertAdjacentHTML("beforeend", leaf);
+      spread.classList.add("is-open");
+      const lf = spread.querySelector(".book__leaf");
+      const kf = one
+        ? (fwd ? [{ transform: "rotateY(0deg)" }, { transform: "rotateY(-180deg)" }] : [{ transform: "rotateY(-180deg)" }, { transform: "rotateY(0deg)" }])
+        : (fwd ? [{ transform: "rotateY(0deg)" }, { transform: "rotateY(-180deg)" }] : [{ transform: "rotateY(0deg)" }, { transform: "rotateY(180deg)" }]);
+      busy = lf.animate(kf, { duration: one ? 560 : 760, easing: "cubic-bezier(.45,.05,.25,1)", fill: "forwards" });
+      // 넘어가는 동안 종이에 그림자가 졌다가 사라져요
+      lf.querySelectorAll(".book__face").forEach((f) => f.animate([{ "--shade": 0 }, { "--shade": 0.35 }, { "--shade": 0 }], { duration: one ? 560 : 760 }));
+      busy.onfinish = () => { busy = null; paint(B[0], B[1]); };
+    };
+    const viewOf = (i) => V.findIndex((v) => v.includes(i));
+    el.querySelector(".book__nav--prev").addEventListener("click", () => go(at - 1));
+    el.querySelector(".book__nav--next").addEventListener("click", () => go(at + 1));
+    thumbs.forEach((t) => t.addEventListener("click", () => go(viewOf(+t.dataset.i))));
+    // 책을 눌러도 넘어가요: 오른쪽 절반 = 다음, 왼쪽 절반 = 이전
+    spread.addEventListener("click", (e) => { const r = spread.getBoundingClientRect(); go(at + (e.clientX - r.left > r.width / 2 ? 1 : -1)); });
     el.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); show(at + (e.key === "ArrowRight" ? 1 : -1)); }
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); go(at + (e.key === "ArrowRight" ? 1 : -1)); }
     });
     let x0 = null;
     spread.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
-    spread.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) show(at + (dx < 0 ? 1 : -1)); x0 = null; });
+    spread.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) go(at + (dx < 0 ? 1 : -1)); x0 = null; });
     let w = el.clientWidth;
-    addEventListener("resize", () => { if (Math.abs(el.clientWidth - w) < 40) return; w = el.clientWidth; const first = G[at][0]; G = groups(); show(groupOf(first)); });
-    show(0);
+    addEventListener("resize", () => {
+      if (Math.abs(el.clientWidth - w) < 40) return;
+      w = el.clientWidth; if (busy) busy.finish();
+      const keep = V[at].find((i) => i >= 0); V = views(); at = Math.max(0, viewOf(keep)); paint(V[at][0], V[at][1]); ui();
+    });
+    paint(V[0][0], V[0][1]); ui();
   }
 
   // 참여: "팀 3인 · 기여도 50%" (기여도는 막대와 함께)
