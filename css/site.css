@@ -1279,3 +1279,39 @@ a.sns-icon:hover .sns-icon__color, a.sns-icon:focus-visible .sns-icon__color { o
 @media (max-width: 719px) { .book__nav--prev { left: -6px; } .book__nav--next { right: -6px; } }
 .book__spread img:first-child { box-shadow: none; }
 .book__thumbs { position: relative; }
+
+/* ===== 전자책 느낌: 손으로 넘기기 · 책 두께 · 접힌 모서리 · 전체 화면 ===== */
+@property --cast { syntax: "<number>"; inherits: true; initial-value: 0; }
+.book__spread { touch-action: pan-y; cursor: grab; --lt: 0px; --rt: 7px; }
+.book__spread:active { cursor: grabbing; }
+.book__pg { overflow: visible !important; }
+.book__pg img { border-radius: inherit; }
+/* 종이 단면(책 두께): 읽은 쪽은 왼쪽, 남은 쪽은 오른쪽에 겹겹이 */
+.book__pg--l:not(.is-empty)::before, .book__pg--r:not(.is-empty)::before { content: ""; position: absolute; top: 2px; bottom: 2px; pointer-events: none;
+  background: repeating-linear-gradient(90deg, #fbfaf6 0 1px, #dcd8cf 1px 2px); }
+.book__pg--l:not(.is-empty)::before { right: 100%; width: var(--lt); border-radius: 3px 0 0 3px; }
+.book__pg--r:not(.is-empty)::before { left: 100%; width: var(--rt); border-radius: 0 3px 3px 0; }
+.is-one .book__pg--r::before { display: none; }
+/* 넘어가는 종이가 아래 쪽에 드리우는 그림자 */
+.book__cast { position: absolute; inset: 0; pointer-events: none; opacity: var(--cast); border-radius: inherit; }
+.book__pg--r .book__cast { background: linear-gradient(90deg, rgba(0,0,0,.55), rgba(0,0,0,0) 45%); }
+.book__pg--l .book__cast { background: linear-gradient(270deg, rgba(0,0,0,.55), rgba(0,0,0,0) 45%); }
+.is-one .book__pg--r .book__cast { background: linear-gradient(90deg, rgba(0,0,0,.35), rgba(0,0,0,0) 60%); }
+/* 넘어가는 종이: 앞면 광택 + 접힘 그림자 */
+.book__face::after { background:
+  linear-gradient(90deg, rgba(0,0,0,calc(var(--shade) * .85)) 0%, rgba(0,0,0,calc(var(--shade) * .15)) 30%, rgba(255,255,255,calc(var(--shade) * .55)) 72%, rgba(0,0,0,calc(var(--shade) * .25)) 100%); }
+.book__leaf--l .book__face--front::after, .book__leaf--r .book__face--back::after { transform: scaleX(-1); }
+.book__leaf { filter: drop-shadow(0 10px 18px rgba(0, 0, 0, calc(var(--shade) * .9))); }
+/* 오른쪽 아래 접힌 모서리: 마우스를 올리면 살짝 들려요 (넘길 수 있다는 신호) */
+.book__corner { position: absolute; right: 0; bottom: 0; width: 0; height: 0; z-index: 5; pointer-events: none; transition: width .25s, height .25s;
+  background: linear-gradient(315deg, rgba(0,0,0,0) 50%, #f3f1ec 50%, #fff 64%, #d9d5cc 100%); box-shadow: -3px -3px 8px rgba(0,0,0,.18); border-top-left-radius: 2px; }
+.book__spread:hover .book__corner { width: 34px; height: 34px; }
+.book__spread.is-flipping .book__corner, .book__spread.is-last .book__corner, .is-one .book__corner { display: none; }
+/* 아래 막대: 쪽수 · 전체 화면 · PDF */
+.book__full { padding: 0; border: 0; background: none; color: rgba(255, 255, 255, .8); font: inherit; font-weight: 700; cursor: pointer; }
+.book__full:hover { color: #fff; text-decoration: underline; }
+/* 전체 화면: 화면 높이에 맞춰 크게 */
+.book:fullscreen { display: flex; flex-direction: column; justify-content: center; padding: 3vh 4vw; border-radius: 0; background: #1b1e25; }
+.book:fullscreen .book__spread { max-width: min(96vw, calc((100vh - 190px) * 2)); width: 100%; }
+.book:fullscreen .book__spread.is-one { max-width: min(96vw, calc(100vh - 190px)); }
+.book:fullscreen .book__thumbs { justify-content: center; }
