@@ -707,3 +707,4 @@ ul, ol { padding: 0; list-style: none; }
 .pj__play::after { content: none; }
 /* 공모전 출품작 표기: Overview 맨 앞 */
 .bb__lead { display: inline-block; align-self: flex-start; margin-bottom: 3mm; padding: 1.4mm 3mm; border-radius: 1.2mm; background: var(--tn); color: var(--ac); font-size: 9.5pt; font-weight: 700; }
+.bb__imgs[data-grid="2"] { justify-items: center; }
