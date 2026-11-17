@@ -1315,3 +1315,4 @@ a.sns-icon:hover .sns-icon__color, a.sns-icon:focus-visible .sns-icon__color { o
 .book:fullscreen .book__spread { max-width: min(96vw, calc((100vh - 190px) * 2)); width: 100%; }
 .book:fullscreen .book__spread.is-one { max-width: min(96vw, calc(100vh - 190px)); }
 .book:fullscreen .book__thumbs { justify-content: center; }
+.book__bar { margin-bottom: 0; }
