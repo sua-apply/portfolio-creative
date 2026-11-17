@@ -128,8 +128,69 @@
         { type: "process", label: "What I did", title: "맡은 일", steps: (p.did || []).map((d) => ({ title: d })) },
       ].filter((s) => (s.body || []).some(Boolean) || (s.steps || []).length);
     }
-    if (p.resultText || p.result) secs.push({ type: "_result", label: "Result", title: "결과" });
+    if (p.resultText || p.result || (p.stats || []).length || (p.detail && p.detail.book)) secs.push({ type: "_result", label: "Result", title: "결과" });
     return secs;
+  }
+
+  /* 결과 수치: 큰 숫자 + 짧은 설명을 나란히 */
+  const statsHTML = (p) => ((p.stats || []).length ? `<ul class="rstats">${p.stats.map((x) => `<li><strong>${esc(x.value)}</strong><span>${esc(x.label || "")}</span></li>`).join("")}</ul>` : "");
+
+  /* 완성본 넘겨 보기: detail.book = { pages: ["…/01.jpg", …], pdf: "files/….pdf", caption }
+     - 넓은 화면: 책처럼 펼침면(표지 · 2-3 · 4-5 … · 뒤표지), 좁은 화면: 한 쪽씩
+     - ‹ › 버튼 · 키보드 ← → (뷰어를 누른 뒤) · 옆으로 밀기 · 아래 작은 그림 누르기 */
+  const bookHTML = (p) => {
+    const b = p.detail && p.detail.book;
+    if (!b || !(b.pages || []).length) return "";
+    return `<div class="book" tabindex="0" aria-roledescription="책 넘겨 보기" aria-label="${esc(p.title)} 완성본 ${b.pages.length}쪽">
+        <div class="book__stage"><div class="book__spread"></div>
+          <button type="button" class="book__nav book__nav--prev" aria-label="이전 쪽"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button type="button" class="book__nav book__nav--next" aria-label="다음 쪽"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+        <div class="book__bar"><span class="book__pos" aria-live="polite"></span>${b.pdf ? `<a class="book__pdf" href="${esc(b.pdf)}" target="_blank" rel="noopener">PDF로 보기 ↗</a>` : ""}</div>
+        <ol class="book__thumbs">${b.pages.map((src, i) => `<li><button type="button" data-i="${i}" aria-label="${i + 1}쪽"><img src="${esc(src)}" alt="" loading="lazy" /></button></li>`).join("")}</ol>
+      </div>${b.caption ? `<p class="hint">${esc(b.caption)}</p>` : ""}`;
+  };
+  function bookViewer(p) {
+    const el = document.querySelector(".book");
+    if (!el) return;
+    const pages = p.detail.book.pages, N = pages.length;
+    const spread = el.querySelector(".book__spread"), pos = el.querySelector(".book__pos"), thumbs = [...el.querySelectorAll(".book__thumbs button")];
+    const wide = () => el.clientWidth >= 720;
+    // 펼침면 묶음: [0] [1,2] [3,4] … 마지막이 혼자면 [N-1]
+    const groups = () => {
+      if (!wide()) return pages.map((_, i) => [i]);
+      const g = [[0]];
+      for (let i = 1; i < N; i += 2) g.push(i + 1 < N ? [i, i + 1] : [i]);
+      return g;
+    };
+    let G = groups(), at = 0;
+    const show = (k) => {
+      at = Math.max(0, Math.min(G.length - 1, k));
+      const g = G[at];
+      spread.classList.toggle("is-single", g.length === 1);
+      spread.innerHTML = g.map((i) => `<img src="${esc(pages[i])}" alt="${i + 1}쪽" />`).join("");
+      pos.innerHTML = `<b>${g.map((i) => pad2(i + 1)).join("–")}</b> / ${pad2(N)}`;
+      thumbs.forEach((t, i) => t.classList.toggle("is-on", g.includes(i)));
+      const on = thumbs[g[0]];
+      if (on) { const row = on.closest("ol"); row.scrollTo({ left: on.parentElement.offsetLeft - row.clientWidth / 2 + on.clientWidth, behavior: "smooth" }); }
+      el.querySelector(".book__nav--prev").disabled = at === 0;
+      el.querySelector(".book__nav--next").disabled = at === G.length - 1;
+      // 다음 쪽 미리 받기
+      (G[at + 1] || []).forEach((i) => { const im = new Image(); im.src = pages[i]; });
+    };
+    const groupOf = (i) => G.findIndex((g) => g.includes(i));
+    el.querySelector(".book__nav--prev").addEventListener("click", () => show(at - 1));
+    el.querySelector(".book__nav--next").addEventListener("click", () => show(at + 1));
+    thumbs.forEach((t) => t.addEventListener("click", () => show(groupOf(+t.dataset.i))));
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); e.stopPropagation(); show(at + (e.key === "ArrowRight" ? 1 : -1)); }
+    });
+    let x0 = null;
+    spread.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    spread.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) show(at + (dx < 0 ? 1 : -1)); x0 = null; });
+    let w = el.clientWidth;
+    addEventListener("resize", () => { if (Math.abs(el.clientWidth - w) < 40) return; w = el.clientWidth; const first = G[at][0]; G = groups(); show(groupOf(first)); });
+    show(0);
   }
 
   // 참여: "팀 3인 · 기여도 50%" (기여도는 막대와 함께)
@@ -147,7 +208,7 @@
     const secs = sectionsOf(p).map((s) => {
       n += 1;
       const body = s.type === "_result"
-        ? `${p.result ? `<p class="result"><strong>${esc(p.result.value)}</strong>${esc(p.result.label)}</p>` : ""}${paras(p.resultText)}`
+        ? `${statsHTML(p) || (p.result ? `<p class="result"><strong>${esc(p.result.value)}</strong>${esc(p.result.label)}</p>` : "")}${paras(p.resultText)}${bookHTML(p)}`
         : SECTION[s.type](s, p);
       return `<section class="psec" id="ps-${n}" aria-labelledby="pt-${n}">
           <header class="psec__head"><span class="psec__num">${pad2(n)}</span><span class="psec__label">${esc(s.label || "")}</span></header>
@@ -166,7 +227,7 @@
     const glance = [
       ["문제", p.problem ? `<p>${esc(p.problem)}</p>` : ""],
       ["내가 한 일", p.action ? `<p>${esc(p.action)}</p>` : did.length ? `<ul>${did.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>` : ""],
-      ["결과", p.result ? `<p class="glance__num"><strong>${esc(p.result.value)}</strong>${esc(p.result.label)}</p>${p.resultText ? `<p>${esc(p.resultText)}</p>` : ""}` : p.resultText ? `<p>${esc(p.resultText)}</p>` : ""],
+      ["결과", (p.stats || []).length ? `<ul class="glance__stats">${p.stats.slice(0, 2).map((x) => `<li><strong>${esc(x.value)}</strong>${esc(x.label || "")}</li>`).join("")}</ul>${p.resultText ? `<p>${esc(p.resultText)}</p>` : ""}` : p.result ? `<p class="glance__num"><strong>${esc(p.result.value)}</strong>${esc(p.result.label)}</p>${p.resultText ? `<p>${esc(p.resultText)}</p>` : ""}` : p.resultText ? `<p>${esc(p.resultText)}</p>` : ""],
     ].filter(([, v]) => v);
     const tocItems = sectionsOf(p).map((sec, i) => `<li><a href="#ps-${i + 1}"><span>${pad2(i + 1)}</span>${esc(sec.label || "")}</a></li>`).join("");
 
@@ -226,6 +287,7 @@
     });
     viewer();
     justify();
+    bookViewer(p);
   }
 
   /* 빠른 이동
