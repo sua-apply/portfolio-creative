@@ -104,7 +104,7 @@
   /* 프로젝트 구분 = 작업 성격 (DB projects.kind 값 → 화면 이름)
      혼자/팀은 구분이 아니라 '참여'(team · contribution)에서 보여줘요.
      예전 값 personal · team 은 '토이 프로젝트'로 보여요. */
-  const KIND_LABELS = { contest: "공모전", activity: "대외활동", school: "학교 과제", academy: "교육 과제", client: "외주", toy: "토이 프로젝트", personal: "토이 프로젝트", team: "토이 프로젝트" };
+  const KIND_LABELS = { work: "실무", contest: "공모전", activity: "대외활동", school: "학교 과제", academy: "교육 과제", client: "외주", toy: "토이 프로젝트", personal: "토이 프로젝트", team: "토이 프로젝트" };
   window.kindLabel = (p) => KIND_LABELS[p.type] || "토이 프로젝트";
   /* 참여: 팀인지, 몇 명인지, 기여도 */
   window.teamInfo = (p) => {
