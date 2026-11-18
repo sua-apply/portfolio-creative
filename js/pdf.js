@@ -307,7 +307,7 @@
   function overviewBlocks(p) {
     const secs = sectionsOf(p);
     const out = [];
-    const meta = [["구분", window.kindLabel(p)], ["주최 · 발주", p.client], ["역할", p.role]].filter(([, v]) => v);
+    const meta = [["구분", window.kindLabel(p)], [p.type === "work" ? "소속" : "주최 · 발주", p.client], ["역할", p.role]].filter(([, v]) => v);
     const intro = secs.find((s) => s.type === "text");
     if (meta.length || intro) out.push(blk(intro ? intro.label || "Overview" : "Overview", intro && intro.title, `
       ${intro ? (intro.body || []).slice(0, 2).map((b) => `<p class="blk__p">${esc(b)}</p>`).join("") : ""}
