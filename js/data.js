@@ -110,9 +110,11 @@
   window.teamInfo = (p) => {
     const m = /(\d+)\s*인/.exec(p.team || "");
     const size = m ? Number(m[1]) : 0;
-    const team = p.type === "team" || size > 1 || (p.contribution != null && p.contribution < 100);
+    // 인원 수 없이 적은 팀 구성(예: "홍보협력팀 + 외주 제작사")은 그 글 그대로 보여줘요
+    const free = !m && p.team && !/^\s*(개인|혼자)\s*$/.test(p.team) ? p.team.trim() : "";
+    const team = p.type === "team" || size > 1 || !!free || (p.contribution != null && p.contribution < 100);
     const pct = team && p.contribution != null ? Math.max(0, Math.min(100, Math.round(p.contribution))) : null;
-    return { team, size, pct, label: team ? `팀${size ? ` ${size}인` : ""}` : "개인" };
+    return { team, size, pct, label: team ? (free || `팀${size ? ` ${size}인` : ""}`) : "개인" };
   };
   /* 역할 · 도구처럼 '·' 나 ',' 로 나열한 글: 항목 하나는 줄이 바뀌어도 쪼개지지 않게 (줄은 항목 사이에서만 바뀌어요)
      예) "기획 · 곡 디렉션 · 싱크 조정" → '싱크 / 조정' 처럼 끊기지 않아요 */

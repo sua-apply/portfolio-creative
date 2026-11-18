@@ -330,7 +330,7 @@
     // 위쪽 정보: 비슷한 것끼리 두 줄로 — 프로젝트 정보 / 나의 참여
     const has = ([, v]) => (typeof v === "object" ? v.label || v.pct != null : v);
     const factGroups = [
-      ["프로젝트", [["기간", p.period || fmtDate(p.date)], ["구분", kindLabel(p)], ["주최 · 발주", p.client]].filter(has)],
+      ["프로젝트", [["기간", p.period || fmtDate(p.date)], ["구분", kindLabel(p)], [p.type === "work" ? "소속" : "주최 · 발주", p.client]].filter(has)],
       ["나의 참여", [["참여", team(p)], ["역할", p.role], ["도구", (p.tools || []).join(", ")]].filter(has)],
     ].filter(([, list]) => list.length);
     let n = 0;
