@@ -237,7 +237,8 @@
   // 도구 · SNS 로고 (img/logos). 없는 도구는 글자 배지로
   const TOOL_LOGO = { photoshop: "photoshop.svg", illustrator: "illustrator.svg", indesign: "indesign.svg", "after effects": "after-effects.svg",
     "premiere pro": "premiere-pro.svg", figma: "figma.svg", notion: "notion.svg", chatgpt: "openai.svg", openai: "openai.svg",
-    claude: "claude.svg", suno: "suno.png", higgsfield: "higgsfield.svg", github: "github.svg" };
+    claude: "claude.svg", suno: "suno.png", higgsfield: "higgsfield.svg", github: "github.svg",
+    canva: "canva.svg", "캔바": "canva.svg", mangoboard: "mangoboard.png", "망고보드": "mangoboard.png", miricanvas: "miricanvas.png", "미리캔버스": "miricanvas.png" };
   const SNS_LOGO = { instagram: "instagram.png", youtube: "youtube.png", naver_blog: "naver.svg", naver: "naver.svg", tistory: "tistory.svg", facebook: "facebook.png", github: "github.svg" };
   const logoOf = (t) => TOOL_LOGO[normTool(t)];
   const toolBadge = (t) => {
